@@ -1,8 +1,6 @@
 package me.stuffy.stuffybot.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class StuffyCommand extends BaseCommand {
 
@@ -12,6 +10,6 @@ public class StuffyCommand extends BaseCommand {
 
     @Override
     protected void onCommand(SlashCommandInteractionEvent event) {
-        event.getHook().sendMessage("Hello, person!").queue();
+        event.getHook().sendMessage("stuffy").setEphemeral(true).queue();
     }
 }

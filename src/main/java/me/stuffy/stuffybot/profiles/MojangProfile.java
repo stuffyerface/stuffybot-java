@@ -1,4 +1,4 @@
-package me.stuffy.stuffybot.utils;
+package me.stuffy.stuffybot.profiles;
 
 import java.util.UUID;
 
