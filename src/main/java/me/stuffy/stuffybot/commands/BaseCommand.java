@@ -4,7 +4,6 @@ import me.stuffy.stuffybot.Bot;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 
 public abstract class BaseCommand extends ListenerAdapter {
     private String name;

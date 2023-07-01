@@ -1,10 +1,9 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.commands.PingCommand;
 import me.stuffy.stuffybot.commands.StuffyCommand;
 import me.stuffy.stuffybot.commands.VerifyCommand;
-import me.stuffy.stuffybot.utils.TimeUtils;
+import me.stuffy.stuffybot.utils.DiscordUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -36,7 +35,7 @@ public class Bot {
         assert logChannel != null : "Failed to find log channel";
 
         // Log startup
-        String time = TimeUtils.discordTimeNow();
+        String time = DiscordUtils.discordTimeNow();
         String self = jda.getSelfUser().getAsMention();
         logChannel.sendMessage("Bot " + self + " started successfully " + time + ".").queue();
 
@@ -44,7 +43,6 @@ public class Bot {
         // Register commands
         jda.addEventListener(
                 new StuffyCommand("stuffy", "Says hello to you!"),
-                new PingCommand("ping", "Pong!"),
                 new VerifyCommand("verify", "Verifies you!")
         );
 
