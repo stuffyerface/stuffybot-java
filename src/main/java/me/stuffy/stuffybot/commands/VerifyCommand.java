@@ -67,10 +67,10 @@ public class VerifyCommand extends BaseCommand {
             return;
         }
 
-        // TODO: Check if there is a linked Discord and the same as the one that sent the command (check the database, update the entry, unverify the old one
+        // Check if there is a linked Discord and the same as the one that sent the command (check the database, update the entry, unverify the old one
 
 
-        // TODO: Give @verified role, update nickname
+        // Give @verified role, update nickname
 
         event.getHook().sendMessage("Successfully verfied your discord account! (jk this doesn't work yet.) ").queue();
 
