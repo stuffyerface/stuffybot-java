@@ -1,7 +1,10 @@
 package me.stuffy.stuffybot.utils;
 
+import me.stuffy.stuffybot.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -64,5 +67,10 @@ public class DiscordUtils {
      */
     public static String discordTimeUnix(long timestamp) {
         return discordTimeUnix(timestamp, "R");
+    }
+
+    public static void verifyUser(User user, String ign) {
+        Bot bot = Bot.getInstance();
+        bot.getTestGuild().addRoleToMember(user, bot.getVerifiedRole()).queue();
     }
 }

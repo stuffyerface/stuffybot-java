@@ -41,9 +41,22 @@ public class VerifyCommand extends BaseCommand {
 
             return;
         }
-
         UUID uuid = profile.getUuid();
-        HypixelProfile hypixelProfile = getHypixelProfile(uuid);
+
+        HypixelProfile hypixelProfile;
+        try {
+            hypixelProfile = getHypixelProfile(uuid);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            event.getHook().sendMessage("").addEmbeds(
+                    makeErrorEmbed(
+                            "Hypixel API Error",
+                            "Error interacting with Hypixel API. Try again later."
+                    )
+            ).queue();
+
+            return;
+        }
         String linkedDiscord = hypixelProfile.getDiscord();
         String runnerUsername = getDiscordUsername(event.getUser().getAsTag());
         if (linkedDiscord == null) {
@@ -67,12 +80,12 @@ public class VerifyCommand extends BaseCommand {
             return;
         }
 
-        // Check if there is a linked Discord and the same as the one that sent the command (check the database, update the entry, unverify the old one
+        // TODO: Check if there is a linked Discord and the same as the one that sent the command (check the database, update the entry, unverify the old one
 
 
         // Give @verified role, update nickname
 
-        event.getHook().sendMessage("Successfully verfied your discord account! (jk this doesn't work yet.) ").queue();
+        event.getHook().sendMessage("Successfully verified your discord account! (jk this doesn't work yet.) ").queue();
 
     }
 }
