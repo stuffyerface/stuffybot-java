@@ -1,6 +1,7 @@
 package me.stuffy.stuffybot;
 
 
+import me.stuffy.stuffybot.commands.MaxedGamesCommand;
 import me.stuffy.stuffybot.commands.StuffyCommand;
 import me.stuffy.stuffybot.commands.VerifyCommand;
 import me.stuffy.stuffybot.utils.DiscordUtils;
@@ -8,6 +9,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class Bot {
@@ -43,7 +45,8 @@ public class Bot {
         // Register commands
         jda.addEventListener(
                 new StuffyCommand("stuffy", "Says hello to you!"),
-                new VerifyCommand("verify", "Verifies you!")
+                new VerifyCommand("verify", "Verifies you!"),
+                new MaxedGamesCommand("maxes", "Shows maxed games!")
         );
 
     }
@@ -61,6 +64,10 @@ public class Bot {
 
     public TextChannel getLogChannel() {
         return this.logChannel;
+    }
+
+    public Role getVerifiedRole() {
+        return this.testGuild.getRoleById("795118862940635216");
     }
 
     public static void main(String[] args) throws InterruptedException {
