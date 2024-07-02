@@ -2,7 +2,6 @@ package me.stuffy.stuffybot;
 
 
 import me.stuffy.stuffybot.commands.MaxedGamesCommand;
-import me.stuffy.stuffybot.commands.StuffyCommand;
 import me.stuffy.stuffybot.commands.VerifyCommand;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import net.dv8tion.jda.api.JDA;
@@ -44,7 +43,6 @@ public class Bot {
 
         // Register commands
         jda.addEventListener(
-                new StuffyCommand("stuffy", "Says hello to you!"),
                 new VerifyCommand("verify", "Verifies you!"),
                 new MaxedGamesCommand("maxes", "Shows maxed games!")
         );

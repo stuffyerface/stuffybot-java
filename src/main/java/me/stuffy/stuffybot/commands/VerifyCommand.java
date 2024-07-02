@@ -58,12 +58,12 @@ public class VerifyCommand extends BaseCommand {
             return;
         }
         String linkedDiscord = hypixelProfile.getDiscord();
-        String runnerUsername = getDiscordUsername(event.getUser().getAsTag());
+        String runnerUsername = getDiscordUsername(event.getUser().getName());
         if (linkedDiscord == null) {
             event.getHook().sendMessage("").addEmbeds(
                     makeErrorEmbed(
                             "Username Error",
-                            "There is no discord account linked to the Minecraft account" + profile.getUsername() + "."
+                            "There is no discord account linked to the Minecraft account `" + profile.getUsername() + "`."
                     )
             ).queue();
             return;
