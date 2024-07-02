@@ -2,6 +2,7 @@ package me.stuffy.stuffybot;
 
 
 import me.stuffy.stuffybot.commands.MaxedGamesCommand;
+import me.stuffy.stuffybot.commands.TournamentCommand;
 import me.stuffy.stuffybot.commands.VerifyCommand;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import net.dv8tion.jda.api.JDA;
@@ -40,11 +41,11 @@ public class Bot {
         String self = jda.getSelfUser().getAsMention();
         logChannel.sendMessage("Bot " + self + " started successfully " + time + ".").queue();
 
-
         // Register commands
         jda.addEventListener(
-                new VerifyCommand("verify", "Verifies you!"),
-                new MaxedGamesCommand("maxes", "Shows maxed games!")
+                new VerifyCommand("verify", "Links your discord account to your Minecraft account"),
+                new MaxedGamesCommand("maxes", "Find the games with all achievements unlocked"),
+                new TournamentCommand("tournament", "Shows tournament stats")
         );
 
     }
