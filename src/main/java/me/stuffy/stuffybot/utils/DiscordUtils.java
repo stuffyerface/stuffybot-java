@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -72,5 +73,14 @@ public class DiscordUtils {
     public static void verifyUser(User user, String ign) {
         Bot bot = Bot.getInstance();
         bot.getTestGuild().addRoleToMember(user, bot.getVerifiedRole()).queue();
+    }
+
+    public static String getUsername(SlashCommandInteractionEvent event) {
+        String username = event.getOption("ign") == null ? null : event.getOption("ign").getAsString();
+        if (username == null) {
+            // TODO: First, check the database
+            username = getDiscordUsername(event.getUser().getName());
+        }
+        return username;
     }
 }
