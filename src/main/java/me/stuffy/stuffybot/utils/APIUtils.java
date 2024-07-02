@@ -8,6 +8,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -17,12 +18,26 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class APIUtils {
+    private static final LoadingCache<UUID, HypixelProfile> hypixelProfileCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build(
+                    new CacheLoader<UUID, HypixelProfile>() {
+                        public HypixelProfile load(@NotNull UUID uuid) {
+                            return fetchHypixelProfile(uuid);
+                        }
+                    }
+            );
+
+    public static HypixelProfile getHypixelProfile(UUID uuid) {
+        return hypixelProfileCache.getUnchecked(uuid);
+    }
+
     /**
      * Returns the player endpoint from the Hypixel API given their Minecraft UUID
      * @param uuid
      * @return
      */
-    public static HypixelProfile getHypixelProfile(UUID uuid) {
+    public static HypixelProfile fetchHypixelProfile(UUID uuid) {
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.hypixel.net/player?uuid=" + uuid))
                 .header("API-Key", System.getenv("HYPIXEL_API_KEY"))
