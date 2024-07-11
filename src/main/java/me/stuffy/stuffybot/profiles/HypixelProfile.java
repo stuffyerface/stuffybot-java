@@ -6,6 +6,7 @@ import me.stuffy.stuffybot.utils.MiscUtils;
 
 import java.util.UUID;
 
+import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
 import static me.stuffy.stuffybot.utils.MiscUtils.getNestedJson;
 
 public class HypixelProfile {
@@ -70,7 +71,8 @@ public class HypixelProfile {
 
     public String[] getMaxedGames() {
         // return an array of strings with the maxed games
-        JsonElement achievements = getAchievements();
+        JsonElement allAchievements = getAchievementsResources();
+        JsonElement achievements = getNestedJson(profile, "achievements");
 
         return new String[0];
     }

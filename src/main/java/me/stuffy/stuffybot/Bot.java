@@ -1,23 +1,30 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.commands.MaxedGamesCommand;
-import me.stuffy.stuffybot.commands.TournamentCommand;
-import me.stuffy.stuffybot.commands.VerifyCommand;
+import me.stuffy.stuffybot.commands.Achievements;
+import me.stuffy.stuffybot.commands.MaxedGames;
+import me.stuffy.stuffybot.commands.Tournament;
+import me.stuffy.stuffybot.commands.Verify;
+import me.stuffy.stuffybot.events.ActiveEvents;
+import me.stuffy.stuffybot.events.UpdateBotStats;
 import me.stuffy.stuffybot.utils.DiscordUtils;
+import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class Bot {
+public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
+    private final JDA jda;
     private Guild testGuild;
     private Guild logGuild;
     private TextChannel logChannel;
-
 
 
     public Bot() throws InterruptedException {
@@ -25,29 +32,33 @@ public class Bot {
         // Get token from env variable
         String token = System.getenv("BOT_TOKEN");
         JDABuilder builder = JDABuilder.createDefault(token) ;
-        builder.setActivity(Activity.competing("a hot dog eating contest"));
+        builder.setActivity(Activity.customStatus("hating slash commands"));
+        builder.addEventListeners(this);
         JDA jda = builder.build().awaitReady();
+        this.jda = jda;
 
         // Initialize testing guild
         this.testGuild = jda.getGuildById("795108903733952562");
         assert this.testGuild != null : "Failed to find log guild";
-        // Initialize log guild and channel
-        this.logGuild = jda.getGuildById("818238263110008863");
-        this.logChannel = this.logGuild.getTextChannelById("818611323755036702");
-        assert logChannel != null : "Failed to find log channel";
+
 
         // Log startup
         String time = DiscordUtils.discordTimeNow();
         String self = jda.getSelfUser().getAsMention();
-        logChannel.sendMessage("Bot " + self + " started successfully " + time + ".").queue();
+        Logger logger = new Logger();
+        logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
 
         // Register commands
         jda.addEventListener(
-                new VerifyCommand("verify", "Links your discord account to your Minecraft account"),
-                new MaxedGamesCommand("maxes", "Find the games with all achievements unlocked"),
-                new TournamentCommand("tournament", "Shows tournament stats")
+                new Verify("verify", "Links your discord account to your Minecraft account"),
+                new MaxedGames("maxes", "Find the games with all achievements unlocked"),
+                new Tournament("tournament", "Shows tournament stats"),
+                new Achievements("achievements", "Shows achievements progress for a user")
         );
 
+        // Start events
+        new UpdateBotStats().startFixedRateEvent();
+        new ActiveEvents().startFixedRateEvent();
     }
     public static Bot getInstance() {
         return INSTANCE;
@@ -71,5 +82,22 @@ public class Bot {
 
     public static void main(String[] args) throws InterruptedException {
         new Bot();
+    }
+
+    public JDA getJDA() {
+        return this.jda;
+    }
+
+    @Override
+    public void onGuildJoin(GuildJoinEvent event) {
+        Guild joinedGuild = event.getGuild();
+        Logger.log("<Guilds> Bot joined guild " + joinedGuild.getName() + " (" + joinedGuild.getId() + ")");
+    }
+
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        Guild leftGuild = event.getGuild();
+        Logger.log("<Guilds> Bot left guild: " + leftGuild.getName() + " (" + leftGuild.getId() + ")");
     }
 }

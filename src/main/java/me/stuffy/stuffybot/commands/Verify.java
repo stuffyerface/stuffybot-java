@@ -13,9 +13,9 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
 
-public class VerifyCommand extends BaseCommand {
+public class Verify extends BaseCommand {
 
-    public VerifyCommand(String name, String description) {
+    public Verify(String name, String description) {
         super(name, description,
                 new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", true)
         );

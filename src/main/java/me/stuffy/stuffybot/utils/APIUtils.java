@@ -1,5 +1,6 @@
 package me.stuffy.stuffybot.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -10,6 +11,8 @@ import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,11 +21,16 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class APIUtils {
+    public static HypixelProfile getHypixelProfile(String username) {
+        MojangProfile profile = getMojangProfile(username);
+        return getHypixelProfile(profile.getUuid());
+    }
+
     private static final LoadingCache<UUID, HypixelProfile> hypixelProfileCache = CacheBuilder.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
             .build(
                     new CacheLoader<UUID, HypixelProfile>() {
-                        public HypixelProfile load(@NotNull UUID uuid) {
+                        public HypixelProfile load(@NotNull UUID uuid) throws Exception {
                             return fetchHypixelProfile(uuid);
                         }
                     }
@@ -37,7 +45,7 @@ public class APIUtils {
      * @param uuid
      * @return
      */
-    public static HypixelProfile fetchHypixelProfile(UUID uuid) {
+    public static HypixelProfile fetchHypixelProfile(UUID uuid) throws Exception {
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.hypixel.net/player?uuid=" + uuid))
                 .header("API-Key", System.getenv("HYPIXEL_API_KEY"))
@@ -53,7 +61,7 @@ public class APIUtils {
             // Check for "buildTeam" for build team
             // Check for "rank" for admin, gm, etc.
         } else {
-            throw new IllegalArgumentException("Unknown error from HypixelAPI. Status Code: " + response.statusCode() + ".");
+            throw new Exception("Hypixel API Error, Status Code: " + response.statusCode() + ".");
         }
     }
 
@@ -74,7 +82,7 @@ public class APIUtils {
     /**
      * Returns the uuid of a player from the Mojang API given their Minecraft username as a String, case-insensitive
      * @param username
-     * @return
+     * @return profile
      */
     public static MojangProfile fetchMojangProfile(String username) {
         MojangProfile profile;
@@ -95,4 +103,54 @@ public class APIUtils {
         }
         return profile;
     }
+
+    private static final LoadingCache<String, JsonElement> achievementsCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build(
+                    new CacheLoader<>() {
+                        public JsonElement load(@NotNull String key) {
+                            return fetchAchievementsResources();
+                        }
+                    }
+            );
+
+    public static JsonElement getAchievementsResources() {
+        return achievementsCache.getUnchecked("achievements");
+    }
+
+    private static JsonElement fetchAchievementsResources() {
+        try {
+            HttpRequest getRequest = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.hypixel.net/resources/achievements"))
+                    .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+
+                JsonParser parser = new JsonParser();
+                JsonElement element = parser.parse(response.body());
+                JsonObject object = element.getAsJsonObject();
+
+                Gson gson = new Gson();
+                String json = gson.toJson(object);
+
+                try (FileWriter file = new FileWriter("../../../../resources/data/achievements.json")) {
+                    file.write(json);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return object.get("achievements");
+
+            } else {
+                throw new IllegalStateException("Unexpected response from Hypixel API: " + response.statusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch achievements from Hypixel API", e);
+        }
+    }
+
+
+
 }
