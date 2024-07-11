@@ -1,6 +1,5 @@
 package me.stuffy.stuffybot.commands;
 
-import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -14,9 +13,9 @@ import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.getUsername;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
 
-public class MaxedGamesCommand extends BaseCommand{
+public class MaxedGames extends BaseCommand{
 
-    public MaxedGamesCommand(String name, String description) {
+    public MaxedGames(String name, String description) {
         super(name, description,
                 new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", false)
         );
@@ -24,22 +23,18 @@ public class MaxedGamesCommand extends BaseCommand{
     @Override
     protected void onCommand(SlashCommandInteractionEvent event) {
         String ign = getUsername(event);
-
-        MojangProfile profile;
+        HypixelProfile hypixelProfile;
         try {
-            profile = getMojangProfile(ign);
-        } catch (Exception e) {
+            hypixelProfile = getHypixelProfile(ign);
+        }catch (Exception e){
             event.getHook().sendMessage("").addEmbeds(
                     makeErrorEmbed(
-                            "Mojang API Error",
-                            "Error interacting with Mojang API. Make sure you spelled the username correctly."
+                            "API Error",
+                            "An error occurred while fetching your Hypixel profile. Please try again later."
                     )
             ).queue();
-
             return;
         }
-        UUID uuid = profile.getUuid();
-        HypixelProfile hypixelProfile = getHypixelProfile(uuid);
         hypixelProfile.getMaxedGames();
     }
 }

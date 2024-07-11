@@ -1,5 +1,7 @@
 package me.stuffy.stuffybot.profiles;
 
+import me.stuffy.stuffybot.utils.Logger;
+
 import java.util.UUID;
 
 public class MojangProfile {
@@ -7,6 +9,7 @@ public class MojangProfile {
     private UUID uuid;
 
     public MojangProfile(String username, UUID uuid) {
+        Logger.log("<MojangProfile> Username " + username + " with UUID " + uuid.toString());
         this.username = username;
         this.uuid = uuid;
     }
