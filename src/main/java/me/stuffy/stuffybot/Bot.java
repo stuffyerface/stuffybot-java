@@ -1,14 +1,12 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.commands.Achievements;
-import me.stuffy.stuffybot.commands.MaxedGames;
-import me.stuffy.stuffybot.commands.Tournament;
-import me.stuffy.stuffybot.commands.Verify;
+import me.stuffy.stuffybot.commands.*;
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStats;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import me.stuffy.stuffybot.utils.Logger;
+import me.stuffy.stuffybot.utils.StatisticsManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -34,9 +32,9 @@ public class Bot extends ListenerAdapter {
         JDA jda = builder.build().awaitReady();
         this.jda = jda;
 
-        // Initialize testing guild
+        // Initialize home guild
         this.homeGuild = jda.getGuildById("795108903733952562");
-        assert this.homeGuild != null : "Failed to find test guild";
+        assert this.homeGuild != null : "Failed to find home guild";
 
 
         // Log startup
@@ -50,7 +48,8 @@ public class Bot extends ListenerAdapter {
                 new Verify("verify", "Links your discord account to your Minecraft account"),
                 new MaxedGames("maxes", "Find the games with all achievements unlocked"),
                 new Tournament("tournament", "Shows tournament stats"),
-                new Achievements("achievements", "Shows achievements progress for a user")
+                new Achievements("achievements", "Shows achievements progress for a user"),
+                new Stats("stats", "Shows overall hypixel stats for a user")
         );
 
         // Start events

@@ -8,7 +8,8 @@ public class Pit extends BaseCommand{
 
     public Pit(String name, String description) {
         super(name, description,
-                new OptionData(OptionType.STRING, "username", "The username of the player you want to look up", true));
+                new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", false)
+        );
     }
 
     @Override
