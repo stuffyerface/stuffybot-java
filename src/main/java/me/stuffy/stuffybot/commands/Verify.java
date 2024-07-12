@@ -2,16 +2,17 @@ package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
+import me.stuffy.stuffybot.utils.Logger;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.UUID;
 
-import static me.stuffy.stuffybot.utils.DiscordUtils.getDiscordUsername;
-import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
+import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 
 public class Verify extends BaseCommand {
 
@@ -81,9 +82,20 @@ public class Verify extends BaseCommand {
         }
 
         // TODO: Check if there is a linked Discord and the same as the one that sent the command (check the database, update the entry, unverify the old one
-
-
-        // Give @verified role, update nickname
+        try{
+            verifyUser(event.getUser(), ign);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            event.getHook().sendMessage("").addEmbeds(
+                    makeErrorEmbed(
+                            "Verification Error",
+                            "An error occurred while verifying your account. Please try again later."
+                    )
+            ).queue();
+            return;
+        }
+        String username = hypixelProfile.getDisplayName();
+        Logger.log("<Verify> Linked " + username + " (" + uuid + ") for @" + runnerUsername + ".");
 
         event.getHook().sendMessage("Successfully verified your discord account! (jk this doesn't work yet.) ").queue();
 

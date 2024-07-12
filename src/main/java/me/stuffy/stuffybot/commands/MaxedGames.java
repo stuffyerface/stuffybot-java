@@ -1,15 +1,11 @@
 package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.profiles.HypixelProfile;
-import me.stuffy.stuffybot.profiles.MojangProfile;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.UUID;
-
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
-import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.getUsername;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
 

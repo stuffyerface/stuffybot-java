@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -22,9 +21,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
     private final JDA jda;
-    private Guild testGuild;
-    private Guild logGuild;
-    private TextChannel logChannel;
+    private Guild homeGuild;
 
 
     public Bot() throws InterruptedException {
@@ -38,8 +35,8 @@ public class Bot extends ListenerAdapter {
         this.jda = jda;
 
         // Initialize testing guild
-        this.testGuild = jda.getGuildById("795108903733952562");
-        assert this.testGuild != null : "Failed to find log guild";
+        this.homeGuild = jda.getGuildById("795108903733952562");
+        assert this.homeGuild != null : "Failed to find test guild";
 
 
         // Log startup
@@ -64,20 +61,13 @@ public class Bot extends ListenerAdapter {
         return INSTANCE;
     }
 
-    public Guild getTestGuild() {
-        return this.testGuild;
+    public Guild getHomeGuild() {
+        return this.homeGuild;
     }
 
-    public Guild getLogGuild() {
-        return this.logGuild;
-    }
-
-    public TextChannel getLogChannel() {
-        return this.logChannel;
-    }
 
     public Role getVerifiedRole() {
-        return this.testGuild.getRoleById("795118862940635216");
+        return this.homeGuild.getRoleById("795118862940635216");
     }
 
     public static void main(String[] args) throws InterruptedException {
