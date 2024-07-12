@@ -29,6 +29,10 @@ public class DiscordUtils {
         return makeEmbed(":mega: " + embedTitle, embedContent, 0xffef14);
     }
 
+    public static MessageEmbed makeStatsEmbed(String embedTitle, String embedContent) {
+        return makeEmbed(embedTitle, embedContent, 0xf7cb72);
+    }
+
     public static String getDiscordUsername(String id){
         return id.replaceAll("#0000$", "");
     }
