@@ -2,7 +2,6 @@ package me.stuffy.stuffybot.utils;
 
 import me.stuffy.stuffybot.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -17,7 +16,7 @@ public class DiscordUtils {
         embedBuilder.setTitle(embedTitle);
         embedBuilder.setDescription(embedContent);
         embedBuilder.setColor(embedColor);
-        embedBuilder.setFooter("AP Machine by @stuffy");
+        embedBuilder.setFooter("Stuffy Bot by @stuffy");
         embedBuilder.setTimestamp(new Date().toInstant());
         return embedBuilder.build();
     }
@@ -72,7 +71,14 @@ public class DiscordUtils {
 
     public static void verifyUser(User user, String ign) {
         Bot bot = Bot.getInstance();
-        bot.getTestGuild().addRoleToMember(user, bot.getVerifiedRole()).queue();
+        bot.getHomeGuild().addRoleToMember(user, bot.getVerifiedRole()).queue();
+        // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
+        updateRoles(user, ign, false);
+    }
+
+    public static void updateRoles(User user, String ign, boolean announce) {
+        Bot bot = Bot.getInstance();
+        // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
     }
 
     public static String getUsername(SlashCommandInteractionEvent event) {

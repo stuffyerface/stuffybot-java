@@ -15,7 +15,7 @@ public abstract class BaseCommand extends ListenerAdapter {
         this.name = name;
         this.description = description;
         Bot bot = Bot.getInstance();
-        bot.getTestGuild().upsertCommand(name, description)
+        bot.getHomeGuild().upsertCommand(name, description)
                 .addOptions(options)
                 .queue();
         Logger.log("<Startup> Registered command " + name + ": " + description);
