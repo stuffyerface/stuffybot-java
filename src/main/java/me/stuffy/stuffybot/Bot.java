@@ -33,7 +33,8 @@ public class Bot extends ListenerAdapter {
         this.jda = jda;
 
         // Initialize home guild
-        this.homeGuild = jda.getGuildById("795108903733952562");
+//        this.homeGuild = jda.getGuildById("795108903733952562");
+        this.homeGuild = jda.getGuildById("818238263110008863");
         assert this.homeGuild != null : "Failed to find home guild";
 
 
@@ -51,6 +52,8 @@ public class Bot extends ListenerAdapter {
                 new Achievements("achievements", "Shows achievements progress for a user"),
                 new Stats("stats", "Shows overall hypixel stats for a user")
         );
+
+
 
         // Start events
         new UpdateBotStats().startFixedRateEvent();
