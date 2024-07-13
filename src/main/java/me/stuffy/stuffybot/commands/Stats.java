@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.text.DecimalFormat;
+
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 
@@ -33,31 +35,34 @@ public class Stats extends BaseCommand{
 
         String username = hypixelProfile.getDisplayName();
 
+        DecimalFormat df = new DecimalFormat("#,###");
+        DecimalFormat df2 = new DecimalFormat("#,###.##");
 
-        String wins = hypixelProfile.getWins();
-        Integer kills = 0; // //hypixelProfile.getKills();
+        Integer questsCompleted = hypixelProfile.getQuestsCompleted();
+        Integer wins = hypixelProfile.getWins();
+        Integer kills = hypixelProfile.getKills();
+        Integer rewardStreak = hypixelProfile.getRewardStreak();
+        Integer rewardRecord = hypixelProfile.getRewardRecord();
+        Integer karma = hypixelProfile.getKarma();
+        Integer achievementPoints = hypixelProfile.getAchievementPoints();
+        Integer legacyAchievementPoints = hypixelProfile.getLegacyAchievementPoints();
+        Integer challenges = hypixelProfile.getChallengesCompleted();
 
-        String rewardStreak = hypixelProfile.getRewardStreak();
-        String questsCompleted = hypixelProfile.getQuestsCompleted();
-        String networkLevel = hypixelProfile.getNetworkLevel();
-        String karma = hypixelProfile.getKarma();
-        String achievementPoints = hypixelProfile.getAchievementPoints();
+        Double networkLevel = hypixelProfile.getNetworkLevel();
+
         String firstLogin = hypixelProfile.getFirstLogin();
-        //String guild = hypixelProfile.getGuild();
         String onlineStatus = hypixelProfile.getOnlineStatus();
-        // String legacyAchievementPoints = 0; //hypixelProfile.getLegacyAchievementPoints();
 
         String embedContent =
                 onlineStatus + "\n" +
-                "Network Level: **" + networkLevel + "**\n" +
-                "Karma: **" + karma + "**\n\n" +
-                "Achievement Points: **" + achievementPoints + "**\n" +
-                //"Legacy Achievement Points: " + legacyAchievementPoints + "\n\n" +
-                "Quests Completed: **" + questsCompleted + "**\n" +
-                        "Challenges Completed: **" + hypixelProfile.getChallengesCompleted() + "**\n\n" +
-                "Reward Streak/Record: **" + rewardStreak + "**\n" +
-                "Wins: " + wins + "\n" +
-                "Kills: " + kills + "\n" +
+                "Network Level: **" + df2.format(networkLevel) + "**\n" +
+                "Karma: **" + df.format(karma) + "**\n\n" +
+                "Achievement Points: **" + df.format(achievementPoints) + "** (+" + legacyAchievementPoints + " legacy)" + "\n" +
+                "Quests Completed: **" + df.format(questsCompleted) + "**\n" +
+                "Challenges Completed: **" + df.format(challenges) + "**\n\n" +
+                "Reward Streak/Record: **" + df.format(rewardStreak) + "**/" + df.format(rewardRecord) + "\n" +
+                "Wins: **" + df.format(wins) + "**\n" +
+                "Kills: **" + df.format(kills) + "**\n" +
                 "First Login: " + firstLogin + "\n";
 
         event.getHook().sendMessage("").addEmbeds(
