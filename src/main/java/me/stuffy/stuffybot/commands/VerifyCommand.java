@@ -3,8 +3,8 @@ package me.stuffy.stuffybot.commands;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
 import me.stuffy.stuffybot.utils.Logger;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -14,9 +14,9 @@ import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 
-public class Verify extends BaseCommand {
+public class VerifyCommand extends BaseCommand {
 
-    public Verify(String name, String description) {
+    public VerifyCommand(String name, String description) {
         super(name, description,
                 new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", true)
         );
@@ -99,5 +99,8 @@ public class Verify extends BaseCommand {
 
         event.getHook().sendMessage("Successfully verified your discord account! (jk this doesn't work yet.) ").queue();
 
+    }
+
+    public void onButton(ButtonInteractionEvent event) {
     }
 }

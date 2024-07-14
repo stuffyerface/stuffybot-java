@@ -5,8 +5,8 @@ import me.stuffy.stuffybot.utils.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-public class UpdateBotStats extends BaseEvent{
-    public UpdateBotStats() {
+public class UpdateBotStatsEvent extends BaseEvent{
+    public UpdateBotStatsEvent() {
         super("UpdateBotStats", 1, TimeUnit.HOURS);
     }
 
