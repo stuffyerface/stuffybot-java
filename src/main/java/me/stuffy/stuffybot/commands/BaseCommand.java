@@ -3,9 +3,11 @@ package me.stuffy.stuffybot.commands;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseCommand extends ListenerAdapter {
     private String name;
@@ -37,4 +39,10 @@ public abstract class BaseCommand extends ListenerAdapter {
     }
     protected abstract void onCommand(SlashCommandInteractionEvent event);
 
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        this.onButton(event);
+    }
+
+    protected abstract void onButton(ButtonInteractionEvent event);
 }

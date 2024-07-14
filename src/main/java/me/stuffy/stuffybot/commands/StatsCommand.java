@@ -1,8 +1,8 @@
 package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.profiles.HypixelProfile;
-import me.stuffy.stuffybot.profiles.Rank;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -11,8 +11,8 @@ import java.text.DecimalFormat;
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 
-public class Stats extends BaseCommand{
-    public Stats(String name, String description){
+public class StatsCommand extends BaseCommand{
+    public StatsCommand(String name, String description){
         super(name, description,
                 new OptionData(OptionType.STRING, "ign", "The username of the player you want to look up", false));
     }
@@ -57,10 +57,10 @@ public class Stats extends BaseCommand{
                 onlineStatus + "\n" +
                 "Network Level: **" + df2.format(networkLevel) + "**\n" +
                 "Karma: **" + df.format(karma) + "**\n\n" +
-                "Achievement Points: **" + df.format(achievementPoints) + "** (+" + legacyAchievementPoints + " legacy)" + "\n" +
+                "Achievement Points: **" + df.format(achievementPoints) + "** (+" + df.format(legacyAchievementPoints) + " legacy)" + "\n" +
                 "Quests Completed: **" + df.format(questsCompleted) + "**\n" +
                 "Challenges Completed: **" + df.format(challenges) + "**\n\n" +
-                "Reward Streak/Record: **" + df.format(rewardStreak) + "**/" + df.format(rewardRecord) + "\n" +
+                "Reward Streak|Record: **" + df.format(rewardStreak) + "** | " + df.format(rewardRecord) + "\n" +
                 "Wins: **" + df.format(wins) + "**\n" +
                 "Kills: **" + df.format(kills) + "**\n" +
                 "First Login: " + firstLogin + "\n";
@@ -71,5 +71,8 @@ public class Stats extends BaseCommand{
                         embedContent
                 )
         ).queue();
+    }
+
+    public void onButton(ButtonInteractionEvent event) {
     }
 }

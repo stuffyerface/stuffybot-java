@@ -2,9 +2,9 @@ package me.stuffy.stuffybot.profiles;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import me.stuffy.stuffybot.commands.AchievementCommand;
 import me.stuffy.stuffybot.utils.MiscUtils;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +12,7 @@ import java.util.UUID;
 import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
 import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
 import static me.stuffy.stuffybot.utils.MiscUtils.getNestedJson;
+import static me.stuffy.stuffybot.utils.MiscUtils.pitXpToLevel;
 
 public class HypixelProfile {
     private UUID uuid;
@@ -354,8 +355,40 @@ public class HypixelProfile {
     }
 
     public Integer getLegacyAchievementPoints() {
+        Achievements achievements = new Achievements(this);
         return 0;
 
+    }
+
+    public Integer getPit(String stat) {
+        JsonObject pitStats = getNestedJson(profile, "stats", "Pit").getAsJsonObject();
+        try {
+            switch (stat) {
+                case "prestige" -> {
+                    return getNestedJson(pitStats, "profile", "prestiges").getAsJsonArray().size();
+                }
+                case "level" -> {
+                    return pitXpToLevel(getNestedJson(pitStats, "profile", "xp").getAsLong());
+                }
+                case "renown" -> {
+                    return getNestedJson(pitStats, "profile", "renown").getAsInt();
+                }
+                case "gold" -> {
+                    return (int) Math.round(getNestedJson(pitStats, "profile", "cash").getAsDouble());
+                }
+                case "total_gold" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "cash_earned").getAsInt();
+                }
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+
+    public Long getPitXP() {
+        JsonObject pitStats = getNestedJson(profile, "stats", "Pit").getAsJsonObject();
+        return getNestedJson(pitStats, "profile", "xp").getAsLong();
     }
 }
 

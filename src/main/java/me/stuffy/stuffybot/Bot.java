@@ -3,10 +3,9 @@ package me.stuffy.stuffybot;
 
 import me.stuffy.stuffybot.commands.*;
 import me.stuffy.stuffybot.events.ActiveEvents;
-import me.stuffy.stuffybot.events.UpdateBotStats;
+import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import me.stuffy.stuffybot.utils.Logger;
-import me.stuffy.stuffybot.utils.StatisticsManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -33,8 +32,8 @@ public class Bot extends ListenerAdapter {
         this.jda = jda;
 
         // Initialize home guild
-//        this.homeGuild = jda.getGuildById("795108903733952562");
-        this.homeGuild = jda.getGuildById("818238263110008863");
+        this.homeGuild = jda.getGuildById("795108903733952562");
+//        this.homeGuild = jda.getGuildById("818238263110008863");
         assert this.homeGuild != null : "Failed to find home guild";
 
 
@@ -46,17 +45,18 @@ public class Bot extends ListenerAdapter {
 
         // Register commands
         jda.addEventListener(
-                new Verify("verify", "Links your discord account to your Minecraft account"),
-                new MaxedGames("maxes", "Find the games with all achievements unlocked"),
-                new Tournament("tournament", "Shows tournament stats"),
-                new Achievements("achievements", "Shows achievements progress for a user"),
-                new Stats("stats", "Shows overall hypixel stats for a user")
+                new VerifyCommand("verify", "Links your discord account to your Minecraft account"),
+                new MaxedGamesCommand("maxes", "Find the games with all achievements unlocked"),
+                new TournamentCommand("tournament", "Shows tournament stats"),
+                new AchievementCommand("achievements", "Shows achievements progress for a user"),
+                new StatsCommand("stats", "Shows overall hypixel stats for a user"),
+                new PitCommand("pit", "Shows pit stats for a user")
         );
 
 
 
         // Start events
-        new UpdateBotStats().startFixedRateEvent();
+        new UpdateBotStatsEvent().startFixedRateEvent();
         new ActiveEvents().startFixedRateEvent();
     }
     public static Bot getInstance() {
