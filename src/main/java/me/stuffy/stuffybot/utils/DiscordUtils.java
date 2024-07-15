@@ -30,6 +30,7 @@ public class DiscordUtils {
     }
 
     public static MessageEmbed makeStatsEmbed(String embedTitle, String embedContent) {
+
         return makeEmbed(embedTitle, embedContent, 0xf7cb72);
     }
 

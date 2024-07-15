@@ -12,6 +12,9 @@ import org.jetbrains.annotations.NotNull;
 public abstract class BaseCommand extends ListenerAdapter {
     private String name;
     private String description;
+    private final Map<String, Instant> latestValidInteraction = new HashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 
     public BaseCommand(String name, String description, OptionData... options) {
         this.name = name;
@@ -33,10 +36,22 @@ public abstract class BaseCommand extends ListenerAdapter {
             }
             Logger.log("<Command> @" + event.getUser().getName() + ": /" + this.name + " " + options);
             this.onCommand(event);
+            latestValidInteraction.put(event.getHook().getId(), Instant.now());
+            scheduler.scheduleAtFixedRate(this::endEvent, 0, 1, TimeUnit.SECONDS);
         }
 
         // StatisticsManager.incrementTotalCommandsRun();
     }
+
+    private void endEvent() {
+        latestValidInteraction.forEach((messageId, time) -> {
+            if (Instant.now().getEpochSecond() - time.getEpochSecond() > 30) {
+                latestValidInteraction.remove(messageId);
+                cleanupEventResources(messageId);
+            }
+        });
+    }
+
     protected abstract void onCommand(SlashCommandInteractionEvent event);
 
     @Override
@@ -45,4 +60,6 @@ public abstract class BaseCommand extends ListenerAdapter {
     }
 
     protected abstract void onButton(ButtonInteractionEvent event);
+
+    protected abstract void cleanupEventResources(String messageId);
 }
