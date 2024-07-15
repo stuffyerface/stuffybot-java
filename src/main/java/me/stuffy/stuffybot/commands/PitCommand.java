@@ -74,9 +74,11 @@ public class PitCommand extends BaseCommand{
 
         originalEmbeds.put(event.getHook().getId(), pitStats);
 
+
+        String runnerId = event.getUser().getId();
         event.getHook().sendMessage("")
                 .addActionRow(
-                        secondary("pitDetailed", "Challenge Achievement Progress")
+                        secondary("pitDetailed:" + runnerId, "Challenge Achievement Progress")
                 )
                 .addEmbeds(
                         pitStats
@@ -110,16 +112,13 @@ public class PitCommand extends BaseCommand{
                 embedContent2.toString()
         );
         originalDetailedEmbeds.put(event.getHook().getId(), extraPitStats);
-        System.out.println(originalEmbeds);
-        System.out.println(originalDetailedEmbeds);
     }
 
 
     public void onButton(ButtonInteractionEvent event) {
         String[] parts = event.getComponentId().split(":");
-        String command = parts[0];
-        String action = parts[1];
-        String userId = parts[2];
+        String action = parts[0];
+        String userId = parts[1];
 
         if (action.equals("pitDetailed")) {
             MessageEmbed detailedButton = originalDetailedEmbeds.get(event.getHook().getId());
@@ -127,7 +126,7 @@ public class PitCommand extends BaseCommand{
                 return;
             }
             event.editMessageEmbeds(detailedButton)
-                    .setActionRow(secondary(command + ":go_back:" + userId, "Go Back"))
+                    .setActionRow(secondary("go_back:" + userId, "Go Back"))
                     .queue();
         }
         if (action.equals("go_back")) {
@@ -136,7 +135,7 @@ public class PitCommand extends BaseCommand{
                 return;
             }
             event.editMessageEmbeds(backButton)
-                    .setActionRow(secondary(command + ":pitDetailed:" + userId, "Challenge Achievement Progress"))
+                    .setActionRow(secondary("pitDetailed:" + userId, "Challenge Achievement Progress"))
                     .queue();
         }
     }
