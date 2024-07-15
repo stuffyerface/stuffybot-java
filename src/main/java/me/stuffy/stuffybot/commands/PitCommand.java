@@ -1,8 +1,10 @@
 package me.stuffy.stuffybot.commands;
 
+import kotlin.Triple;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -63,6 +65,7 @@ public class PitCommand extends BaseCommand{
                 "XP: **" + df.format(totalPitXp) + "**\n\n" +
                 "Renown: **" + df.format(pitRenown) + "**\n" +
                 "Gold|Total Gold: **" + df.format(pitGold) + "** | " + df.format(pitTotalGold) + "\n";
+
 
         MessageEmbed pitStats = makeStatsEmbed(
                 "Pit Stats for " + username,

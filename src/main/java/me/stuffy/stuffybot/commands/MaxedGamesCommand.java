@@ -37,4 +37,9 @@ public class MaxedGamesCommand extends BaseCommand{
 
     public void onButton(ButtonInteractionEvent event) {
     }
+
+    @Override
+    protected void cleanupEventResources(String messageId) {
+
+    }
 }
