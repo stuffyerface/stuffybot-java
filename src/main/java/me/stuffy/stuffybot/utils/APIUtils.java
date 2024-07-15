@@ -20,6 +20,8 @@ import java.net.http.HttpResponse;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static me.stuffy.stuffybot.utils.Logger.logError;
+
 public class APIUtils {
     public static HypixelProfile getHypixelProfile(String username) {
         MojangProfile profile = getMojangProfile(username);
@@ -61,6 +63,7 @@ public class APIUtils {
             // Check for "buildTeam" for build team
             // Check for "rank" for admin, gm, etc.
         } else {
+            logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
             throw new Exception("Hypixel API Error, Status Code: " + response.statusCode() + ".");
         }
     }
@@ -99,6 +102,7 @@ public class APIUtils {
             String name = object.get("name").getAsString();
             profile = new MojangProfile(name, uuid);
         } else {
+            logError("Mojang API Error [Status Code: " + response.statusCode() + "] [Username: " + username + "]");
             throw new IllegalArgumentException("Mojang API Error: " + response.statusCode() + " " + response.body());
         }
         return profile;

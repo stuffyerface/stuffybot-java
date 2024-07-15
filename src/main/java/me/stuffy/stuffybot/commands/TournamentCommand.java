@@ -22,4 +22,9 @@ public class TournamentCommand extends BaseCommand{
 
     protected void onButton(ButtonInteractionEvent event) {
     }
+
+    @Override
+    protected void cleanupEventResources(String messageId) {
+
+    }
 }

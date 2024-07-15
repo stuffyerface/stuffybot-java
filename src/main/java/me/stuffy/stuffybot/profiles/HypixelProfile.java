@@ -379,6 +379,33 @@ public class HypixelProfile {
                 case "total_gold" -> {
                     return getNestedJson(pitStats, "pit_stats_ptl", "cash_earned").getAsInt();
                 }
+                case "ingots_collector" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "ingots_picked_up").getAsInt();
+                }
+                case "golden_treat" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "ghead_eaten").getAsInt();
+                }
+                case "golden_age" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "extra_from_trickle_down").getAsInt();
+                }
+                case "infinite_quiver" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "endless_quiver_arrows").getAsInt();
+                }
+                case "lucky_diamond" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "lucky_diamond_pieces").getAsInt();
+                }
+                case "im_mining_here" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "obsidian_broken").getAsInt();
+                }
+                case "nosferatu" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "vampire_healed_hp").getAsInt();
+                }
+                case "raging_hunter" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "rage_potatoes_eaten").getAsInt();
+                }
+                case "bounty_hunter" -> {
+                    return getNestedJson(pitStats, "pit_stats_ptl", "bounties_of_500g_with_bh").getAsInt();
+                }
             }
         } catch (Exception e) {
             return 0;

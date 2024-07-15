@@ -20,7 +20,8 @@ import static net.dv8tion.jda.api.interactions.components.buttons.Button.*;
 
 public class PitCommand extends BaseCommand{
     private final Map<String, MessageEmbed> originalEmbeds = new HashMap<>();
-
+    private final Map<String, MessageEmbed> originalDetailedEmbeds = new HashMap<>();
+    private final Map<String, Event> activeEvents = new HashMap<>();
 
     public PitCommand(String name, String description) {
         super(name, description,
@@ -30,6 +31,7 @@ public class PitCommand extends BaseCommand{
 
     @Override
     protected void onCommand(SlashCommandInteractionEvent event) {
+        activeEvents.put(event.getHook().getId(), event);
         String ign = getUsername(event);
         HypixelProfile hypixelProfile;
         try {
@@ -77,24 +79,75 @@ public class PitCommand extends BaseCommand{
                         pitStats
         ).queue();
 
+
+        Triple<String, Integer, Integer>[] challengeAchievements = new Triple[]{
+                new Triple<>("Ingots Collector", hypixelProfile.getPit("ingots_collector"), 2000),
+                new Triple<>("Golden Treat", hypixelProfile.getPit("golden_treat"), 1000),
+                new Triple<>("Golden Age", hypixelProfile.getPit("golden_age"), 1000),
+                new Triple<>("Infinite Quiver", hypixelProfile.getPit("infinite_quiver"), 1500),
+                new Triple<>("Lucky Diamond!", hypixelProfile.getPit("lucky_diamond"), 50),
+                new Triple<>("I'm Mining Here", hypixelProfile.getPit("im_mining_here"), 100),
+                new Triple<>("Nosferatu", hypixelProfile.getPit("nosferatu"), 15000),
+                new Triple<>("Raging Hunter", hypixelProfile.getPit("raging_hunter"), 100),
+                new Triple<>("Bounty Hunter", hypixelProfile.getPit("bounty_hunter"), 30)
+        };
+
+        StringBuilder embedContent2 = new StringBuilder();
+        for (Triple<String, Integer, Integer> challenge : challengeAchievements) {
+            if (challenge.getSecond() >= challenge.getThird()) {
+                embedContent2.append("~~").append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append("~~\n");
+            } else {
+                String percentage = df.format((double) challenge.getSecond() / challenge.getThird() * 100);
+                embedContent2.append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append(" (").append(percentage).append("%)\n");
+            }
+        }
+
+        MessageEmbed extraPitStats = makeStatsEmbed(
+                "Pit Achievement stats for " + username,
+                embedContent2.toString()
+        );
+        originalDetailedEmbeds.put(event.getHook().getId(), extraPitStats);
+        System.out.println(originalEmbeds);
+        System.out.println(originalDetailedEmbeds);
     }
 
 
     public void onButton(ButtonInteractionEvent event) {
-        if (event.getComponentId().equals("pitDetailed")) {
-            event.editMessageEmbeds(
-                    makeStatsEmbed("Pit Stats for Stuffy","test2"))
-                    .setActionRow(secondary("go back", "Go Back"))
+        String[] parts = event.getComponentId().split(":");
+        String command = parts[0];
+        String action = parts[1];
+        String userId = parts[2];
+
+        if (action.equals("pitDetailed")) {
+            MessageEmbed detailedButton = originalDetailedEmbeds.get(event.getHook().getId());
+            if(detailedButton == null) {
+                return;
+            }
+            event.editMessageEmbeds(detailedButton)
+                    .setActionRow(secondary(command + ":go_back:" + userId, "Go Back"))
                     .queue();
         }
-        if (event.getComponentId().equals("go back")) {
+        if (action.equals("go_back")) {
             MessageEmbed backButton = originalEmbeds.get(event.getHook().getId());
             if(backButton == null) {
                 return;
             }
             event.editMessageEmbeds(backButton)
-                    .setActionRow(secondary("pitDetailed", "Challenge Achievement Progress"))
+                    .setActionRow(secondary(command + ":pitDetailed:" + userId, "Challenge Achievement Progress"))
                     .queue();
+        }
+    }
+
+    @Override
+    protected void cleanupEventResources(String messageId) {
+        originalEmbeds.remove(messageId);
+        originalDetailedEmbeds.remove(messageId);
+        Event event = activeEvents.remove(messageId);
+        if (event instanceof SlashCommandInteractionEvent) {
+            SlashCommandInteractionEvent slashEvent = (SlashCommandInteractionEvent) event;
+            slashEvent.getHook().retrieveOriginal().queue(message -> {
+                message.editMessageComponents().queue();
+            });
         }
     }
 }
