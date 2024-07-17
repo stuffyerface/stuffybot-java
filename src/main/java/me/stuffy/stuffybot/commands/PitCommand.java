@@ -145,8 +145,7 @@ public class PitCommand extends BaseCommand{
         originalEmbeds.remove(messageId);
         originalDetailedEmbeds.remove(messageId);
         Event event = activeEvents.remove(messageId);
-        if (event instanceof SlashCommandInteractionEvent) {
-            SlashCommandInteractionEvent slashEvent = (SlashCommandInteractionEvent) event;
+        if (event instanceof SlashCommandInteractionEvent slashEvent) {
             slashEvent.getHook().retrieveOriginal().queue(message -> {
                 message.editMessageComponents().queue();
             });
