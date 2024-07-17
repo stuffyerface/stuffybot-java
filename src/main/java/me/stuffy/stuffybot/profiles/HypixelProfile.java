@@ -1,5 +1,6 @@
 package me.stuffy.stuffybot.profiles;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.utils.MiscUtils;
@@ -343,7 +344,7 @@ public class HypixelProfile {
 
     }
 
-    public JsonElement getAchievements() {
+    public JsonObject getAchievements() {
         // return an object with profile["achievements"],profile["achievementsOneTime"]
         JsonObject combined = new JsonObject();
         combined.add("achievements", getNestedJson(profile, "achievements"));
@@ -439,6 +440,72 @@ public class HypixelProfile {
             }
         }
         return uniqueGolds;
+    }
+
+
+    public Map<String, Boolean> getMegaWallsLegendaries() {
+        JsonObject achievements = getAchievements();
+        JsonArray oneTime = achievements.get("achievementsOneTime").getAsJsonArray();
+        Map<String, Boolean> legendarySkins = new HashMap<>();
+
+        Map<String, String> allLegendaries = new HashMap<>();
+        allLegendaries.put("walls3_legendary_cow", "Cow");
+        allLegendaries.put("walls3_legendary_hunter", "Hunter");
+        allLegendaries.put("walls3_legendary_shark", "Shark");
+        allLegendaries.put("walls3_legendary_arcanist", "Arcanist");
+        allLegendaries.put("walls3_legendary_dreadlord", "Dreadlord");
+        allLegendaries.put("walls3_legendary_golem", "Golem");
+        allLegendaries.put("walls3_legendary_herobrine", "Herobrine");
+        allLegendaries.put("walls3_legendary_pigman", "Pigman");
+        allLegendaries.put("walls3_legendary_zombie", "Zombie");
+        allLegendaries.put("walls3_legendary_blaze", "Blaze");
+        allLegendaries.put("walls3_legendary_enderman", "Enderman");
+        allLegendaries.put("walls3_legendary_shaman", "Shaman");
+        allLegendaries.put("walls3_legendary_squid", "Squid");
+        allLegendaries.put("walls3_legendary_creeper", "Creeper");
+        allLegendaries.put("walls3_legendary_pirate", "Pirate");
+        allLegendaries.put("walls3_legendary_sheep", "Sheep");
+        allLegendaries.put("walls3_legendary_skeleton", "Skeleton");
+        allLegendaries.put("walls3_legendary_spider", "Spider");
+        allLegendaries.put("walls3_legendary_werewolf", "Werewolf");
+        allLegendaries.put("walls3_legendary_angel", "Angel");
+        allLegendaries.put("walls3_legendary_assassin", "Assassin");
+        allLegendaries.put("walls3_legendary_automaton", "Automaton");
+        allLegendaries.put("walls3_legendary_moleman", "Moleman");
+        allLegendaries.put("walls3_legendary_phoenix", "Phoenix");
+        allLegendaries.put("walls3_legendary_dragon", "Dragon");
+        allLegendaries.put("walls3_legendary_renegade", "Renegade");
+        allLegendaries.put("walls3_legendary_snowman", "Snowman");
+
+
+        for (JsonElement achievement : oneTime) {
+            String ap = achievement.getAsString();
+            if (allLegendaries.containsKey(ap)) {
+                legendarySkins.put(allLegendaries.get(ap), true);
+            }
+        }
+
+        return legendarySkins;
+    }
+
+    public Integer getMegaWallsFinalKills() {
+        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
+        return getNestedJson(mwStats, "final_kills").getAsInt();
+    }
+
+    public Integer getMegaWallsWins() {
+        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
+        return getNestedJson(mwStats, "wins").getAsInt();
+    }
+
+    public Integer getMegaWallsClassPoints() {
+        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
+        return getNestedJson(mwStats, "class_points").getAsInt();
+    }
+
+    public String getMegaWallsSelectedClass() {
+        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
+        return getNestedJson(mwStats, "chosen_class").getAsString();
     }
 }
 
