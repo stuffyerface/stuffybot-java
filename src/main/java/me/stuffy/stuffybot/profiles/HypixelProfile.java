@@ -2,12 +2,9 @@ package me.stuffy.stuffybot.profiles;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import me.stuffy.stuffybot.commands.AchievementCommand;
 import me.stuffy.stuffybot.utils.MiscUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
 import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
@@ -416,6 +413,32 @@ public class HypixelProfile {
     public Long getPitXP() {
         JsonObject pitStats = getNestedJson(profile, "stats", "Pit").getAsJsonObject();
         return getNestedJson(pitStats, "profile", "xp").getAsLong();
+    }
+
+
+    public Map<String, Boolean> getTkrMaps() {
+        JsonObject tkrStats = getNestedJson(profile, "stats", "GingerBread").getAsJsonObject();
+        Map<String, String> winKeys = Map.of(
+                "gold_trophy_canyon", "Canyon",
+                "gold_trophy_hypixelgp", "Hypixel GP",
+                "gold_trophy_junglerush", "Jungle Rush",
+                "gold_trophy_olympus", "Olympus",
+                "gold_trophy_retro", "Retro"
+        );
+        Map<String, Boolean> uniqueGolds = new HashMap<>();
+
+        for (String key : winKeys.keySet()) {
+            try {
+                if (getNestedJson(tkrStats, key).getAsInt() >= 1) {
+                    uniqueGolds.put(winKeys.get(key), true);
+                } else {
+                    uniqueGolds.put(winKeys.get(key), false);
+                }
+            } catch (Exception e) {
+                uniqueGolds.put(winKeys.get(key), false);
+            }
+        }
+        return uniqueGolds;
     }
 }
 
