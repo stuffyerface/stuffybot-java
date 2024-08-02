@@ -45,14 +45,8 @@ public class Bot extends ListenerAdapter {
 
         // Register commands
         jda.addEventListener(
-                new VerifyCommand("verify", "Links your discord account to your Minecraft account"),
-                new MaxedGamesCommand("maxes", "Find the games with all achievements unlocked"),
-                new TournamentCommand("tournament", "Shows tournament stats"),
-                new AchievementCommand("achievements", "Shows achievements progress for a user"),
-                new StatsCommand("stats", "Shows overall hypixel stats for a user"),
                 new PitCommand("pit", "Shows pit stats for a user"),
-                new TkrCommand("tkr", "Shows completed maps in TKR"),
-                new MegaWallsCommand("megawalls", "Shows Mega Walls stats for a user")
+                new TestCommand("test", "Test command")
         );
 
 

@@ -2,6 +2,7 @@ package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.utils.Logger;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,15 +11,22 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static me.stuffy.stuffybot.utils.DiscordUtils.getUsername;
+import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
+import static me.stuffy.stuffybot.utils.Interactions.getResponse;
+
 public abstract class BaseCommand extends ListenerAdapter {
     private String name;
     private String description;
+    private OptionData[] options;
     private final Map<String, Instant> latestValidInteraction = new HashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -26,6 +34,7 @@ public abstract class BaseCommand extends ListenerAdapter {
     public BaseCommand(String name, String description, OptionData... options) {
         this.name = name;
         this.description = description;
+        this.options = options;
         Bot bot = Bot.getInstance();
         bot.getHomeGuild().upsertCommand(name, description)
                 .addOptions(options)
@@ -37,12 +46,36 @@ public abstract class BaseCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equals(this.name)) {
             event.deferReply().queue();
-            String options = "";
-            for (OptionMapping option : event.getOptions()) {
-                options += option.getName() + ": " + option.getAsString() + ", ";
+            String interactionId = this.name + ":" + event.getUser().getId() + ":";
+            ArrayList<String> optionsArray = new ArrayList<String>();
+
+            for (OptionData option : this.options) {
+                String optionName = option.getName();
+                if(optionName.equals("ign") && event.getOption("ign") == null){
+                    String ign = getUsername(event);
+                    optionsArray.add("ign=" + ign);
+                }
             }
+
+            for (OptionMapping option : event.getOptions()) {
+                optionsArray.add(option.getName() + "=" + option.getAsString());
+            }
+
+            String options = String.join(",", optionsArray);
+            interactionId += options;
+
             Logger.log("<Command> @" + event.getUser().getName() + ": /" + this.name + " " + options);
-            this.onCommand(event);
+
+            MessageEmbed response = getResponse(interactionId);
+
+            String errorMessage = "Are your arguments valid?";
+            if (response != null) {
+                event.getHook().sendMessageEmbeds(response).queue();
+            } else {
+                MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + errorMessage);
+                event.getHook().sendMessageEmbeds(errorEmbed).queue();
+            }
+
             latestValidInteraction.put(event.getHook().getId(), Instant.now());
             scheduler.scheduleAtFixedRate(this::endEvent, 0, 1, TimeUnit.SECONDS);
         }
@@ -59,12 +92,12 @@ public abstract class BaseCommand extends ListenerAdapter {
         });
     }
 
-    protected abstract void onCommand(SlashCommandInteractionEvent event);
-
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         this.onButton(event);
     }
+
+    protected abstract void onCommand(SlashCommandInteractionEvent event);
 
     protected abstract void onButton(ButtonInteractionEvent event);
 

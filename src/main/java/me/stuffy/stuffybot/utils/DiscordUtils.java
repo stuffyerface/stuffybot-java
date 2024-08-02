@@ -29,6 +29,22 @@ public class DiscordUtils {
         return makeEmbed(":mega: " + embedTitle, embedContent, 0xffef14);
     }
 
+    public static MessageEmbed makeStaffRankChangeEmbed(String ign, String oldRank, String newRank, String position) {
+        String embedContent = "### **" + ign + "**:  `" + oldRank + "` ⇒ `" + newRank + "`\nPlayer stats: [Plancke](https://plancke.io/hypixel/player/stats/" + ign + ")\n";
+
+        if (position != null){
+            embedContent += "Suspected Position: " + position + "\n";
+        }
+        int color = 0xaaaaaa;
+        if(newRank.equals("GM")){
+            color = 0x00aa00;
+        }
+        if (newRank.equals("ADMIN")){
+            color = 0xff5555;
+        }
+        return makeEmbed(":mega: Rank Change Detected", embedContent, color);
+    }
+
     public static MessageEmbed makeStatsEmbed(String embedTitle, String embedContent) {
 
         return makeEmbed(embedTitle, embedContent, 0xf7cb72);
