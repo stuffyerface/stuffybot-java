@@ -2,18 +2,13 @@ package me.stuffy.stuffybot.commands;
 
 import kotlin.Triple;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
@@ -21,9 +16,6 @@ import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.*;
 
 public class PitCommand extends BaseCommand{
-    private final Map<String, MessageEmbed> originalEmbeds = new HashMap<>();
-    private final Map<String, MessageEmbed> originalDetailedEmbeds = new HashMap<>();
-    private final Map<String, Event> activeEvents = new HashMap<>();
 
     public PitCommand(String name, String description) {
         super(name, description,
@@ -33,7 +25,6 @@ public class PitCommand extends BaseCommand{
 
     @Override
     protected void onCommand(SlashCommandInteractionEvent event) {
-        activeEvents.put(event.getHook().getId(), event);
         String ign = getUsername(event);
         HypixelProfile hypixelProfile;
         try {
@@ -72,8 +63,6 @@ public class PitCommand extends BaseCommand{
                 embedContent
         );
 
-        originalEmbeds.put(event.getHook().getId(), pitStats);
-
 
         String runnerId = event.getUser().getId();
         event.getHook().sendMessage("")
@@ -111,44 +100,43 @@ public class PitCommand extends BaseCommand{
                 "Pit Achievement stats for " + username,
                 embedContent2.toString()
         );
-        originalDetailedEmbeds.put(event.getHook().getId(), extraPitStats);
     }
 
 
     public void onButton(ButtonInteractionEvent event) {
-        String[] parts = event.getComponentId().split(":");
-        String action = parts[0];
-        String userId = parts[1];
-
-        if (action.equals("pitDetailed")) {
-            MessageEmbed detailedButton = originalDetailedEmbeds.get(event.getHook().getId());
-            if(detailedButton == null) {
-                return;
-            }
-            event.editMessageEmbeds(detailedButton)
-                    .setActionRow(secondary("go_back:" + userId, "Go Back"))
-                    .queue();
-        }
-        if (action.equals("go_back")) {
-            MessageEmbed backButton = originalEmbeds.get(event.getHook().getId());
-            if(backButton == null) {
-                return;
-            }
-            event.editMessageEmbeds(backButton)
-                    .setActionRow(secondary("pitDetailed:" + userId, "Challenge Achievement Progress"))
-                    .queue();
-        }
+//        String[] parts = event.getComponentId().split(":");
+//        String action = parts[0];
+//        String userId = parts[1];
+//
+//        if (action.equals("pitDetailed")) {
+//            MessageEmbed detailedButton = null;
+//            if(detailedButton == null) {
+//                return;
+//            }
+//            event.editMessageEmbeds(detailedButton)
+//                    .setActionRow(secondary("go_back:" + userId, "Go Back"))
+//                    .queue();
+//        }
+//        if (action.equals("go_back")) {
+//            MessageEmbed backButton = originalEmbeds.get(event.getHook().getId());
+//            if(backButton == null) {
+//                return;
+//            }
+//            event.editMessageEmbeds(backButton)
+//                    .setActionRow(secondary("pitDetailed:" + userId, "Challenge Achievement Progress"))
+//                    .queue();
+//        }
     }
 
     @Override
     protected void cleanupEventResources(String messageId) {
-        originalEmbeds.remove(messageId);
-        originalDetailedEmbeds.remove(messageId);
-        Event event = activeEvents.remove(messageId);
-        if (event instanceof SlashCommandInteractionEvent slashEvent) {
-            slashEvent.getHook().retrieveOriginal().queue(message -> {
-                message.editMessageComponents().queue();
-            });
-        }
+//        originalEmbeds.remove(messageId);
+//        originalDetailedEmbeds.remove(messageId);
+//        Event event = activeEvents.remove(messageId);
+//        if (event instanceof SlashCommandInteractionEvent slashEvent) {
+//            slashEvent.getHook().retrieveOriginal().queue(message -> {
+//                message.editMessageComponents().queue();
+//            });
+//        }
     }
 }
