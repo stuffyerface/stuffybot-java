@@ -3,6 +3,7 @@ package me.stuffy.stuffybot.commands;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
+import me.stuffy.stuffybot.utils.StatisticsManager;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -85,11 +86,11 @@ public abstract class BaseCommand extends ListenerAdapter {
 
             event.getHook().sendMessageEmbeds(response).queue();
 
+            StatisticsManager.incrementCommandUsage(this.name);
+
             latestValidInteraction.put(event.getHook().getId(), Instant.now());
             scheduler.scheduleAtFixedRate(this::endEvent, 0, 1, TimeUnit.SECONDS);
         }
-
-        // StatisticsManager.incrementTotalCommandsRun();
     }
 
     private void endEvent() {
