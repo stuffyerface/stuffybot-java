@@ -6,9 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class DiscordUtils {
     public static MessageEmbed makeEmbed(String embedTitle, String embedContent, int embedColor) {
@@ -109,5 +107,18 @@ public class DiscordUtils {
             username = getDiscordUsername(event.getUser().getName());
         }
         return username;
+    }
+
+    public static Map<String, String> parseOptions(String options) {
+        String[] parts = options.split(",");
+        Map<String, String> optionsMap = new HashMap<>();
+        for (String part : parts) {
+            String[] keyValue = part.split("=");
+            if (keyValue.length != 2) {
+                return null;
+            }
+            optionsMap.put(keyValue[0], keyValue[1]);
+        }
+        return optionsMap;
     }
 }

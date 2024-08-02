@@ -1,6 +1,7 @@
 package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.Bot;
+import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static me.stuffy.stuffybot.utils.DiscordUtils.getUsername;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
@@ -56,9 +58,15 @@ public abstract class BaseCommand extends ListenerAdapter {
                     optionsArray.add("ign=" + ign);
                 }
             }
-
+            Pattern pattern = Pattern.compile("[,=:]");
             for (OptionMapping option : event.getOptions()) {
-                optionsArray.add(option.getName() + "=" + option.getAsString());
+                String optionString = option.getAsString();
+                if(pattern.matcher(optionString).find()){
+                    MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# Invalid character in option  `" + option.getName() + "`");
+                    event.getHook().sendMessageEmbeds(errorEmbed).queue();
+                    return;
+                }
+                optionsArray.add(option.getName() + "=" + optionString);
             }
 
             String options = String.join(",", optionsArray);
@@ -66,15 +74,16 @@ public abstract class BaseCommand extends ListenerAdapter {
 
             Logger.log("<Command> @" + event.getUser().getName() + ": /" + this.name + " " + options);
 
-            MessageEmbed response = getResponse(interactionId);
-
-            String errorMessage = "Are your arguments valid?";
-            if (response != null) {
-                event.getHook().sendMessageEmbeds(response).queue();
-            } else {
-                MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + errorMessage);
+            MessageEmbed response = null;
+            try {
+                response = getResponse(interactionId);
+            } catch (InteractionException e) {
+                MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + e.getMessage());
                 event.getHook().sendMessageEmbeds(errorEmbed).queue();
+                return;
             }
+
+            event.getHook().sendMessageEmbeds(response).queue();
 
             latestValidInteraction.put(event.getHook().getId(), Instant.now());
             scheduler.scheduleAtFixedRate(this::endEvent, 0, 1, TimeUnit.SECONDS);
