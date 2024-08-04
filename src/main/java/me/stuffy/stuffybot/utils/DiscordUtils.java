@@ -114,17 +114,4 @@ public class DiscordUtils {
         }
         return username;
     }
-
-    public static Map<String, String> parseOptions(String options) {
-        String[] parts = options.split(",");
-        Map<String, String> optionsMap = new HashMap<>();
-        for (String part : parts) {
-            String[] keyValue = part.split("=");
-            if (keyValue.length != 2) {
-                return null;
-            }
-            optionsMap.put(keyValue[0], keyValue[1]);
-        }
-        return optionsMap;
-    }
 }
