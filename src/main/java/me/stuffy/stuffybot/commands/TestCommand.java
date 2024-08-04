@@ -14,19 +14,4 @@ public class TestCommand extends BaseCommand{
                 new OptionData(OptionType.STRING, "ign3", "Your Minecraft Username", false),
                 new OptionData(OptionType.STRING, "ign4", "Your Minecraft Username", false));
     }
-
-    @Override
-    protected void onCommand(SlashCommandInteractionEvent event) {
-
-    }
-
-    @Override
-    protected void onButton(ButtonInteractionEvent event) {
-
-    }
-
-    @Override
-    protected void cleanupEventResources(String messageId) {
-
-    }
 }

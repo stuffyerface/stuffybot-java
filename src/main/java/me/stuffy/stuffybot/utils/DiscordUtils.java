@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 import java.util.*;
 
+import static me.stuffy.stuffybot.utils.MiscUtils.toSkillIssue;
+
 public class DiscordUtils {
     public static MessageEmbed makeEmbed(String embedTitle, String embedContent, int embedColor) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -20,6 +22,10 @@ public class DiscordUtils {
     }
 
     public static MessageEmbed makeErrorEmbed(String embedTitle, String embedContent) {
+        if (Calendar.getInstance().get(Calendar.MONTH) == Calendar.APRIL && Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1){
+            embedTitle = toSkillIssue(embedTitle);
+            embedContent = toSkillIssue(embedContent);
+        }
         return makeEmbed(":no_entry: " + embedTitle, embedContent, 0xff0000);
     }
 

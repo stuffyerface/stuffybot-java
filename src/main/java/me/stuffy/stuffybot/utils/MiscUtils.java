@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MiscUtils {
@@ -89,5 +88,16 @@ public class MiscUtils {
         }
 
         return workingLevel;
+    }
+
+    public static String toSkillIssue(String toModify) {
+        // An Error, an error, AN ERROR
+        return toModify
+                .replace("n error", " skill issue")
+                .replace("n Error", " Skill Issue")
+                .replace("N ERROR", " SKILL ISSUE")
+                .replace("error", "skill issue")
+                .replace("Error", "Skill Issue")
+                .replace("ERROR", "SKILL ISSUE");
     }
 }
