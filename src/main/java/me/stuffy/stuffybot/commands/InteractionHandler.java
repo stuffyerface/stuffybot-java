@@ -1,6 +1,5 @@
 package me.stuffy.stuffybot.commands;
 
-import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
 import me.stuffy.stuffybot.utils.StatisticsManager;
@@ -9,8 +8,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -24,7 +23,7 @@ import java.util.regex.Pattern;
 
 import static me.stuffy.stuffybot.utils.DiscordUtils.getUsername;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
-import static me.stuffy.stuffybot.utils.Interactions.getResponse;
+import static me.stuffy.stuffybot.commands.Interactions.getResponse;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class InteractionHandler extends ListenerAdapter {
@@ -120,9 +119,9 @@ public class InteractionHandler extends ListenerAdapter {
 
 
 
-        MessageCreateData response;
+        MessageCreateData data;
         try {
-            response = getResponse(event.getComponentId());
+            data = getResponse(event.getComponentId());
         } catch (InteractionException e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# " + e.getMessage());
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
