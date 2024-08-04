@@ -1,10 +1,11 @@
 package me.stuffy.stuffybot.utils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class StatisticsManager {
     private static int totalCommandsRun = 0;
-    private static Map<String, Integer> commandUsage;
+    private static final Map<String, Integer> commandUsage = new HashMap<>();
 
     public static void incrementCommandsRun() {
         totalCommandsRun++;

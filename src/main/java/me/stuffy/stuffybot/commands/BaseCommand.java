@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -97,19 +96,17 @@ public abstract class BaseCommand extends ListenerAdapter {
         latestValidInteraction.forEach((messageId, time) -> {
             if (Instant.now().getEpochSecond() - time.getEpochSecond() > 30) {
                 latestValidInteraction.remove(messageId);
-                cleanupEventResources(messageId);
             }
         });
     }
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        this.onButton(event);
+        if (latestValidInteraction.containsKey(event.getMessageId())) {
+            latestValidInteraction.remove(event.getMessageId());
+            event.deferEdit().queue();
+        }
     }
-
-    protected abstract void onCommand(SlashCommandInteractionEvent event);
-
-    protected abstract void onButton(ButtonInteractionEvent event);
-
-    protected abstract void cleanupEventResources(String messageId);
 }
+
+

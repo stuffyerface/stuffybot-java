@@ -23,7 +23,6 @@ public class PitCommand extends BaseCommand{
         );
     }
 
-    @Override
     protected void onCommand(SlashCommandInteractionEvent event) {
         String ign = getUsername(event);
         HypixelProfile hypixelProfile;
@@ -125,18 +124,6 @@ public class PitCommand extends BaseCommand{
 //            event.editMessageEmbeds(backButton)
 //                    .setActionRow(secondary("pitDetailed:" + userId, "Challenge Achievement Progress"))
 //                    .queue();
-//        }
-    }
-
-    @Override
-    protected void cleanupEventResources(String messageId) {
-//        originalEmbeds.remove(messageId);
-//        originalDetailedEmbeds.remove(messageId);
-//        Event event = activeEvents.remove(messageId);
-//        if (event instanceof SlashCommandInteractionEvent slashEvent) {
-//            slashEvent.getHook().retrieveOriginal().queue(message -> {
-//                message.editMessageComponents().queue();
-//            });
 //        }
     }
 }
