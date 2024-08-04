@@ -98,26 +98,32 @@ public class InteractionHandler extends ListenerAdapter {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         event.deferEdit().queue();
 
-        Logger.log("<Button> @" + event.getUser().getName() + ": " + event.getComponentId());
-        // Break down the interaction ID
-        // Throw invalid error if the interaction ID is invalid
-        // Check if the user is allowed to press the button
-//        if(!validInteractionId(event.getComponentId())){
-//            MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# Invalid interactionId `" + event.getComponentId() + "`");
-//            event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
-//            return;
-//        }
-
         InteractionId interactionId;
         try {
             interactionId = new InteractionId(event.getComponentId());
         } catch (Exception e) {
-            MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# " + e.getMessage());
+            MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# You pressed an imaginary button");
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
+            Logger.logError("<Button> @" + event.getUser().getName() + ": `" + event.getComponentId() + "`");
             return;
         }
 
+        Logger.log("<Button> @" + event.getUser().getName() + ": `" + event.getComponentId() + "`");
 
+        if (!interactionId.getUserId().equals(event.getUser().getId()) && !interactionId.getUserId().equals("null")) {
+            try {
+                throw new InteractionException(new String[]{
+                        "Keep your hands off other people's buttons",
+                        "You can't press other people's buttons",
+                        "How would you like if if I pressed your buttons?",
+                        "This button does not belong to you",
+                });
+            } catch (InteractionException e) {
+                MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# " + e.getMessage());
+                event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
+                return;
+            }
+        }
 
         MessageCreateData data;
         try {
@@ -127,7 +133,13 @@ public class InteractionHandler extends ListenerAdapter {
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             return;
         }
-        event.getHook().sendMessage(response).queue();
+
+        if (data == null) {
+            // When the button press does not require a response
+            return;
+        }
+        MessageEditData editData = MessageEditData.fromCreateData(data);
+        event.getHook().editOriginal(editData).queue();
     }
 }
 
