@@ -43,10 +43,9 @@ public class Bot extends ListenerAdapter {
         Logger logger = new Logger();
         logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
 
-        // Register commands
+        // Listen for interactions
         jda.addEventListener(
-                new PitCommand("pit", "Shows pit stats for a user"),
-                new TestCommand("test", "Test command")
+                new InteractionHandler()
         );
 
 
