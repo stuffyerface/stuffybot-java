@@ -6,6 +6,10 @@ public class InteractionException extends Throwable {
         this.message = message;
     }
 
+    public InteractionException(String[] messages) {
+        this.message = messages[(int) (Math.random() * messages.length)];
+    }
+
     public String getMessage() {
         return this.message;
     }
