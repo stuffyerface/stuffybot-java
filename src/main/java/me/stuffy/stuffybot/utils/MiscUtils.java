@@ -100,4 +100,13 @@ public class MiscUtils {
                 .replace("Error", "Skill Issue")
                 .replace("ERROR", "SKILL ISSUE");
     }
+
+    public static boolean requiresIgn(String commandName) {
+        return true;
+    }
+
+    public static boolean validCommand(String commandName) {
+        return true;
+    }
+
 }
