@@ -15,13 +15,13 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.*;
 
-public class PitCommand extends BaseCommand{
+public class PitCommand extends InteractionHandler {
 
-    public PitCommand(String name, String description) {
-        super(name, description,
-                new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", false)
-        );
-    }
+//    public PitCommand(String name, String description) {
+//        super(name, description,
+//                new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", false)
+//        );
+//    }
 
     protected void onCommand(SlashCommandInteractionEvent event) {
         String ign = getUsername(event);
