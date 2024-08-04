@@ -1,0 +1,279 @@
+{
+  "tournaments": [
+    {
+      "id": 0,
+      "name": "BedWars 4v4v4v4",
+      "icon": "BedWars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1543014000",
+        "end": "1543186800"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 1,
+      "name": "Blitz Duos",
+      "icon": "SG-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1546642800",
+        "end": "1546815600"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 2,
+      "name": "SkyWars Crazy Solo",
+      "icon": "Skywars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1552687200",
+        "end": "1552860000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 3,
+      "name": "Cops and Crims Defusal",
+      "icon": "CVC-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1572040800",
+        "end": "1572213600"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 4,
+      "name": "Bed Wars 4v4",
+      "icon": "BedWars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1576278000",
+        "end": "1576450800"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 5,
+      "name": "Quakecraft Solo",
+      "icon": "Quakecraft-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1580511600",
+        "end": "1580684400"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 6,
+      "name": "SkyWars Doubles Insane",
+      "icon": "Skywars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1585951200",
+        "end": "1586124000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 7,
+      "name": "BedWars 4v4v4v4",
+      "icon": "BedWars-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1591999200",
+        "end": "1592172000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 8,
+      "name": "Turbo Kart Racers",
+      "icon": "TurboKartRacers-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1596837600",
+        "end": "1597010400"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 9,
+      "name": "Blitz Duos",
+      "icon": "SG-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1602885600",
+        "end": "1603058400"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 10,
+      "name": "Grinch Simulator",
+      "icon": "Arcade-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1608332400",
+        "end": "1608505200"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 11,
+      "name": "Cops and Crims Defusal",
+      "icon": "CVC-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1614985200",
+        "end": "1615158000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 12,
+      "name": "TNT Run",
+      "icon": "TNT-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1628892000",
+        "end": "1629064800"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 13,
+      "name": "SkyWars Doubles Insane",
+      "icon": "Skywars-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1634335200",
+        "end": "1634508000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 14,
+      "name": "Quakecraft Solo",
+      "icon": "Quakecraft-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1639782000",
+        "end": "1639954800"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 15,
+      "name": "BedWars Doubles",
+      "icon": "BedWars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1647640800",
+        "end": "1647813600"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 16,
+      "name": "Mini Walls",
+      "icon": "Arcade-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1660341600",
+        "end": "1660514400"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 17,
+      "name": "Turbo Kart Racers",
+      "icon": "TurboKartRacers-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1666994400",
+        "end": "1667167200"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 18,
+      "name": "Blitz Duos",
+      "icon": "SG-64.png",
+      "iteration": 2,
+      "duration": {
+        "start": "1679695200",
+        "end": "1679868000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 19,
+      "name": "Wool Wars (Cancelled)",
+      "icon": "WoolWars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1693000800",
+        "end": "1693173600"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 20,
+      "name": "Wool Wars",
+      "icon": "WoolWars-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1694210400",
+        "end": "1694383200"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 21,
+      "name": "BedWars Doubles",
+      "icon": "BedWars-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1697839200",
+        "end": "1698012000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 22,
+      "name": "Grinch Simulator",
+      "icon": "Arcade-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1702681200",
+        "end": "1702854000"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 23,
+      "name": "TNT Run",
+      "icon": "TNT-64.png",
+      "iteration": 1,
+      "duration": {
+        "start": "1710540000",
+        "end": "1710712800"
+      },
+      "data": [ ]
+    },
+    {
+      "id": 24,
+      "name": "SkyWars Doubles Normal",
+      "icon": "Skywars-64.png",
+      "iteration": 0,
+      "duration": {
+        "start": "1719007200",
+        "end": "1719180000"
+      },
+      "data": [ ]
+    }
+  ]
+}
