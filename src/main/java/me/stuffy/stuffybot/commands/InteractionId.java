@@ -6,8 +6,11 @@ public class InteractionId {
     private final String command;
     private final String userId;
     private final HashMap<String, String> options;
-    public InteractionId(String componentId) {
+    public InteractionId (String componentId) {
         String[] parts = componentId.split(":");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Improperly formatted componentId");
+        }
 
         this.command = parts[0];
         this.userId = parts[1];
