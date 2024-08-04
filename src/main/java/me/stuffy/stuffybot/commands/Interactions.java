@@ -1,11 +1,13 @@
-package me.stuffy.stuffybot.utils;
+package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.commands.InteractionId;
+import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
@@ -34,6 +36,9 @@ public class Interactions {
         String userId = interactionId.getUserId();
         HashMap<String, String> options = interactionId.getOptions();
 
+        if(Objects.equals(command, "trivia")){
+            return null;
+        }
         // TODO: Error handling for invalid command
 //        switch (command) {
 //            case "pit":
@@ -62,7 +67,11 @@ public class Interactions {
         MessageEmbed embed = makeErrorEmbed("Invalid interactionId", "Invalid interactionId");
         MessageCreateBuilder data = new MessageCreateBuilder()
                 .addEmbeds(embed)
-                .addActionRow(secondary("This is a button", "button"));
+                .addActionRow(
+                        secondary("button:108359975536992256:ign=Stuffy", "Stuffy button"),
+                        secondary("button:273231421961797632:ign=Stuffy", "Cashboys button"),
+                        secondary("button:null:ign=Stuffy", "Anyone button")
+                );
         return data.build();
     }
 }
