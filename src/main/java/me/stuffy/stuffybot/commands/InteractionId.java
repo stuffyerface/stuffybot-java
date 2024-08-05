@@ -1,5 +1,6 @@
 package me.stuffy.stuffybot.commands;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class InteractionId {
@@ -8,19 +9,23 @@ public class InteractionId {
     private final HashMap<String, String> options;
     public InteractionId (String componentId) {
         String[] parts = componentId.split(":");
-        if (parts.length != 3) {
+        if (parts.length > 3 || parts.length < 2) {
             throw new IllegalArgumentException("Improperly formatted componentId");
         }
 
         this.command = parts[0];
         this.userId = parts[1];
 
-        String options = parts[2];
         this.options = new HashMap<>();
-        String[] optionParts = options.split(",");
-        for (String option : optionParts) {
-            String[] optionParts2 = option.split("=");
-            this.options.put(optionParts2[0], optionParts2[1]);
+        try {
+            String options = parts[2];
+            String[] optionParts = options.split(",");
+            for (String option : optionParts) {
+                String[] optionParts2 = option.split("=");
+                this.options.put(optionParts2[0], optionParts2[1]);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // No options
         }
     }
 

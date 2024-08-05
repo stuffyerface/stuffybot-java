@@ -1,8 +1,11 @@
 package me.stuffy.stuffybot.commands;
 
-import me.stuffy.stuffybot.commands.InteractionId;
 import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -36,23 +39,6 @@ public class Interactions {
         String userId = interactionId.getUserId();
         HashMap<String, String> options = interactionId.getOptions();
 
-        if(Objects.equals(command, "trivia")){
-            return null;
-        }
-        // TODO: Error handling for invalid command
-//        switch (command) {
-//            case "pit":
-//                return null;
-//            default:
-//                throw new InteractionException("Invalid command, how did you even get here?");
-//        }
-        // TODO: Error handling for invalid userId
-
-
-        if(options == null){
-            throw new InteractionException("No options provided, what am I supposed to do with this?");
-        }
-
         if(options.containsKey("ign")){
             String ign = options.get("ign");
             if (ign.length() > 16){
@@ -60,9 +46,11 @@ public class Interactions {
             }
             Pattern pattern = Pattern.compile("[^a-zA-Z0-9_]");
             if (pattern.matcher(ign).find()){
-                throw new InteractionException("Invalid field `ign`, Usernames can only contain letters, numbers and underscores");
+                throw new InteractionException("Invalid field `ign`, Usernames can only contain " +
+                        "letters, numbers and underscores");
             }
         }
+
 
         MessageEmbed embed = makeErrorEmbed("Invalid interactionId", "Invalid interactionId");
         MessageCreateBuilder data = new MessageCreateBuilder()
