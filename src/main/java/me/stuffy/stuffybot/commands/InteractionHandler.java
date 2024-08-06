@@ -3,18 +3,12 @@ package me.stuffy.stuffybot.commands;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
 import me.stuffy.stuffybot.utils.StatisticsManager;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -160,22 +154,7 @@ public class InteractionHandler extends ListenerAdapter {
         }
 
         if (interactionId.getCommand().equals("verify")){
-            Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
-                    .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
-                                    .setPlaceholder("Your Minecraft Username")
-                                    .setMaxLength(16)
-                                    .setMinLength(1)
-                                    .setRequired(true)
-                                    .build()),
-                            ActionRow.of(
-                                    TextInput.create("captcha", "CAPTCHA", TextInputStyle.PARAGRAPH)
-                                            .setPlaceholder("Enter the word 'stuffy'.\n" +
-                                                    "To prevent abuse, failing the CAPTCHA " +
-                                                    "will result in a short timeout.")
-                                            .setRequired(false)
-                                            .build()))
-                    .build();
-            event.replyModal(modal).queue();
+            verifyButton(event);
             return;
         }
 
