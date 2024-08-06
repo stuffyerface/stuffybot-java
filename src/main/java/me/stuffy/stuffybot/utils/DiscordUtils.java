@@ -5,6 +5,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.util.*;
 
@@ -94,11 +99,23 @@ public class DiscordUtils {
         return discordTimeUnix(timestamp, "R");
     }
 
-    public static void verifyUser(User user, String ign) {
-        Bot bot = Bot.getInstance();
-        bot.getHomeGuild().addRoleToMember(user, bot.getVerifiedRole()).queue();
-        // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
-        updateRoles(user, ign, false);
+    public static void verifyButton(ButtonInteractionEvent event) {
+        Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
+                .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
+                                .setPlaceholder("Your Minecraft Username")
+                                .setMaxLength(16)
+                                .setMinLength(1)
+                                .setRequired(true)
+                                .build()),
+                        ActionRow.of(
+                                TextInput.create("captcha", "CAPTCHA", TextInputStyle.PARAGRAPH)
+                                        .setPlaceholder("Enter the word 'stuffy'.\n" +
+                                                "To prevent abuse, failing the CAPTCHA " +
+                                                "will result in a short timeout.")
+                                        .setRequired(false)
+                                        .build()))
+                .build();
+        event.replyModal(modal).queue();
     }
 
     public static void updateRoles(User user, String ign, boolean announce) {
