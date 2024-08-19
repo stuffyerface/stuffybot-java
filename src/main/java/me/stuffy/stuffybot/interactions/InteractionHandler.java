@@ -28,50 +28,18 @@ import java.util.regex.Pattern;
 import static me.stuffy.stuffybot.interactions.Interactions.getResponse;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
 
 public class InteractionHandler extends ListenerAdapter {
     private final Map<String, Instant> latestValidInteraction = new HashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public InteractionHandler() {
-    }
-
-
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String commandName = event.getName();
 
-//        if(commandName.equals("tkr")){
-//            event.deferReply().queue();
-//            MessageEmbed embed = makeEmbed("Verify your Minecraft Account", "In order to chat in this discord and have linked roles based on your Hypixel Stats, you must verify below. You must have a discord linked in game to do that. If you do not know how, [click here](https://INSERT_DISCORD_LINK_TUTORIAL) for instructions.\n" +
-//                    "\n" +
-//                    "If you are trying to link your account so slash commands will automatically assume your username for the `ign` field, use </test:1268806843937853473>, which will not require verifying in game.\n" +
-//                    "\n" +
-//                    "-# :globe_with_meridians: You do __not__ need to verify your account to use commands inside or outside of this discord, receive announcements from Stuffy Bot, or any other feature we offer.\n" +
-//                    "-# :warning: Stuffy Bot and Staff of this Discord will __never__ ask for your passwords or other personal information, please protect yourself online.", 0x698fc9);
-//            // Send a standalone message in the same channel
-//            MessageCreateData data = new MessageCreateBuilder()
-//                    .addEmbeds(embed)
-//                            .addActionRow(
-//                                    primary("verify:null:", "Click to Verify your Minecraft Account")
-//                            )
-//                    .build();
-//            event.getChannel().sendMessage(data).queue();
-//            return;
-//        }
-
         event.deferReply().queue();
         String interactionId = commandName + ":" + event.getUser().getId() + ":";
         ArrayList<String> optionsArray = new ArrayList<String>();
-
-        // TODO: Error handling for invalid command
-        if(!validCommand(commandName)){
-            MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# Invalid command `" + commandName + "`");
-            event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
-            return;
-        }
 
         if(requiresIgn(commandName) && event.getOption("ign") == null){
             String ign = getUsername(event);
