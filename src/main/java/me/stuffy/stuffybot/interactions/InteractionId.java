@@ -1,6 +1,5 @@
-package me.stuffy.stuffybot.commands;
+package me.stuffy.stuffybot.interactions;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class InteractionId {
