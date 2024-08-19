@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.*;
 
@@ -100,6 +102,20 @@ public class DiscordUtils {
     }
 
     public static void verifyButton(ButtonInteractionEvent event) {
+        // Look up the user in the database, and check if they have already verified/linked
+        // If they are verified, verify them
+        // If they are linked, attempt to verify them
+        // If they are not linked, or the verification fails, prompt them to verify
+
+        String userId = event.getUser().getId();
+        if(isVerified(userId)){
+            MessageCreateData data = new MessageCreateBuilder()
+                    .setEmbeds(makeErrorEmbed("Verification Error", "You have already verified your identity, silly goose.")).build();
+                    event.reply(data).setEphemeral(true).queue();
+            return;
+        }
+
+
         Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
                 .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
                                 .setPlaceholder("Your Minecraft Username")
@@ -121,6 +137,10 @@ public class DiscordUtils {
     public static void updateRoles(User user, String ign, boolean announce) {
         Bot bot = Bot.getInstance();
         // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
+    }
+
+    public static boolean isVerified(String userId) {
+        return true;
     }
 
     public static String getUsername(SlashCommandInteractionEvent event) {
