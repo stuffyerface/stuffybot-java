@@ -1,12 +1,11 @@
 package me.stuffy.stuffybot.commands;
 
 import kotlin.Triple;
+import me.stuffy.stuffybot.interactions.InteractionHandler;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.text.DecimalFormat;
 
