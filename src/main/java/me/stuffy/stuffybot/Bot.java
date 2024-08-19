@@ -1,7 +1,7 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.commands.*;
+import me.stuffy.stuffybot.interactions.*;
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
 import me.stuffy.stuffybot.utils.DiscordUtils;
@@ -14,6 +14,11 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
@@ -33,7 +38,6 @@ public class Bot extends ListenerAdapter {
 
         // Initialize home guild
         this.homeGuild = jda.getGuildById("795108903733952562");
-//        this.homeGuild = jda.getGuildById("818238263110008863");
         assert this.homeGuild != null : "Failed to find home guild";
 
 
@@ -47,7 +51,8 @@ public class Bot extends ListenerAdapter {
                 new InteractionHandler()
         );
 
-
+        // Register commands "global"ly or "local"ly
+        registerCommands("local");
 
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
@@ -85,5 +90,38 @@ public class Bot extends ListenerAdapter {
     public void onGuildLeave(GuildLeaveEvent event) {
         Guild leftGuild = event.getGuild();
         Logger.log("<Guilds> Bot left guild: " + leftGuild.getName() + " (" + leftGuild.getId() + ")");
+    }
+
+    public void registerCommands(String scope) {
+        // Create a list of commands first
+        ArrayList<CommandData> commandList = new ArrayList<>();
+        commandList.add(Commands.slash("achievements", "Doesn't do anything yet"));
+        commandList.add(Commands.slash("help", "*Should* show a help message"));
+        commandList.add(Commands.slash("maxes", "Doesn't do anything yet"));
+
+        if (scope.equals("local")) {
+            clearLocalCommands();
+            this.homeGuild.updateCommands().addCommands(
+                    commandList
+            ).queue();
+            Logger.log("<Commands> Successfully Registered commands in guild.");
+        } else if (scope.equals("global")){
+            jda.updateCommands().addCommands(
+                    commandList
+            ).queue();
+            Logger.log("<Commands> Successfully Registered commands globally.");
+        } else {
+            throw new IllegalArgumentException("Invalid scope: " + scope);
+        }
+    }
+
+    public void clearCommands() {
+        jda.updateCommands().queue();
+        Logger.log("<Commands> Successfully cleared commands.");
+    }
+
+    public void clearLocalCommands() {
+        this.homeGuild.updateCommands().queue();
+        Logger.log("<Commands> Successfully cleared local commands.");
     }
 }
