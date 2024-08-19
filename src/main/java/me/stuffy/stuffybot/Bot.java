@@ -40,8 +40,7 @@ public class Bot extends ListenerAdapter {
         // Log startup
         String time = DiscordUtils.discordTimeNow();
         String self = jda.getSelfUser().getAsMention();
-        Logger logger = new Logger();
-        logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
+        Logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
 
         // Listen for interactions
         jda.addEventListener(
