@@ -1,7 +1,6 @@
 package me.stuffy.stuffybot.commands;
 
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import me.stuffy.stuffybot.interactions.InteractionHandler;
 
 public class TestCommand extends InteractionHandler {
 
