@@ -1,16 +1,11 @@
-package me.stuffy.stuffybot.commands;
+package me.stuffy.stuffybot.interactions;
 
 import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;

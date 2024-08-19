@@ -1,4 +1,4 @@
-package me.stuffy.stuffybot.commands;
+package me.stuffy.stuffybot.interactions;
 
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static me.stuffy.stuffybot.commands.Interactions.getResponse;
+import static me.stuffy.stuffybot.interactions.Interactions.getResponse;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
@@ -147,7 +147,8 @@ public class InteractionHandler extends ListenerAdapter {
                 });
             } catch (InteractionException e) {
                 event.deferEdit().queue();
-                MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# " + e.getMessage());
+                MessageEmbed errorEmbed = makeErrorEmbed("Invalid Button Ownership",
+                        "You can't use modify commands run by others.\n-# " + e.getMessage());
                 event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
                 return;
             }
