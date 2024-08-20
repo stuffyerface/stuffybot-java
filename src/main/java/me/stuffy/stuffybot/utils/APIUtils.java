@@ -71,6 +71,11 @@ public class APIUtils {
                 JsonParser parser = new JsonParser();
                 JsonElement element = parser.parse(response.body());
                 JsonObject object = element.getAsJsonObject();
+                if (object.get("player").isJsonNull()) {
+                    logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "] (Player is null)");
+                    throw new APIException("Hypixel", "This player has never logged into Hypixel.");
+                }
+
                 return new HypixelProfile(object.get("player").getAsJsonObject());
             }
             case 400 -> {
