@@ -2,6 +2,7 @@ package me.stuffy.stuffybot.interactions;
 
 import me.stuffy.stuffybot.commands.PitCommand;
 import me.stuffy.stuffybot.commands.StatsCommand;
+import me.stuffy.stuffybot.commands.TkrCommand;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -33,7 +34,6 @@ public class InteractionManager {
         }
 
         String command = interactionId.getCommand();
-        String userId = interactionId.getUserId();
         HashMap<String, String> options = interactionId.getOptions();
 
         if(options.containsKey("ign")){
@@ -53,6 +53,7 @@ public class InteractionManager {
                 case "pit" -> PitCommand.pit(interactionId);
                 case "pitDetailed" -> PitCommand.pitDetailed(interactionId);
                 case "stats" -> StatsCommand.stats(interactionId);
+                case "tkr" -> TkrCommand.tkr(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
