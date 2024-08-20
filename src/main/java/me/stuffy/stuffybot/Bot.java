@@ -14,8 +14,10 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -95,12 +97,14 @@ public class Bot extends ListenerAdapter {
     public void registerCommands(String scope) {
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
-        commandList.add(Commands.slash("achievements", "Doesn't do anything yet"));
-        commandList.add(Commands.slash("help", "*Should* show a help message"));
-        commandList.add(Commands.slash("maxes", "Doesn't do anything yet"));
+//        commandList.add(Commands.slash("achievements", "Doesn't do anything yet"));
+//        commandList.add(Commands.slash("help", "*Should* show a help message"));
+//        commandList.add(Commands.slash("maxes", "Doesn't do anything yet"));
+        commandList.add(Commands.slash("pit", "Get Pit stats for a player")
+                .addOptions(new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false)));
 
         if (scope.equals("local")) {
-            clearLocalCommands();
+            //clearLocalCommands();
             this.homeGuild.updateCommands().addCommands(
                     commandList
             ).queue();
