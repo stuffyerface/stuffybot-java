@@ -95,15 +95,18 @@ public class Bot extends ListenerAdapter {
     }
 
     public void registerCommands(String scope) {
+        OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
 //        commandList.add(Commands.slash("achievements", "Doesn't do anything yet"));
 //        commandList.add(Commands.slash("help", "*Should* show a help message"));
 //        commandList.add(Commands.slash("maxes", "Doesn't do anything yet"));
         commandList.add(Commands.slash("pit", "Get Pit stats for a player")
-                .addOptions(new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false)));
+                .addOptions(ignOption));
         commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
-                .addOptions(new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false)));
+                .addOptions(ignOption));
+        commandList.add(Commands.slash("tkr", "Get TKR stats for a player")
+                .addOptions(ignOption));
 
         if (scope.equals("local")) {
             //clearLocalCommands();
