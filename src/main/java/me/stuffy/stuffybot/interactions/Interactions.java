@@ -1,5 +1,7 @@
 package me.stuffy.stuffybot.interactions;
 
+import me.stuffy.stuffybot.commands.PitCommand;
+import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -46,15 +48,16 @@ public class Interactions {
             }
         }
 
-
-        MessageEmbed embed = makeErrorEmbed("Invalid interactionId", "Invalid interactionId");
-        MessageCreateBuilder data = new MessageCreateBuilder()
-                .addEmbeds(embed)
-                .addActionRow(
-                        secondary("button:108359975536992256:ign=Stuffy", "Stuffy button"),
-                        secondary("button:273231421961797632:ign=Stuffy", "Cashboys button"),
-                        secondary("button:null:ign=Stuffy", "Anyone button")
-                );
-        return data.build();
+        try {
+            return switch (command) {
+                case "pit" -> PitCommand.pit(interactionId);
+                case "pitDetailed" -> PitCommand.pitDetailed(interactionId);
+                default -> throw new InteractionException("Invalid command");
+            };
+        } catch (APIException e) {
+            return new MessageCreateBuilder()
+                    .addEmbeds(makeErrorEmbed(e.getAPIType() + " API Error", e.getMessage()))
+                    .build();
+        }
     }
 }
