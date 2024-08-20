@@ -1,9 +1,9 @@
 package me.stuffy.stuffybot.interactions;
 
 import me.stuffy.stuffybot.commands.PitCommand;
+import me.stuffy.stuffybot.commands.StatsCommand;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
 
-public class Interactions {
+public class InteractionManager {
 
     public static MessageCreateData getResponse(String componentId) throws InteractionException {
 

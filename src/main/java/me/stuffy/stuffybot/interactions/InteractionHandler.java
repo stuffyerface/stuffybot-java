@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static me.stuffy.stuffybot.interactions.Interactions.getResponse;
+import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
