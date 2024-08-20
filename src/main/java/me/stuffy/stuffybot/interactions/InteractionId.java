@@ -39,4 +39,12 @@ public class InteractionId {
     public HashMap<String, String> getOptions() {
         return this.options;
     }
+
+    public String getOptionsString() {
+        StringBuilder optionsString = new StringBuilder();
+        for (String key : this.options.keySet()) {
+            optionsString.append(key).append("=").append(this.options.get(key)).append(",");
+        }
+        return optionsString.toString();
+    }
 }

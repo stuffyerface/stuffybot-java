@@ -1,11 +1,13 @@
 package me.stuffy.stuffybot.commands;
 
 import kotlin.Triple;
-import me.stuffy.stuffybot.interactions.InteractionHandler;
+import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
+import me.stuffy.stuffybot.utils.APIException;
+import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.text.DecimalFormat;
 
@@ -14,28 +16,13 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.*;
 
-public class PitCommand extends InteractionHandler {
+public class PitCommand {
 
-//    public PitCommand(String name, String description) {
-//        super(name, description,
-//                new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", false)
-//        );
-//    }
-
-    protected void onCommand(SlashCommandInteractionEvent event) {
-        String ign = getUsername(event);
+    public static MessageCreateData pit(InteractionId interactionId) throws APIException {
+        String ign = interactionId.getOptions().get("ign");
         HypixelProfile hypixelProfile;
-        try {
-            hypixelProfile = getHypixelProfile(ign);
-        }catch (Exception e){
-            event.getHook().sendMessage("").addEmbeds(
-                    makeErrorEmbed(
-                            "API Error",
-                            "An error occurred while fetching your Hypixel profile. Please try again later."
-                    )
-            ).queue();
-            return;
-        }
+        hypixelProfile = getHypixelProfile(ign);
+
 
         String username = hypixelProfile.getDisplayName();
         String pitPrestige = convertToRomanNumeral(hypixelProfile.getPit("prestige"));
@@ -61,16 +48,22 @@ public class PitCommand extends InteractionHandler {
                 embedContent
         );
 
-
-        String runnerId = event.getUser().getId();
-        event.getHook().sendMessage("")
+        return new MessageCreateBuilder()
+                .addEmbeds(pitStats)
                 .addActionRow(
-                        secondary("pitDetailed:" + runnerId, "Challenge Achievement Progress")
+                        secondary("pitDetailed:" + interactionId.getUserId() + ":" + interactionId.getOptionsString(), "Challenge Achievement Progress")
                 )
-                .addEmbeds(
-                        pitStats
-        ).queue();
+                .build();
+    }
 
+    public static MessageCreateData pitDetailed(InteractionId interactionId) throws APIException{
+        String ign = interactionId.getOptions().get("ign");
+        HypixelProfile hypixelProfile;
+        try {
+            hypixelProfile = getHypixelProfile(ign);
+        }catch (Exception e){
+            throw new IllegalArgumentException("Invalid IGN");
+        }
 
         Triple<String, Integer, Integer>[] challengeAchievements = new Triple[]{
                 new Triple<>("Ingots Collector", hypixelProfile.getPit("ingots_collector"), 2000),
@@ -83,46 +76,27 @@ public class PitCommand extends InteractionHandler {
                 new Triple<>("Raging Hunter", hypixelProfile.getPit("raging_hunter"), 100),
                 new Triple<>("Bounty Hunter", hypixelProfile.getPit("bounty_hunter"), 30)
         };
-
-        StringBuilder embedContent2 = new StringBuilder();
+        DecimalFormat df = new DecimalFormat("#,###");
+        StringBuilder embedContent = new StringBuilder();
         for (Triple<String, Integer, Integer> challenge : challengeAchievements) {
             if (challenge.getSecond() >= challenge.getThird()) {
-                embedContent2.append("~~").append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append("~~\n");
+                embedContent.append("~~").append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append("~~\n");
             } else {
                 String percentage = df.format((double) challenge.getSecond() / challenge.getThird() * 100);
-                embedContent2.append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append(" (").append(percentage).append("%)\n");
+                embedContent.append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append(" (").append(percentage).append("%)\n");
             }
         }
 
         MessageEmbed extraPitStats = makeStatsEmbed(
-                "Pit Achievement stats for " + username,
-                embedContent2.toString()
+                "Pit Achievement stats for " + hypixelProfile.getDisplayName(),
+                embedContent.toString()
         );
-    }
 
-
-    public void onButton(ButtonInteractionEvent event) {
-//        String[] parts = event.getComponentId().split(":");
-//        String action = parts[0];
-//        String userId = parts[1];
-//
-//        if (action.equals("pitDetailed")) {
-//            MessageEmbed detailedButton = null;
-//            if(detailedButton == null) {
-//                return;
-//            }
-//            event.editMessageEmbeds(detailedButton)
-//                    .setActionRow(secondary("go_back:" + userId, "Go Back"))
-//                    .queue();
-//        }
-//        if (action.equals("go_back")) {
-//            MessageEmbed backButton = originalEmbeds.get(event.getHook().getId());
-//            if(backButton == null) {
-//                return;
-//            }
-//            event.editMessageEmbeds(backButton)
-//                    .setActionRow(secondary("pitDetailed:" + userId, "Challenge Achievement Progress"))
-//                    .queue();
-//        }
+        return new MessageCreateBuilder()
+                .addEmbeds(extraPitStats)
+                .addActionRow(
+                        secondary("pit:" + interactionId.getUserId() + ":"  + interactionId.getOptionsString(), "Back to Pit Stats")
+                )
+                .build();
     }
 }
