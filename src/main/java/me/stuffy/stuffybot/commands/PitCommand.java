@@ -20,11 +20,9 @@ public class PitCommand {
 
     public static MessageCreateData pit(InteractionId interactionId) throws APIException {
         String ign = interactionId.getOptions().get("ign");
-        HypixelProfile hypixelProfile;
-        hypixelProfile = getHypixelProfile(ign);
-
-
+        HypixelProfile hypixelProfile = getHypixelProfile(ign);
         String username = hypixelProfile.getDisplayName();
+
         String pitPrestige = convertToRomanNumeral(hypixelProfile.getPit("prestige"));
 
         Long totalPitXp = hypixelProfile.getPitXP();
