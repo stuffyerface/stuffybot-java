@@ -52,6 +52,7 @@ public class InteractionManager {
             return switch (command) {
                 case "pit" -> PitCommand.pit(interactionId);
                 case "pitDetailed" -> PitCommand.pitDetailed(interactionId);
+                case "stats" -> StatsCommand.stats(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {

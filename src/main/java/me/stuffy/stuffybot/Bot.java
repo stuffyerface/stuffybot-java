@@ -102,6 +102,8 @@ public class Bot extends ListenerAdapter {
 //        commandList.add(Commands.slash("maxes", "Doesn't do anything yet"));
         commandList.add(Commands.slash("pit", "Get Pit stats for a player")
                 .addOptions(new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false)));
+        commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
+                .addOptions(new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false)));
 
         if (scope.equals("local")) {
             //clearLocalCommands();
