@@ -4,7 +4,6 @@ import kotlin.Triple;
 import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.utils.APIException;
-import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -46,10 +45,11 @@ public class PitCommand {
                 embedContent
         );
 
+        String newInteractionId = InteractionId.newCommand("pitDetailed", interactionId).getInteractionString();
         return new MessageCreateBuilder()
                 .addEmbeds(pitStats)
                 .addActionRow(
-                        secondary("pitDetailed:" + interactionId.getUserId() + ":" + interactionId.getOptionsString(), "Challenge Achievement Progress")
+                        secondary(newInteractionId, "Challenge Achievement Progress")
                 )
                 .build();
     }
@@ -90,10 +90,11 @@ public class PitCommand {
                 embedContent.toString()
         );
 
+        String newInteractionId = InteractionId.newCommand("pit", interactionId).getInteractionString();
         return new MessageCreateBuilder()
                 .addEmbeds(extraPitStats)
                 .addActionRow(
-                        secondary("pit:" + interactionId.getUserId() + ":"  + interactionId.getOptionsString(), "Back to Pit Stats")
+                        secondary(newInteractionId, "Back to Pit Stats")
                 )
                 .build();
     }
