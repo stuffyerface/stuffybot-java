@@ -1,9 +1,11 @@
 package me.stuffy.stuffybot.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +28,24 @@ public class MiscUtils {
             }
         }
         return currentElement;
+    }
+
+    public static JsonElement getNestedJson(Integer defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            Gson gson = new Gson();
+            return gson.toJsonTree(defaultValue);
+        }
+    }
+
+    public static JsonElement getNestedJson(Boolean defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            Gson gson = new Gson();
+            return gson.toJsonTree(defaultValue);
+        }
     }
 
     public static String convertToRomanNumeral(int number) {
@@ -120,6 +140,43 @@ public class MiscUtils {
             sb.append(BASE62.charAt(randomIndex));
         }
         return sb.toString();
+    }
+
+    public static String toReadableName(String resourcesName) {
+        Map<String,String> resourceNames = new HashMap<>();
+        resourceNames.put("arcade", "Arcade");
+        resourceNames.put("arena", "Arena Brawl");
+        resourceNames.put("bedwars", "Bed Wars");
+        resourceNames.put("blitz", "Blitz Survival Games");
+        resourceNames.put("buildbattle", "Build Battle");
+        resourceNames.put("christmas2017", "Christmas");
+        resourceNames.put("copsandcrims", "Cops and Crims");
+        resourceNames.put("duels", "Duels");
+        resourceNames.put("easter", "Easter");
+        resourceNames.put("general", "General");
+        resourceNames.put("gingerbread", "Turbo Kart Racers");
+        resourceNames.put("halloween2017", "Halloween");
+        resourceNames.put("housing", "Housing");
+        resourceNames.put("murdermystery", "Murder Mystery");
+        resourceNames.put("paintball", "Paintball");
+        resourceNames.put("pit", "Pit");
+        resourceNames.put("quake", "Quakecraft");
+        resourceNames.put("skyblock", "SkyBlock");
+        resourceNames.put("skyclash", "SkyClash");
+        resourceNames.put("skywars", "SkyWars");
+        resourceNames.put("speeduhc", "Speed UHC");
+        resourceNames.put("summer", "Summer");
+        resourceNames.put("supersmash", "Smash Heroes");
+        resourceNames.put("tntgames", "The TNT Games");
+        resourceNames.put("truecombat", "Crazy Walls");
+        resourceNames.put("uhc", "UHC Champions");
+        resourceNames.put("vampirez", "VampireZ");
+        resourceNames.put("walls", "Walls");
+        resourceNames.put("walls3", "Mega Walls");
+        resourceNames.put("warlords", "Warlords");
+        resourceNames.put("woolgames", "Wool Games");
+
+        return resourceNames.getOrDefault(resourcesName, resourcesName);
     }
 
 }

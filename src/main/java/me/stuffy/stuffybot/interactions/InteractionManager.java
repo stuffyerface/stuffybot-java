@@ -1,5 +1,6 @@
 package me.stuffy.stuffybot.interactions;
 
+import me.stuffy.stuffybot.commands.MaxesCommand;
 import me.stuffy.stuffybot.commands.PitCommand;
 import me.stuffy.stuffybot.commands.StatsCommand;
 import me.stuffy.stuffybot.commands.TkrCommand;
@@ -38,6 +39,7 @@ public class InteractionManager {
                 case "pitDetailed" -> PitCommand.pitDetailed(interactionId);
                 case "stats" -> StatsCommand.stats(interactionId);
                 case "tkr" -> TkrCommand.tkr(interactionId);
+                case "maxes" -> MaxesCommand.maxes(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
