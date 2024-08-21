@@ -1,5 +1,6 @@
 package me.stuffy.stuffybot.profiles;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -347,7 +348,7 @@ public class HypixelProfile {
     public JsonObject getAchievements() {
         // return an object with profile["achievements"],profile["achievementsOneTime"]
         JsonObject combined = new JsonObject();
-        combined.add("achievements", getNestedJson(profile, "achievements"));
+        combined.add("achievementsTiered", getNestedJson(profile, "achievements"));
         combined.add("achievementsOneTime", getNestedJson(profile, "achievementsOneTime"));
         return combined;
     }
@@ -506,6 +507,65 @@ public class HypixelProfile {
     public String getMegaWallsSelectedClass() {
         JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
         return getNestedJson(mwStats, "chosen_class").getAsString();
+    }
+
+    public ArrayList<String> getMaxGames() {
+        ArrayList<String> maxGames = new ArrayList<>();
+        JsonObject achievements = getAchievements();
+        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
+        List<String> playerOneTimeString = new ArrayList<>();
+        for (JsonElement element : playerOneTime) {
+            playerOneTimeString.add(element.getAsString());
+        }
+        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
+        JsonElement achievementsResources = getAchievementsResources();
+        for (String game : achievementsResources.getAsJsonObject().keySet()) {
+            if (game.equals("skyclash") || game.equals("truecombat")) {
+                continue;
+            }
+            boolean maxed = true;
+            for ( String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
+                if (isLegacy) {
+                    continue;
+                }
+                if (!playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
+                    maxed = false;
+                    break;
+                }
+            }
+
+            if (!maxed) {
+                continue;
+            }
+
+            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
+                if (isLegacy) {
+                    continue;
+                }
+
+                int maxTier = 0;
+                for (JsonElement tier : getNestedJson(0, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
+                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
+                    if (tierAmount > maxTier) {
+                        maxTier = tierAmount;
+                    }
+                }
+                if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() < maxTier) {
+                    maxed = false;
+                    break;
+                }
+            }
+
+            if (maxed) {
+                maxGames.add(game);
+            }
+        }
+
+
+
+        return maxGames;
     }
 }
 

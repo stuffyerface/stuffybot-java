@@ -189,15 +189,6 @@ public class APIUtils {
                 JsonElement element = parser.parse(response.body());
                 JsonObject object = element.getAsJsonObject();
 
-                Gson gson = new Gson();
-                String json = gson.toJson(object);
-
-                try (FileWriter file = new FileWriter("../../../../resources/data/achievements.json")) {
-                    file.write(json);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 return object.get("achievements");
 
             } else {
