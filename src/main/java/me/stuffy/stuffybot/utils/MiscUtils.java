@@ -3,6 +3,7 @@ package me.stuffy.stuffybot.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.security.SecureRandom;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -107,6 +108,18 @@ public class MiscUtils {
 
     public static boolean validCommand(String commandName) {
         return true;
+    }
+
+    public static String genBase64(Integer length){
+        String BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        SecureRandom RANDOM = new SecureRandom();
+
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = RANDOM.nextInt(BASE62.length());
+            sb.append(BASE62.charAt(randomIndex));
+        }
+        return sb.toString();
     }
 
 }

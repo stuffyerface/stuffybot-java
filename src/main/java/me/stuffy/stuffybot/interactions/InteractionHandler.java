@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -30,16 +32,16 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class InteractionHandler extends ListenerAdapter {
-    private final Map<String, Instant> latestValidInteraction = new HashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String commandName = event.getName();
-
+        String id = genBase64(3);
         event.deferReply().queue();
-        String interactionId = commandName + ":" + event.getUser().getId() + ":";
         ArrayList<String> optionsArray = new ArrayList<String>();
+
 
         if(requiresIgn(commandName) && event.getOption("ign") == null){
             String ign = getUsername(event);
@@ -57,10 +59,9 @@ public class InteractionHandler extends ListenerAdapter {
             optionsArray.add(option.getName() + "=" + optionString);
         }
 
-        String options = String.join(",", optionsArray);
-        interactionId += options;
+        InteractionId interactionId = new InteractionId(id, commandName, event.getUser().getId(), optionsArray);
 
-        Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + options);
+        Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray.toString());
 
         MessageCreateData response = null;
         try {
@@ -76,17 +77,13 @@ public class InteractionHandler extends ListenerAdapter {
         }
 
         StatisticsManager.incrementCommandUsage(commandName);
+        String uid = interactionId.getId();
+        InteractionHook hook = event.getHook();
+        ScheduledFuture<?> scheduledFuture = scheduler.schedule(() -> {
+            hook.editOriginalComponents().queue();
+        }, 30, TimeUnit.SECONDS);
 
-        latestValidInteraction.put(event.getHook().getId(), Instant.now());
-        scheduler.scheduleAtFixedRate(this::endEvent, 0, 1, TimeUnit.SECONDS);
-    }
-
-    private void endEvent() {
-        latestValidInteraction.forEach((messageId, time) -> {
-            if (Instant.now().getEpochSecond() - time.getEpochSecond() > 30) {
-                latestValidInteraction.remove(messageId);
-            }
-        });
+        scheduledTasks.put(uid, scheduledFuture);
     }
 
     @Override
@@ -97,7 +94,15 @@ public class InteractionHandler extends ListenerAdapter {
             interactionId = new InteractionId(event.getComponentId());
         } catch (Exception e) {
             event.deferEdit().queue();
-            MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# You pressed an imaginary button");
+            MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error",
+                    "An error occurred while processing your button press.\n-# You pressed an imaginary button");
+//                    "You can't fool me, this is gibberish",
+//                    "This is not the interaction you are looking for",
+//                    "*Someone* messed up the interactionId, and it wasn't me",
+//                    "I'm sorry, Dave. I'm afraid I can't do that",
+//                    "You can't fool me, that button doesn't exist",
+//                    "So, we're just making up our own buttons now?",
+//                    "How did you even get here?"
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             Logger.logError("<Button> @" + event.getUser().getName() + ": `" + event.getComponentId() + "`");
             return;
@@ -130,7 +135,7 @@ public class InteractionHandler extends ListenerAdapter {
         event.deferEdit().queue();
         MessageCreateData data;
         try {
-            data = getResponse(event.getComponentId());
+            data = getResponse(interactionId);
         } catch (InteractionException e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Button Interaction Error", "An error occurred while processing your button press.\n-# " + e.getMessage());
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
@@ -142,8 +147,22 @@ public class InteractionHandler extends ListenerAdapter {
             // When the button press does not require a response
             return;
         }
+
+        InteractionHook hook = event.getHook();
+        ScheduledFuture<?> scheduledFuture = scheduledTasks.get(interactionId.getId());
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(false);
+        } else {
+            Logger.logError("Scheduled task not found for button press");
+        }
+
+        ScheduledFuture<?> newScheduledFuture = scheduler.schedule(() -> {
+            hook.editOriginalComponents().queue();
+        }, 30, TimeUnit.SECONDS);
+        scheduledTasks.put(interactionId.getId(), newScheduledFuture);
+
         MessageEditData editData = MessageEditData.fromCreateData(data);
-        event.getHook().editOriginal(editData).queue();
+        hook.editOriginal(editData).queue();
     }
 
     @Override

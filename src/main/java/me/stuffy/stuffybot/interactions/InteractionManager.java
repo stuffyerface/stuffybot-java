@@ -12,26 +12,10 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
 
 public class InteractionManager {
 
-    public static MessageCreateData getResponse(String componentId) throws InteractionException {
-
-        InteractionId interactionId;
-
-        try {
-            interactionId = new InteractionId(componentId);
-        } catch (Exception e) {
-            throw new InteractionException(new String[]{
-                    "You can't fool me, this is gibberish",
-                    "This is not the interaction you are looking for",
-                    "*Someone* messed up the interactionId, and it wasn't me",
-                    "I'm sorry, Dave. I'm afraid I can't do that",
-                    "You can't fool me, that button doesn't exist",
-                    "So, we're just making up our own buttons now?",
-                    "How did you even get here?"});
-        }
+    public static MessageCreateData getResponse(InteractionId interactionId) throws InteractionException {
 
         String command = interactionId.getCommand();
         HashMap<String, String> options = interactionId.getOptions();
