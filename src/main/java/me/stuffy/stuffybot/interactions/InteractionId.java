@@ -59,6 +59,14 @@ public class InteractionId {
         return this.options;
     }
 
+    public String getOption(String key) {
+        return this.options.get(key);
+    }
+
+    public String getOption(String key, String defaultValue) {
+        return this.options.getOrDefault(key, defaultValue);
+    }
+
     public String getOptionsString() {
         StringBuilder optionsString = new StringBuilder();
         for (String key : this.options.keySet()) {
@@ -73,5 +81,10 @@ public class InteractionId {
 
     public String getInteractionString() {
         return this.id + ":" + this.command + ":" + this.userId + ":" + this.getOptionsString();
+    }
+
+    public InteractionId setOption(String key, String value) {
+        this.options.put(key, value);
+        return this;
     }
 }
