@@ -95,7 +95,7 @@ public class Bot extends ListenerAdapter {
     }
 
     public void registerCommands(String scope) {
-        OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN").setRequired(false);
+        OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN", false);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
 //        commandList.add(Commands.slash("achievements", "Doesn't do anything yet"));
