@@ -18,10 +18,32 @@ import java.util.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.toSkillIssue;
 
 public class DiscordUtils {
-    public static MessageEmbed makeEmbed(String embedTitle, String embedContent, int embedColor) {
+    public static MessageEmbed makeEmbed(String embedTitle, String embedSubtitle, String embedContent, int embedColor) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(embedTitle);
-        embedBuilder.setDescription(embedContent);
+        String[] lines = embedContent.split("\n");
+        int lineCount = lines.length;
+        if (lineCount <= 15) {
+            if(embedSubtitle == null)
+                embedBuilder.setDescription(embedContent);
+            else
+                embedBuilder.setDescription("-# " + embedSubtitle + "\n" + embedContent);
+        } else {
+            if(embedSubtitle != null) {
+                embedBuilder.setDescription("-# " + embedSubtitle);
+            }
+            StringBuilder column1 = new StringBuilder();
+            StringBuilder column2 = new StringBuilder();
+            for (int i = 0; i < lineCount; i++) {
+                if (i % 2 == 0) {
+                    column1.append(lines[i]).append("\n");
+                } else {
+                    column2.append(lines[i]).append("\n");
+                }
+            }
+            embedBuilder.addField("", column1.toString(), true);
+            embedBuilder.addField("", column2.toString(), true);
+        }
         embedBuilder.setColor(embedColor);
         embedBuilder.setFooter("Stuffy Bot by @stuffy");
         embedBuilder.setTimestamp(new Date().toInstant());
@@ -33,11 +55,11 @@ public class DiscordUtils {
             embedTitle = toSkillIssue(embedTitle);
             embedContent = toSkillIssue(embedContent);
         }
-        return makeEmbed(":no_entry: " + embedTitle, embedContent, 0xff0000);
+        return makeEmbed(":no_entry: " + embedTitle, null, embedContent, 0xff0000);
     }
 
     public static MessageEmbed makeUpdateEmbed(String embedTitle, String embedContent) {
-        return makeEmbed(":mega: " + embedTitle, embedContent, 0xffef14);
+        return makeEmbed(":mega: " + embedTitle, null, embedContent, 0xffef14);
     }
 
     public static MessageEmbed makeStaffRankChangeEmbed(String ign, String oldRank, String newRank, String position) {
@@ -53,12 +75,15 @@ public class DiscordUtils {
         if (newRank.equals("ADMIN")){
             color = 0xff5555;
         }
-        return makeEmbed(":mega: Rank Change Detected", embedContent, color);
+        return makeEmbed(":mega: Rank Change Detected", null, embedContent, color);
     }
 
     public static MessageEmbed makeStatsEmbed(String embedTitle, String embedContent) {
+        return makeEmbed(embedTitle, null, embedContent, 0xf7cb72);
+    }
 
-        return makeEmbed(embedTitle, embedContent, 0xf7cb72);
+    public static MessageEmbed makeStatsEmbed(String embedTitle, String embedSubtitle, String embedContent) {
+        return makeEmbed(embedTitle, embedSubtitle , embedContent, 0xf7cb72);
     }
 
     public static String getDiscordUsername(String id){
