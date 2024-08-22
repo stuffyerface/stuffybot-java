@@ -42,9 +42,9 @@ public class TkrCommand {
 
         return new MessageCreateBuilder()
                 .addEmbeds(tkrStats)
-                .addActionRow(
-                        secondary("achievements:" + interactionId.getUserId() + ":game=tkr," + interactionId.getOptionsString(), "Looking for TKR Achievements?")
-                )
+//                .addActionRow(
+//                        secondary("achievements:" + interactionId.getUserId() + ":game=tkr," + interactionId.getOptionsString(), "Looking for TKR Achievements?")
+//                )
                 .build();
     }
 }
