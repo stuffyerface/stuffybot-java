@@ -553,7 +553,11 @@ public class HypixelProfile {
         List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
         List<String> playerOneTimeString = new ArrayList<>();
         for (JsonElement element : playerOneTime) {
-            playerOneTimeString.add(element.getAsString());
+            // Account for Hypixel Bug listing achievements as Empty Arrays instead of Strings
+            try {
+                playerOneTimeString.add(element.getAsString());
+            } catch (Exception ignored) {
+            }
         }
         JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
         JsonElement achievementsResources = getAchievementsResources();
