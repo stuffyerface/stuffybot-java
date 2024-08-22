@@ -110,6 +110,10 @@ public class Bot extends ListenerAdapter {
                 .addOptions(ignOption));
         commandList.add(Commands.slash("blitz", "Get Blitz Ultimate Kit xp for a player")
                 .addOptions(ignOption));
+        commandList.add(Commands.slash("megawalls", "Get Mega Walls skins for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.STRING, "skins", "Which skins to look at", false).setAutoComplete(true)));
+
 
         if (scope.equals("local")) {
             //clearLocalCommands();
