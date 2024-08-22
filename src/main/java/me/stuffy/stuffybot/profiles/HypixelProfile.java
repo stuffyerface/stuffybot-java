@@ -9,8 +9,7 @@ import java.util.*;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
 import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
-import static me.stuffy.stuffybot.utils.MiscUtils.getNestedJson;
-import static me.stuffy.stuffybot.utils.MiscUtils.pitXpToLevel;
+import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class HypixelProfile {
     private UUID uuid;
@@ -517,10 +516,11 @@ public class HypixelProfile {
         allLegendaries.put("walls3_legendary_snowman", "Snowman");
 
 
-        for (JsonElement achievement : oneTime) {
-            String ap = achievement.getAsString();
-            if (allLegendaries.containsKey(ap)) {
-                legendarySkins.put(allLegendaries.get(ap), true);
+        for (String skin : allLegendaries.keySet()) {
+            if (oneTime.contains(stringToJson(skin))) {
+                legendarySkins.put(allLegendaries.get(skin), true);
+            } else {
+                legendarySkins.put(allLegendaries.get(skin), false);
             }
         }
 
