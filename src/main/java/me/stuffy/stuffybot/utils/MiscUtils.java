@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MiscUtils {
+    private static final Gson gson = new Gson();
     public static UUID formatUUID(String uuid) {
         return UUID.fromString(uuid.replaceFirst(
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
@@ -34,8 +35,7 @@ public class MiscUtils {
         try {
             return getNestedJson((JsonObject) object, keys);
         } catch (IllegalArgumentException e) {
-            Gson gson = new Gson();
-            return gson.toJsonTree(defaultValue);
+            return stringToJson(defaultValue.toString());
         }
     }
 
@@ -43,9 +43,12 @@ public class MiscUtils {
         try {
             return getNestedJson((JsonObject) object, keys);
         } catch (IllegalArgumentException e) {
-            Gson gson = new Gson();
-            return gson.toJsonTree(defaultValue);
+            return stringToJson(defaultValue.toString());
         }
+    }
+
+    public static JsonElement stringToJson(String jsonString) {
+        return gson.fromJson(jsonString, JsonElement.class);
     }
 
     public static String convertToRomanNumeral(int number) {
