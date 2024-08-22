@@ -1,6 +1,5 @@
 package me.stuffy.stuffybot.profiles;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -145,10 +144,10 @@ public class HypixelProfile {
     }
 
     public Integer getRewardStreak() {
-        if (!profile.has("rewardStreak")) {
+        if (!profile.has("rewardScore")) {
             return 0;
         }
-        return getNestedJson(profile, "rewardStreak").getAsInt();
+        return getNestedJson(profile, "rewardScore").getAsInt();
     }
 
     public Integer getRewardRecord() {
@@ -362,7 +361,10 @@ public class HypixelProfile {
         List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
         List<String> playerOneTimeString = new ArrayList<>();
         for (JsonElement element : playerOneTime) {
-            playerOneTimeString.add(element.getAsString());
+            try {
+                playerOneTimeString.add(element.getAsString());
+            } catch (Exception ignored) {
+            }
         }
         JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
         JsonElement achievementsResources = getAchievementsResources();
