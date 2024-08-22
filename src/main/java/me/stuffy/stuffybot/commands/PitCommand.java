@@ -56,12 +56,7 @@ public class PitCommand {
 
     public static MessageCreateData pitDetailed(InteractionId interactionId) throws APIException{
         String ign = interactionId.getOptions().get("ign");
-        HypixelProfile hypixelProfile;
-        try {
-            hypixelProfile = getHypixelProfile(ign);
-        }catch (Exception e){
-            throw new IllegalArgumentException("Invalid IGN");
-        }
+        HypixelProfile hypixelProfile = getHypixelProfile(ign);
 
         Triple<String, Integer, Integer>[] challengeAchievements = new Triple[]{
                 new Triple<>("Ingots Collector", hypixelProfile.getPit("ingots_collector"), 2000),
