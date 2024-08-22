@@ -159,7 +159,7 @@ public class InteractionHandler extends ListenerAdapter {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(false);
         } else {
-            Logger.logError("Scheduled task not found for button press");
+            Logger.logError("ScheduledFuture not found for button press '" + interactionId.getId() + "', was the bot restarted?");
         }
 
         ScheduledFuture<?> newScheduledFuture = scheduler.schedule(() -> {
