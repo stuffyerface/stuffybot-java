@@ -603,5 +603,15 @@ public class HypixelProfile {
 
         return maxGames;
     }
+
+    public Map<String, Integer> getBlitzStats() {
+        Map<String, Integer> blitzStats = new HashMap<>();
+        blitzStats.put("Ranger", getNestedJson(0, profile, "stats", "HungerGames", "exp_ranger").getAsInt());
+        blitzStats.put("Donkey Tamer", getNestedJson(0, profile, "stats", "HungerGames", "exp_donkeytamer").getAsInt());
+        blitzStats.put("Phoenix", getNestedJson(0, profile, "stats", "HungerGames", "exp_phoenix").getAsInt());
+        blitzStats.put("Warrior", getNestedJson(0, profile, "stats", "HungerGames", "exp_warrior").getAsInt());
+
+        return blitzStats;
+    }
 }
 

@@ -1,9 +1,6 @@
 package me.stuffy.stuffybot.interactions;
 
-import me.stuffy.stuffybot.commands.MaxesCommand;
-import me.stuffy.stuffybot.commands.PitCommand;
-import me.stuffy.stuffybot.commands.StatsCommand;
-import me.stuffy.stuffybot.commands.TkrCommand;
+import me.stuffy.stuffybot.commands.*;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -40,6 +37,7 @@ public class InteractionManager {
                 case "stats" -> StatsCommand.stats(interactionId);
                 case "tkr" -> TkrCommand.tkr(interactionId);
                 case "maxes" -> MaxesCommand.maxes(interactionId);
+                case "blitz" -> BlitzCommand.blitz(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {

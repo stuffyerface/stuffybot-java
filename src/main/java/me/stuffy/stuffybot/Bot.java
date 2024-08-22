@@ -108,6 +108,8 @@ public class Bot extends ListenerAdapter {
                 .addOptions(ignOption));
         commandList.add(Commands.slash("maxes", "Get maxed games for a player")
                 .addOptions(ignOption));
+        commandList.add(Commands.slash("blitz", "Get Blitz Ultimate Kit xp for a player")
+                .addOptions(ignOption));
 
         if (scope.equals("local")) {
             //clearLocalCommands();
