@@ -70,6 +70,11 @@ public class InteractionHandler extends ListenerAdapter {
             MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + e.getMessage());
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             return;
+        } catch (Exception e) {
+            MessageEmbed errorEmbed = makeErrorEmbed("Unknown Error", "Uh Oh! I have no idea what went wrong, report this.\n-# Everybody makes mistakes.");
+            Logger.logError("Unknown error in command: " + commandName + " " + optionsArray.toString() + " " + e.getMessage());
+            event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
+            return;
         }
 
         if(response != null) {
