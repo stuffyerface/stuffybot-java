@@ -22,17 +22,18 @@ public class MaxesCommand {
         ArrayList<String> maxesArray = hypixelProfile.getMaxGames();
 
         StringBuilder embedContent = new StringBuilder();
-        embedContent.append("-# ").append(username).append(" has ").append(maxesArray.size()).append(" Maxed Games\n");
+        String subtitle = username + " has " + maxesArray.size() + " Maxed Games";
         for (String game : maxesArray) {
             embedContent.append(toReadableName(game)).append("\n");
         }
 
         if (maxesArray.isEmpty()) {
-            embedContent.append("No maxed games found");
+            subtitle = "No Maxed Games found. :(";
         }
 
         MessageEmbed maxesEmbed = makeStatsEmbed(
                 "Maxed Games for " + username,
+                subtitle,
                 embedContent.toString()
         );
 
