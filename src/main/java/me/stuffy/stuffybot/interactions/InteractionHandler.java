@@ -5,10 +5,12 @@ import me.stuffy.stuffybot.utils.Logger;
 import me.stuffy.stuffybot.utils.StatisticsManager;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -17,15 +19,13 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
@@ -73,6 +73,7 @@ public class InteractionHandler extends ListenerAdapter {
         } catch (Exception e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Unknown Error", "Uh Oh! I have no idea what went wrong, report this.\n-# Everybody makes mistakes.");
             Logger.logError("Unknown error in command: " + commandName + " " + optionsArray.toString() + " " + e.getMessage());
+            e.printStackTrace();
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             return;
         }
@@ -193,6 +194,47 @@ public class InteractionHandler extends ListenerAdapter {
             event.reply("You got the captcha right, " + ign).setEphemeral(true).queue();
         }
 
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent e) {
+        String commandName = e.getName();
+        String commandOption = e.getFocusedOption().getName();
+        String currentInput = e.getFocusedOption().getValue();
+
+        switch (commandName) {
+            case "megawalls" -> {
+                if (commandOption.equals("skins")) {
+                    List<String> options = new ArrayList<>();
+                    if(currentInput.equals("")){
+                        options.add("All");
+                        options.add("Legendary");
+                        options.add("Other (Begin Typing)");
+                    } else {
+                        List<String> skins = Arrays.asList("Legendary", "Angel", "Arcanist", "Assassin", "Automaton", "Blaze", "Cow", "Creeper", "Dragon",
+                                "Dreadlord", "Enderman", "Golem", "Herobrine", "Hunter", "Moleman", "Phoenix", "Pigman", "Pirate", "Renegade",
+                                "Shaman", "Shark", "Sheep", "Skeleton", "Snowman", "Spider", "Squid", "Werewolf", "Zombie");
+                        for (String skin : skins) {
+                            if (skin.toLowerCase().startsWith(currentInput.toLowerCase())) {
+                                options.add(skin);
+                            }
+                        }
+                    }
+
+                    String[] optionsArray = options.toArray(new String[0]);
+                    if (optionsArray.length > 25) {
+                        optionsArray = Arrays.copyOfRange(optionsArray, 0, 25);
+                    }
+
+                    List<Command.Choice> choices = Stream.of(optionsArray)
+                            .map(option -> new Command.Choice(option, option.toLowerCase()))
+                            .toList();
+
+                    e.replyChoices(choices).queue();
+                    return;
+                }
+            }
+        }
     }
 }
 
