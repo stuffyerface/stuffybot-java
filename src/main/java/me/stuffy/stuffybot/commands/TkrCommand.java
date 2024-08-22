@@ -32,11 +32,9 @@ public class TkrCommand {
             embedContent.append(value ? "✅ " : "❌ ").append(key).append("\n");
         }
 
-
-        embedContent.insert(0, "Unique Gold Medals: **" + uniqueGoldCount + "**/5\n\n");
-
         MessageEmbed tkrStats = makeStatsEmbed(
                 "TKR Stats for " + username,
+                "Unique Gold Medals: **" + uniqueGoldCount + "**/5",
                 embedContent.toString()
         );
 
