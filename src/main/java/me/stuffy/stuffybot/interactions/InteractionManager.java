@@ -3,6 +3,7 @@ package me.stuffy.stuffybot.interactions;
 import me.stuffy.stuffybot.commands.*;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
+import me.stuffy.stuffybot.utils.InvalidOptionException;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -44,6 +45,10 @@ public class InteractionManager {
         } catch (APIException e) {
             return new MessageCreateBuilder()
                     .addEmbeds(makeErrorEmbed(e.getAPIType() + " API Error", e.getMessage()))
+                    .build();
+        } catch (InvalidOptionException e) {
+            return new MessageCreateBuilder()
+                    .addEmbeds(makeErrorEmbed("Invalid Option", e.getMessage()))
                     .build();
         }
     }
