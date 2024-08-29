@@ -1,0 +1,60 @@
+{
+  "lastUpdated": 0,
+  "classes" : [
+    {
+      "id" : "cow",
+      "name" : "Cow",
+      "skins": [
+        {
+          "name": "Moo Brawler",
+          "values": [
+            "cow_bucket_barriers_broken"
+          ],
+          "max": 600
+        },
+        {
+          "name": "Greedy Louis",
+          "values": [
+            "cow_ultra_pasteurized_drank"
+          ],
+          "max": 500
+        },
+        {
+          "name": "Biological Restoration",
+          "values": [
+            "cow_players_healed"
+          ],
+          "max": 2500
+        },
+        {
+          "name": "Beyond the Grave",
+          "values": [
+            "final_kills_after_final_killed",
+            "final_assists_after_final_killed"
+          ],
+          "max": 15
+        }
+      ]
+    },
+    {
+      "id" : "skeleton",
+      "name" : "Skeleton",
+      "skins": [
+        {
+          "name": "Marksman",
+          "values": [
+            "skeleton_final_kills_ranged_30"
+          ],
+          "max": 25
+        },
+        {
+          "name": "Skeleton's Best Friend",
+          "values": [
+            "skeleton_diamond_ore_broken"
+          ],
+          "max": 0
+        }
+      ]
+    }
+  ]
+}
