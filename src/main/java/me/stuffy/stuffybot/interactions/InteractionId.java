@@ -67,6 +67,10 @@ public class InteractionId {
         return this.options.getOrDefault(key, defaultValue);
     }
 
+    public int getOption(String key, Integer defaultValue) {
+        return Integer.parseInt(this.options.getOrDefault(key, String.valueOf(defaultValue)));
+    }
+
     public String getOptionsString() {
         StringBuilder optionsString = new StringBuilder();
         for (String key : this.options.keySet()) {
