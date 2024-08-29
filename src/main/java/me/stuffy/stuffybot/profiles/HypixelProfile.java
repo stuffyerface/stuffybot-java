@@ -43,7 +43,15 @@ public class HypixelProfile {
             }
         }
 
-        rankString = profile.get("newPackageRank").getAsString();
+        try {
+            rankString = profile.get("newPackageRank").getAsString();
+        } catch (Exception e){
+            try {
+                rankString = profile.get("packageRank").getAsString();
+            } catch (Exception e2) {
+                return Rank.NONE;
+            }
+        }
         return Rank.fromString(rankString);
     }
 
@@ -528,23 +536,19 @@ public class HypixelProfile {
     }
 
     public Integer getMegaWallsFinalKills() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "final_kills").getAsInt();
+        return getNestedJson(0, profile, "stats", "Walls3", "final_kills").getAsInt();
     }
 
     public Integer getMegaWallsWins() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "wins").getAsInt();
+        return getNestedJson(0, profile, "stats", "Walls3", "wins").getAsInt();
     }
 
     public Integer getMegaWallsClassPoints() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "class_points").getAsInt();
+        return getNestedJson(0, profile, "stats", "Walls3", "class_points").getAsInt();
     }
 
     public String getMegaWallsSelectedClass() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "chosen_class").getAsString();
+        return getNestedJson("None", profile, "stats", "Walls3", "chosen_class").getAsString();
     }
 
     public ArrayList<String> getMaxGames() {
@@ -618,6 +622,16 @@ public class HypixelProfile {
         blitzStats.put("Warrior", getNestedJson(0, profile, "stats", "HungerGames", "exp_warrior").getAsInt());
 
         return blitzStats;
+    }
+
+    public Integer getMegaWallsStat(String asString) {
+        JsonObject mwStats = new JsonObject();
+        try {
+            mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+        return getNestedJson(0, mwStats, asString).getAsInt();
     }
 }
 
