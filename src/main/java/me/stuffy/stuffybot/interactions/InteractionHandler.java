@@ -3,11 +3,13 @@ package me.stuffy.stuffybot.interactions;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
 import me.stuffy.stuffybot.utils.StatisticsManager;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -227,6 +229,24 @@ public class InteractionHandler extends ListenerAdapter {
                     e.replyChoices(choices).queue();
                 }
             }
+        }
+    }
+
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+        Message.suppressContentIntentWarning();
+        String message = event.getMessage().getContentRaw();
+        if (message.toLowerCase().startsWith("ap!")) {
+            Logger.logError("<LegacyCommand> @" + event.getAuthor().getName() + ": " + message);
+            MessageCreateData data = new MessageCreateBuilder()
+                    .addEmbeds(makeErrorEmbed("Outdated Command", "We no longer support chat based commands,\nInstead try using slash commands.\n-# Join our [Discord](https://discord.gg/zqVkUrUmzN) for more info."))
+                    .build();
+            event.getMessage().reply(
+                    data
+            ).queue();
         }
     }
 }
