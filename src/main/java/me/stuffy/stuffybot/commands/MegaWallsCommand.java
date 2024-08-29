@@ -47,7 +47,7 @@ public class MegaWallsCommand {
         DecimalFormat dfComma = new DecimalFormat("#,###");
 
         MessageEmbed response = null;
-        switch (mwClass) {
+        switch (mwClass.toLowerCase()) {
             case "legendary" -> {
                 StringBuilder legendarySkins = new StringBuilder();
                 for (Map.Entry<String, Boolean> entry : legendary_skins.entrySet()) {
