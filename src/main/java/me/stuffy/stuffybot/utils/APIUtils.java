@@ -1,6 +1,5 @@
 package me.stuffy.stuffybot.utils;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -11,8 +10,6 @@ import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -23,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import static me.stuffy.stuffybot.utils.Logger.logError;
 
 public class APIUtils {
+    static String hypixelApiUrl = "https://api.hypixel.net/v2/";
+    static String mojangApiUrl = "https://api.mojang.com/";
     public static HypixelProfile getHypixelProfile(String username) throws APIException {
         MojangProfile profile = getMojangProfile(username);
         return getHypixelProfile(profile.getUuid());
@@ -61,7 +60,7 @@ public class APIUtils {
      */
     public static HypixelProfile fetchHypixelProfile(UUID uuid) throws APIException {
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.hypixel.net/player?uuid=" + uuid))
+                .uri(URI.create(hypixelApiUrl + "player?uuid=" + uuid))
                 .header("API-Key", System.getenv("HYPIXEL_API_KEY"))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
@@ -131,7 +130,7 @@ public class APIUtils {
     public static MojangProfile fetchMojangProfile(String username) throws APIException {
         MojangProfile profile;
         HttpRequest getRequest = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.mojang.com/users/profiles/minecraft/" + username))
+            .uri(URI.create(mojangApiUrl + "users/profiles/minecraft/" + username))
             .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = client.sendAsync(getRequest, HttpResponse.BodyHandlers.ofString()).join();
@@ -178,7 +177,7 @@ public class APIUtils {
     private static JsonElement fetchAchievementsResources() {
         try {
             HttpRequest getRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.hypixel.net/resources/achievements"))
+                    .uri(URI.create(hypixelApiUrl + "resources/achievements"))
                     .build();
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
