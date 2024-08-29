@@ -206,24 +206,18 @@ public class InteractionHandler extends ListenerAdapter {
             case "megawalls" -> {
                 if (commandOption.equals("skins")) {
                     List<String> options = new ArrayList<>();
-                    if(currentInput.equals("")){
-                        options.add("All");
-                        options.add("Legendary");
-                        options.add("Other (Begin Typing)");
-                    } else {
-                        List<String> skins = Arrays.asList("Legendary", "Angel", "Arcanist", "Assassin", "Automaton", "Blaze", "Cow", "Creeper", "Dragon",
+                    List<String> skins = Arrays.asList("Legendary", "Angel", "Arcanist", "Assassin", "Automaton", "Blaze", "Cow", "Creeper", "Dragon",
                                 "Dreadlord", "Enderman", "Golem", "Herobrine", "Hunter", "Moleman", "Phoenix", "Pigman", "Pirate", "Renegade",
                                 "Shaman", "Shark", "Sheep", "Skeleton", "Snowman", "Spider", "Squid", "Werewolf", "Zombie");
-                        for (String skin : skins) {
-                            if (skin.toLowerCase().startsWith(currentInput.toLowerCase())) {
-                                options.add(skin);
-                            }
+                    for (String skin : skins) {
+                        if (skin.toLowerCase().startsWith(currentInput.toLowerCase())) {
+                            options.add(skin);
                         }
                     }
 
                     String[] optionsArray = options.toArray(new String[0]);
                     if (optionsArray.length > 25) {
-                        optionsArray = Arrays.copyOfRange(optionsArray, 0, 25);
+                        optionsArray = Arrays.copyOfRange(optionsArray, 0, 24);
                     }
 
                     List<Command.Choice> choices = Stream.of(optionsArray)
@@ -231,7 +225,6 @@ public class InteractionHandler extends ListenerAdapter {
                             .toList();
 
                     e.replyChoices(choices).queue();
-                    return;
                 }
             }
         }
