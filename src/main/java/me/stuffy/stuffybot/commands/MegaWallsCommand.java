@@ -24,9 +24,11 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
 public class MegaWallsCommand {
 
     private static JsonObject getMwClasses() {
-        try (InputStream inputStream = MegaWallsCommand.class.getResourceAsStream("/data/mwclasses.json");
-             InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            return JsonParser.parseReader(reader).getAsJsonObject();
+        try (InputStream inputStream = MegaWallsCommand.class.getResourceAsStream("/data/mwclasses.json")) {
+            assert inputStream != null;
+            try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+                return JsonParser.parseReader(reader).getAsJsonObject();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -46,7 +48,7 @@ public class MegaWallsCommand {
 
         MessageEmbed response = null;
         switch (mwClass) {
-            case "legendary":
+            case "legendary" -> {
                 StringBuilder legendarySkins = new StringBuilder();
                 for (Map.Entry<String, Boolean> entry : legendary_skins.entrySet()) {
                     if (entry.getValue()) {
@@ -59,32 +61,30 @@ public class MegaWallsCommand {
                 }
                 response = makeStatsEmbed(
                         "Legendary Skins for " + username,
-                        "Unlocked: **" + legendary_skins_unlocked + "**/27 (" + dfPercent.format(legendary_skins_unlocked/27.0*100) + "%)",
+                        "Unlocked: **" + legendary_skins_unlocked + "**/27 (" + dfPercent.format(legendary_skins_unlocked / 27.0 * 100) + "%)",
                         legendarySkins.toString()
                 );
-                break;
-            case "all":
+            }
+            case "all" -> {
                 Integer wins = hypixelProfile.getMegaWallsWins();
                 Integer finalKills = hypixelProfile.getMegaWallsFinalKills();
                 Integer classPoints = hypixelProfile.getMegaWallsClassPoints();
                 String selectedClass = hypixelProfile.getMegaWallsSelectedClass();
-
                 for (Boolean unlocked : legendary_skins.values()) {
                     if (unlocked) {
                         legendary_skins_unlocked++;
                     }
                 }
-
                 response = makeStatsEmbed(
                         "Mega Walls Stats for " + username,
                         "Wins: **" + dfComma.format(wins) + "**\n" +
-                                    "Final Kills: **" + dfComma.format(finalKills) + "**\n" +
-                                    "Total Class Points: **" + dfComma.format(classPoints) + "**\n\n" +
-                                    "Selected Class: **" + selectedClass + "**\n" +
-                                    "Legendary Skins Unlocked: **" + legendary_skins_unlocked + "**/27"
+                                "Final Kills: **" + dfComma.format(finalKills) + "**\n" +
+                                "Total Class Points: **" + dfComma.format(classPoints) + "**\n\n" +
+                                "Selected Class: **" + selectedClass + "**\n" +
+                                "Legendary Skins Unlocked: **" + legendary_skins_unlocked + "**/27"
                 );
-                break;
-            default:
+            }
+            default -> {
                 JsonObject mwClasses = getMwClasses();
                 if (mwClasses == null) {
                     throw new APIException("Stuffy", "Failed to load Mega Walls classes data");
@@ -128,6 +128,7 @@ public class MegaWallsCommand {
                 if (response == null) {
                     throw new InvalidOptionException("skins", mwClass);
                 }
+            }
         }
         return new MessageCreateBuilder()
                 .addEmbeds(response)
