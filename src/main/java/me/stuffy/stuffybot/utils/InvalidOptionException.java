@@ -6,6 +6,9 @@ public class InvalidOptionException extends Throwable {
     public InvalidOptionException(String option, String provided) {
         this.option = option;
         this.provided = provided.replaceAll("`", "'");
+        if (this.provided.length() > 30) {
+            this.provided = this.provided.substring(0, 30) + "...";
+        }
     }
 
     public String getMessage() {
