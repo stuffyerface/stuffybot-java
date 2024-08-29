@@ -281,7 +281,8 @@
         {
           "name": "One Giant Leap",
           "values": [
-            "spider_a_kills"
+            "spider_a_kills",
+            "spider_a_final_kills"
           ],
           "max": 250
         }
