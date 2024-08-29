@@ -47,6 +47,14 @@ public class MiscUtils {
         }
     }
 
+    public static JsonElement getNestedJson(String defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            return stringToJson(defaultValue);
+        }
+    }
+
     public static JsonElement stringToJson(String jsonString) {
         return gson.fromJson(jsonString, JsonElement.class);
     }
