@@ -91,4 +91,9 @@ public class InteractionId {
         this.options.put(key, value);
         return this;
     }
+
+    public InteractionId setOption(String key, Integer value) {
+        this.options.put(key, String.valueOf(value));
+        return this;
+    }
 }
