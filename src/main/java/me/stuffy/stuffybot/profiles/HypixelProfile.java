@@ -625,13 +625,11 @@ public class HypixelProfile {
     }
 
     public Integer getMegaWallsStat(String asString) {
-        JsonObject mwStats = new JsonObject();
         try {
-            mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
+            return getNestedJson(0, profile, "stats", "Walls3", asString).getAsJsonObject().getAsInt();
         } catch (IllegalArgumentException e) {
             return 0;
         }
-        return getNestedJson(0, mwStats, asString).getAsInt();
     }
 }
 
