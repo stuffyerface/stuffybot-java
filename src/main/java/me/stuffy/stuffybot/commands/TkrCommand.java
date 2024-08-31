@@ -11,7 +11,6 @@ import java.util.Map;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
 
 public class TkrCommand {
     public static MessageCreateData tkr(InteractionId interactionId) throws APIException {

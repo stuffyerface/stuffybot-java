@@ -1,9 +1,9 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.interactions.*;
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
+import me.stuffy.stuffybot.interactions.InteractionHandler;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Bot extends ListenerAdapter {
@@ -98,7 +97,6 @@ public class Bot extends ListenerAdapter {
         OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN", false);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
-//        commandList.add(Commands.slash("achievements", "Doesn't do anything yet"));
 //        commandList.add(Commands.slash("help", "*Should* show a help message"));
         commandList.add(Commands.slash("pit", "Get Pit stats for a player")
                 .addOptions(ignOption));
