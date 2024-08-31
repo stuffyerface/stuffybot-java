@@ -194,4 +194,12 @@ public class MiscUtils {
         return resourceNames.getOrDefault(resourcesName, resourcesName);
     }
 
+    public static String minutesFormatted(int minutes) {
+        int hours = minutes / 60;
+        int remainingMinutes = minutes % 60;
+        if (hours == 0)
+            return remainingMinutes + "m";
+        return hours + "h " + remainingMinutes + "m";
+    }
+
 }

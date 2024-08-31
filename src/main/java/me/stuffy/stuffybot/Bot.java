@@ -113,6 +113,9 @@ public class Bot extends ListenerAdapter {
         commandList.add(Commands.slash("megawalls", "Get Mega Walls skins for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.STRING, "skins", "Which skins to look at", false).setAutoComplete(true)));
+        commandList.add(Commands.slash("tournament", "Get tournament stats for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.INTEGER, "tournament", "Which tournament to look at (Leave empty for latest)", false).setAutoComplete(true)));
 
 
         if (scope.equals("local")) {

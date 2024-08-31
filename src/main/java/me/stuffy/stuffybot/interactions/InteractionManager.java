@@ -40,6 +40,7 @@ public class InteractionManager {
                 case "maxes" -> MaxesCommand.maxes(interactionId);
                 case "blitz" -> BlitzCommand.blitz(interactionId);
                 case "megawalls" -> MegaWallsCommand.megawalls(interactionId);
+                case "tournament" -> TournamentCommand.tournament(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
