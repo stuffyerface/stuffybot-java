@@ -1,14 +1,17 @@
 package me.stuffy.stuffybot.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MiscUtils {
+    private static final Gson gson = new Gson();
     public static UUID formatUUID(String uuid) {
         return UUID.fromString(uuid.replaceFirst(
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
@@ -19,13 +22,45 @@ public class MiscUtils {
     public static JsonElement getNestedJson(JsonObject object, String... keys) {
         JsonElement currentElement = object;
         for (String key : keys) {
-            if (currentElement.isJsonObject() && currentElement.getAsJsonObject().has(key)) {
-                currentElement = currentElement.getAsJsonObject().get(key);
-            } else {
-                throw new IllegalArgumentException("Key " + key + " not found or not a JsonObject");
+            // Split the key at character '.' and iterate through the keys
+            String[] splitKey = key.split("\\.");
+            for (String split : splitKey) {
+                if (currentElement.isJsonObject() && currentElement.getAsJsonObject().has(split)) {
+                    currentElement = currentElement.getAsJsonObject().get(split);
+                } else {
+                    throw new IllegalArgumentException("Key " + key + " not found or not a JsonObject");
+                }
             }
         }
         return currentElement;
+    }
+
+    public static JsonElement getNestedJson(Integer defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            return stringToJson(defaultValue.toString());
+        }
+    }
+
+    public static JsonElement getNestedJson(Boolean defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            return stringToJson(defaultValue.toString());
+        }
+    }
+
+    public static JsonElement getNestedJson(String defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            return stringToJson(defaultValue);
+        }
+    }
+
+    public static JsonElement stringToJson(String jsonString) {
+        return gson.fromJson(jsonString, JsonElement.class);
     }
 
     public static String convertToRomanNumeral(int number) {
@@ -90,4 +125,81 @@ public class MiscUtils {
 
         return workingLevel;
     }
+
+    public static String toSkillIssue(String toModify) {
+        // An Error, an error, AN ERROR
+        return toModify
+                .replace("n error", " skill issue")
+                .replace("n Error", " Skill Issue")
+                .replace("N ERROR", " SKILL ISSUE")
+                .replace("error", "skill issue")
+                .replace("Error", "Skill Issue")
+                .replace("ERROR", "SKILL ISSUE");
+    }
+
+    public static boolean requiresIgn(String commandName) {
+        return true;
+    }
+
+    public static boolean validCommand(String commandName) {
+        return true;
+    }
+
+    public static String genBase64(Integer length){
+        String BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        SecureRandom RANDOM = new SecureRandom();
+
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = RANDOM.nextInt(BASE62.length());
+            sb.append(BASE62.charAt(randomIndex));
+        }
+        return sb.toString();
+    }
+
+    public static String toReadableName(String resourcesName) {
+        Map<String,String> resourceNames = new HashMap<>();
+        resourceNames.put("arcade", "Arcade");
+        resourceNames.put("arena", "Arena Brawl");
+        resourceNames.put("bedwars", "Bed Wars");
+        resourceNames.put("blitz", "Blitz Survival Games");
+        resourceNames.put("buildbattle", "Build Battle");
+        resourceNames.put("christmas2017", "Christmas");
+        resourceNames.put("copsandcrims", "Cops and Crims");
+        resourceNames.put("duels", "Duels");
+        resourceNames.put("easter", "Easter");
+        resourceNames.put("general", "General");
+        resourceNames.put("gingerbread", "Turbo Kart Racers");
+        resourceNames.put("halloween2017", "Halloween");
+        resourceNames.put("housing", "Housing");
+        resourceNames.put("murdermystery", "Murder Mystery");
+        resourceNames.put("paintball", "Paintball");
+        resourceNames.put("pit", "Pit");
+        resourceNames.put("quake", "Quakecraft");
+        resourceNames.put("skyblock", "SkyBlock");
+        resourceNames.put("skyclash", "SkyClash");
+        resourceNames.put("skywars", "SkyWars");
+        resourceNames.put("speeduhc", "Speed UHC");
+        resourceNames.put("summer", "Summer");
+        resourceNames.put("supersmash", "Smash Heroes");
+        resourceNames.put("tntgames", "The TNT Games");
+        resourceNames.put("truecombat", "Crazy Walls");
+        resourceNames.put("uhc", "UHC Champions");
+        resourceNames.put("vampirez", "VampireZ");
+        resourceNames.put("walls", "Walls");
+        resourceNames.put("walls3", "Mega Walls");
+        resourceNames.put("warlords", "Warlords");
+        resourceNames.put("woolgames", "Wool Games");
+
+        return resourceNames.getOrDefault(resourcesName, resourcesName);
+    }
+
+    public static String minutesFormatted(int minutes) {
+        int hours = minutes / 60;
+        int remainingMinutes = minutes % 60;
+        if (hours == 0)
+            return remainingMinutes + "m";
+        return hours + "h " + remainingMinutes + "m";
+    }
+
 }

@@ -1,0 +1,648 @@
+{
+  "lastUpdated": 0,
+  "classes" : [
+    {
+      "id" : "cow",
+      "name" : "Cow",
+      "skins": [
+        {
+          "name": "Moo Brawler",
+          "values": [
+            "cow_bucket_barriers_broken"
+          ],
+          "max": 600
+        },
+        {
+          "name": "Greedy Louis",
+          "values": [
+            "cow_ultra_pasteurized_drank"
+          ],
+          "max": 500
+        },
+        {
+          "name": "Biological Restoration",
+          "values": [
+            "cow_players_healed"
+          ],
+          "max": 2500
+        },
+        {
+          "name": "Beyond the Grave",
+          "values": [
+            "final_kills_after_final_killed",
+            "final_assists_after_final_killed"
+          ],
+          "max": 15
+        }
+      ]
+    },
+    {
+      "id": "hunter",
+      "name": "Hunter",
+      "skins": [
+        {
+          "name": "Treasure Hunter",
+          "values": [
+            "hunter_g_activations"
+          ],
+          "max": 300
+        },
+        {
+          "name": "Cake Hunter",
+          "values": [
+            "cakes_found"
+          ],
+          "max": 150
+        },
+        {
+          "name": "One with Nature",
+          "values": [
+            "hunter_force_of_nature_final_kills",
+            "hunter_force_of_nature_final_assists"
+          ],
+          "max": 50
+        }
+      ]
+    },
+    {
+      "id": "shark",
+      "name": "Shark",
+      "skins": [
+        {
+          "name": "Hammerhead",
+          "values": [
+            "shark_water_kills"
+          ],
+          "max": 100
+        },
+        {
+          "name": "Ocean's Explorer",
+          "values": [
+            "shark_g_activations"
+          ],
+          "max": 1000
+        },
+        {
+          "name": "Ocean's Defender",
+          "values": [
+            "shark_defender_kills"
+          ],
+          "max": 250
+        }
+      ]
+    },
+    {
+      "id": "dreadlord",
+      "name": "Dreadlord",
+      "skins": [
+        {
+          "name": "Rushlord",
+          "values": [
+            "dreadlord_wither_damage"
+          ],
+          "max": 20000
+        },
+        {
+          "name": "Breadlord",
+          "values": [
+            "dreadlord_bread_crafted"
+          ],
+          "max": 617
+        },
+        {
+          "name": "Gathering Talent Indeed",
+          "values": [
+            "dreadlord_dark_matter_armor"
+          ],
+          "max": 500
+        }
+      ]
+    },
+    {
+      "id": "golem",
+      "name": "Golem",
+      "skins": [
+        {
+          "name": "Timber!",
+          "values": [
+            "golem_wood_chopped"
+          ],
+          "max": 5000
+        },
+        {
+          "name": "Iron Hearted",
+          "values": [
+            "golem_iron_heart_absorption"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "herobrine",
+      "name": "Herobrine",
+      "skins": [
+        {
+          "name": "Lucky Sunny",
+          "values": [
+            "herobrine_treasures_found"
+          ],
+          "max": 1000
+        },
+        {
+          "name": "Seasons Greetings",
+          "values": [
+            "herobrine_iron_armor_gifted_december"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "zombie",
+      "name": "Zombie",
+      "skins": [
+        {
+          "name": "Sleepytime",
+          "values": [
+            "zombie_beds_crafted"
+          ],
+          "max": 50
+        },
+        {
+          "name": "Mr. Clutcherson",
+          "values": [
+            "zombie_a_healed_low_teammates"
+          ],
+          "max": 100
+        },
+        {
+          "name": "Unstoppable Force",
+          "values": [
+            "zombie_berserked_kills"
+          ],
+          "max": 25
+        }
+      ]
+    },
+    {
+      "id": "arcanist",
+      "name": "Arcanist",
+      "skins": [
+        {
+          "name": "Potions of Death",
+          "values": [
+            "arcanist_c_total_final_kills"
+          ],
+          "max": 8
+        },
+        {
+          "name": "Hard as Steel",
+          "values": [
+            "arcanist_a_blocks_broken"
+          ],
+          "max": 5000
+        },
+        {
+          "name": "abil spammer",
+          "values": [
+            "arcanist_a_activations"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "enderman",
+      "name": "Enderman",
+      "skins": [
+        {
+          "name": "Surprise",
+          "values": [
+            "enderman_activations"
+          ],
+          "max": 2500
+        },
+        {
+          "name": "Sneak Attack",
+          "values": [
+            "enderman_final_kills_melee_behind",
+            "enderman_final_assists_melee_behind"
+          ],
+          "max": 100
+        }
+      ]
+    },
+    {
+      "id": "blaze",
+      "name": "Blaze",
+      "skins": [
+        {
+          "name": "High on Ores",
+          "values": [
+            "blaze_amount_healed"
+          ],
+          "max": 2000
+        },
+        {
+          "name": "Light 'em Up",
+          "values": [
+            "blaze_on_fire_final_kills"
+          ],
+          "max": 10
+        },
+        {
+          "name": "Blazecaller",
+          "values": [
+            "blaze_blazes_spawned"
+          ],
+          "max": 500
+        }
+      ]
+    },
+    {
+      "id": "spider",
+      "name": "Spider",
+      "skins": [
+        {
+          "name": "Geronimo",
+          "values": [
+            "spider_meters_fallen"
+          ],
+          "max": 25000
+        },
+        {
+          "name": "i don't feel so good",
+          "values": [
+            "spider_b_venom_strike_poison_damage"
+          ],
+          "max": 600
+        },
+        {
+          "name": "One Giant Leap",
+          "values": [
+            "spider_a_kills",
+            "spider_a_final_kills"
+          ],
+          "max": 250
+        }
+      ]
+    },
+    {
+      "id": "creeper",
+      "name": "Creeper",
+      "skins": [
+        {
+          "name": "Mass Destruction",
+          "values": [
+            "creeper_a_blocks_broken"
+          ],
+          "max": 3000
+        },
+        {
+          "name": "INSTABOOM!",
+          "values": [
+            "creeper_primed_tnt_kills"
+          ],
+          "max": 20
+        }
+      ]
+    },
+    {
+      "id": "assassin",
+      "name": "Assassin",
+      "skins": [
+        {
+          "name": "Don't Blink",
+          "values": [
+            "assassin_enemies_hit"
+          ],
+          "max": 1200
+        },
+        {
+          "name": "Alchemy 100",
+          "values": [
+            "assassin_master_alechmy_hearts"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "werewolf",
+      "name": "Werewolf",
+      "skins": [
+        {
+          "name": "Dirty Dog",
+          "values": [
+            "werewolf_final_kills_below_10_hp"
+          ],
+          "max": 15
+        },
+        {
+          "name": "Time to Diet",
+          "values": [
+            "werewolf_steaks_eaten"
+          ],
+          "max": 750
+        },
+        {
+          "name": "Hunting Season",
+          "values": [
+            "werewolf_meters_walked_speed"
+          ],
+          "max": 50000
+        },
+        {
+          "name": "Howling Moon",
+          "values": [
+            "werewolf_a_enemies_hit_standard"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix",
+      "skins": [
+        {
+          "name": "Night's Rest",
+          "values": [
+            "phoenix_amount_healed"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "automaton",
+      "name": "Automaton",
+      "skins": [
+        {
+          "name": "Terminated Script",
+          "values": [
+            "automaton_energy_syphoned"
+          ],
+          "max": 3000
+        }
+      ]
+    },
+    {
+      "id": "moleman",
+      "name": "Moleman",
+      "skins": [
+        {
+          "name": "Constructor",
+          "values": [
+            "moleman_blocks_placed_preparation"
+          ],
+          "max": 15000
+        },
+        {
+          "name": "Heavy Eater",
+          "values": [
+            "moleman_c_junk_items_eaten"
+          ],
+          "max": 1000
+        },
+        {
+          "name": "nom nom",
+          "values": [
+            "moleman_c_activations"
+          ],
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "renegade",
+      "name": "Renegade",
+      "skins": [
+        {
+          "name": "Recycling",
+          "values": [
+            "renegade_arrows_from_rend"
+          ],
+          "max": 3000
+        },
+        {
+          "name": "Captain Combo",
+          "values": [
+            "renegade_energy_from_grappling_hook"
+          ],
+          "max": 20000
+        },
+        {
+          "name": "Chased Down",
+          "values": [
+            "renegade_final_kills_after_grappling_hook"
+          ],
+          "max": 20
+        }
+      ]
+    },
+    {
+      "id": "snowman",
+      "name": "Snowman",
+      "skins": [
+        {
+          "name": "School Cancelled",
+          "values": [
+            "snowman_blizzard_seconds_slow"
+          ],
+          "max": 7200
+        },
+        {
+          "name": "Frosty Friendship",
+          "values": [
+            "snowman_snowmen_built"
+          ],
+          "max": 500
+        },
+        {
+          "name": "Australian Winter",
+          "values": [
+            "snowman_snowmen_players_hit"
+          ],
+          "max": 500
+        }
+      ]
+    },
+    {
+      "id": "shaman",
+      "name": "Shaman",
+      "skins": [
+        {
+          "name": "Much Dogs",
+          "values": [
+            "shaman_c_activations"
+          ],
+          "max": 500
+        },
+        {
+          "name": "Revenge of the Wolves",
+          "values": [
+            "shaman_c_total_final_kills"
+          ],
+          "max": 5
+        },
+        {
+          "name": "Living on the Edge",
+          "values": [
+            "shaman_heroism_triggers_in_dm"
+          ],
+          "max": 250
+        }
+      ]
+    },
+    {
+      "id": "pigman",
+      "name": "Pigman",
+      "skins": [
+        {
+          "name": "Collector",
+          "values": [
+            "pigman_g_activations"
+          ],
+          "max": 500
+        },
+        {
+          "name": "Young Thug",
+          "values": [
+            "pigman_enduranced_final_kills"
+          ],
+          "max": 5
+        },
+        {
+          "name": "Tough Skins",
+          "values": [
+            "pigman_resistance_time_seconds"
+          ],
+          "max": 500
+        }
+      ]
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate",
+      "skins": [
+        {
+          "name": "Grave Robber",
+          "values": [
+            "pirate_g_activations"
+          ],
+          "max": 100
+        },
+        {
+          "name": "Death from Above",
+          "values": [
+            "pirate_b_total_final_kills"
+          ],
+          "max": 12
+        },
+        {
+          "name": "Burial at Sea",
+          "values": [
+            "pirate_final_water_kills"
+          ],
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": "squid",
+      "name": "Squid",
+      "skins": [
+        {
+          "name": "You shall not pass!",
+          "values": [
+            "squid_defender_final_kills",
+            "squid_defender_final_assists"
+          ],
+          "max": 10
+        },
+        {
+          "name": "Trust me I'm a doctor",
+          "values": [
+            "squid_a_amount_healed"
+          ],
+          "max": 2500
+        },
+        {
+          "name": "Everblind",
+          "values": [
+            "squid_inner_ink_blinds"
+          ],
+          "max": 250
+        }
+      ]
+    },
+    {
+      "id": "angel",
+      "name": "Angel",
+      "skins": [
+        {
+          "name": "Rewriting Fate",
+          "values": [
+            "angel_divine_interventions"
+          ],
+          "max": 250
+        }
+      ]
+    },
+    {
+      "id": "dragon",
+      "name": "Dragon",
+      "skins": [
+        {
+          "name": "Ashes to Ashes",
+          "values": [
+            "dragon_final_kills_with_fire"
+          ],
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": "sheep",
+      "name": "Sheep",
+      "skins": [
+        {
+          "name": "Perfect Disguise",
+          "values": [
+            "sheep_perfect_disguises"
+          ],
+          "max": 100
+        },
+        {
+          "name": "Woolly Respite",
+          "values": [
+            "sheep_amount_healed"
+          ],
+          "max": 250
+        }
+      ]
+    },
+    {
+      "id" : "skeleton",
+      "name" : "Skeleton",
+      "skins": [
+        {
+          "name": "Marksman",
+          "values": [
+            "skeleton_final_kills_ranged_30"
+          ],
+          "max": 25
+        },
+        {
+          "name": "Skeleton's Best Friend",
+          "values": [
+            "skeleton_diamond_ore_broken"
+          ],
+          "max": 50
+        }
+      ]
+    }
+  ]
+}

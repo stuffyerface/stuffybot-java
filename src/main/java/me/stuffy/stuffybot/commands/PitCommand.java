@@ -1,54 +1,27 @@
 package me.stuffy.stuffybot.commands;
 
 import kotlin.Triple;
+import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
-import net.dv8tion.jda.api.EmbedBuilder;
+import me.stuffy.stuffybot.utils.APIException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
-import static me.stuffy.stuffybot.utils.DiscordUtils.*;
+import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
 import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.*;
+import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
 
-public class PitCommand extends BaseCommand{
-    private final Map<String, MessageEmbed> originalEmbeds = new HashMap<>();
-    private final Map<String, MessageEmbed> originalDetailedEmbeds = new HashMap<>();
-    private final Map<String, Event> activeEvents = new HashMap<>();
+public class PitCommand {
 
-    public PitCommand(String name, String description) {
-        super(name, description,
-                new OptionData(OptionType.STRING, "ign", "Your Minecraft Username", false)
-        );
-    }
-
-    @Override
-    protected void onCommand(SlashCommandInteractionEvent event) {
-        activeEvents.put(event.getHook().getId(), event);
-        String ign = getUsername(event);
-        HypixelProfile hypixelProfile;
-        try {
-            hypixelProfile = getHypixelProfile(ign);
-        }catch (Exception e){
-            event.getHook().sendMessage("").addEmbeds(
-                    makeErrorEmbed(
-                            "API Error",
-                            "An error occurred while fetching your Hypixel profile. Please try again later."
-                    )
-            ).queue();
-            return;
-        }
-
+    public static MessageCreateData pit(InteractionId interactionId) throws APIException {
+        String ign = interactionId.getOptions().get("ign");
+        HypixelProfile hypixelProfile = getHypixelProfile(ign);
         String username = hypixelProfile.getDisplayName();
+
         String pitPrestige = convertToRomanNumeral(hypixelProfile.getPit("prestige"));
 
         Long totalPitXp = hypixelProfile.getPitXP();
@@ -72,18 +45,18 @@ public class PitCommand extends BaseCommand{
                 embedContent
         );
 
-        originalEmbeds.put(event.getHook().getId(), pitStats);
-
-
-        String runnerId = event.getUser().getId();
-        event.getHook().sendMessage("")
+        String newInteractionId = InteractionId.newCommand("pitDetailed", interactionId).getInteractionString();
+        return new MessageCreateBuilder()
+                .addEmbeds(pitStats)
                 .addActionRow(
-                        secondary("pitDetailed:" + runnerId, "Challenge Achievement Progress")
+                        secondary(newInteractionId, "Challenge Achievement Progress")
                 )
-                .addEmbeds(
-                        pitStats
-        ).queue();
+                .build();
+    }
 
+    public static MessageCreateData pitDetailed(InteractionId interactionId) throws APIException{
+        String ign = interactionId.getOptions().get("ign");
+        HypixelProfile hypixelProfile = getHypixelProfile(ign);
 
         Triple<String, Integer, Integer>[] challengeAchievements = new Triple[]{
                 new Triple<>("Ingots Collector", hypixelProfile.getPit("ingots_collector"), 2000),
@@ -96,59 +69,28 @@ public class PitCommand extends BaseCommand{
                 new Triple<>("Raging Hunter", hypixelProfile.getPit("raging_hunter"), 100),
                 new Triple<>("Bounty Hunter", hypixelProfile.getPit("bounty_hunter"), 30)
         };
-
-        StringBuilder embedContent2 = new StringBuilder();
+        DecimalFormat df = new DecimalFormat("#,###");
+        StringBuilder embedContent = new StringBuilder();
         for (Triple<String, Integer, Integer> challenge : challengeAchievements) {
             if (challenge.getSecond() >= challenge.getThird()) {
-                embedContent2.append("~~").append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append("~~\n");
+                embedContent.append("~~").append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append("~~\n");
             } else {
                 String percentage = df.format((double) challenge.getSecond() / challenge.getThird() * 100);
-                embedContent2.append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append(" (").append(percentage).append("%)\n");
+                embedContent.append(challenge.getFirst()).append(": **").append(df.format(challenge.getSecond())).append("** / ").append(df.format(challenge.getThird())).append(" (").append(percentage).append("%)\n");
             }
         }
 
         MessageEmbed extraPitStats = makeStatsEmbed(
-                "Pit Achievement stats for " + username,
-                embedContent2.toString()
+                "Pit Achievement stats for " + hypixelProfile.getDisplayName(),
+                embedContent.toString()
         );
-        originalDetailedEmbeds.put(event.getHook().getId(), extraPitStats);
-    }
 
-
-    public void onButton(ButtonInteractionEvent event) {
-        String[] parts = event.getComponentId().split(":");
-        String action = parts[0];
-        String userId = parts[1];
-
-        if (action.equals("pitDetailed")) {
-            MessageEmbed detailedButton = originalDetailedEmbeds.get(event.getHook().getId());
-            if(detailedButton == null) {
-                return;
-            }
-            event.editMessageEmbeds(detailedButton)
-                    .setActionRow(secondary("go_back:" + userId, "Go Back"))
-                    .queue();
-        }
-        if (action.equals("go_back")) {
-            MessageEmbed backButton = originalEmbeds.get(event.getHook().getId());
-            if(backButton == null) {
-                return;
-            }
-            event.editMessageEmbeds(backButton)
-                    .setActionRow(secondary("pitDetailed:" + userId, "Challenge Achievement Progress"))
-                    .queue();
-        }
-    }
-
-    @Override
-    protected void cleanupEventResources(String messageId) {
-        originalEmbeds.remove(messageId);
-        originalDetailedEmbeds.remove(messageId);
-        Event event = activeEvents.remove(messageId);
-        if (event instanceof SlashCommandInteractionEvent slashEvent) {
-            slashEvent.getHook().retrieveOriginal().queue(message -> {
-                message.editMessageComponents().queue();
-            });
-        }
+        String newInteractionId = InteractionId.newCommand("pit", interactionId).getInteractionString();
+        return new MessageCreateBuilder()
+                .addEmbeds(extraPitStats)
+                .addActionRow(
+                        secondary(newInteractionId, "Back to Pit Stats")
+                )
+                .build();
     }
 }

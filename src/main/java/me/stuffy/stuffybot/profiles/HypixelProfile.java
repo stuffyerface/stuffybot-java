@@ -9,8 +9,7 @@ import java.util.*;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
 import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
-import static me.stuffy.stuffybot.utils.MiscUtils.getNestedJson;
-import static me.stuffy.stuffybot.utils.MiscUtils.pitXpToLevel;
+import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class HypixelProfile {
     private UUID uuid;
@@ -44,7 +43,15 @@ public class HypixelProfile {
             }
         }
 
-        rankString = profile.get("newPackageRank").getAsString();
+        try {
+            rankString = profile.get("newPackageRank").getAsString();
+        } catch (Exception e){
+            try {
+                rankString = profile.get("packageRank").getAsString();
+            } catch (Exception e2) {
+                return Rank.NONE;
+            }
+        }
         return Rank.fromString(rankString);
     }
 
@@ -108,6 +115,9 @@ public class HypixelProfile {
         if (!profile.has("lastLogin")) {
             return "Online Status Hidden";
         }
+        if (profile.get("lastLogin").getAsLong() > profile.get("lastLogout").getAsLong()) {
+            return "Online since " + discordTimeUnix(getNestedJson(profile, "lastLogin").getAsLong(), "R");
+        }
         String status = "Last online " + discordTimeUnix(getNestedJson(profile, "lastLogout").getAsLong(), "R");
         return status;
     }
@@ -141,10 +151,10 @@ public class HypixelProfile {
     }
 
     public Integer getRewardStreak() {
-        if (!profile.has("rewardStreak")) {
+        if (!profile.has("rewardScore")) {
             return 0;
         }
-        return getNestedJson(profile, "rewardStreak").getAsInt();
+        return getNestedJson(profile, "rewardScore").getAsInt();
     }
 
     public Integer getRewardRecord() {
@@ -347,15 +357,51 @@ public class HypixelProfile {
     public JsonObject getAchievements() {
         // return an object with profile["achievements"],profile["achievementsOneTime"]
         JsonObject combined = new JsonObject();
-        combined.add("achievements", getNestedJson(profile, "achievements"));
+        combined.add("achievementsTiered", getNestedJson(profile, "achievements"));
         combined.add("achievementsOneTime", getNestedJson(profile, "achievementsOneTime"));
         return combined;
     }
 
     public Integer getLegacyAchievementPoints() {
-        Achievements achievements = new Achievements(this);
-        return 0;
+        int legacyPoints = 0;
+        JsonObject achievements = getAchievements();
+        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
+        List<String> playerOneTimeString = new ArrayList<>();
+        for (JsonElement element : playerOneTime) {
+            try {
+                playerOneTimeString.add(element.getAsString());
+            } catch (Exception ignored) {
+            }
+        }
+        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
+        JsonElement achievementsResources = getAchievementsResources();
+        for (String game : achievementsResources.getAsJsonObject().keySet()) {
+            for (String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
+                if (!isLegacy) {
+                    continue;
+                }
+                if (playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
+                    legacyPoints += getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "points").getAsInt();
+                }
+            }
 
+            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
+                if (!isLegacy) {
+                    continue;
+                }
+
+
+                for (JsonElement tier : getNestedJson(0, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
+                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
+                    if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() >= tierAmount) {
+                        legacyPoints += tier.getAsJsonObject().get("points").getAsInt();
+                    }
+                }
+            }
+        }
+        return legacyPoints;
     }
 
     public Integer getPit(String stat) {
@@ -478,10 +524,11 @@ public class HypixelProfile {
         allLegendaries.put("walls3_legendary_snowman", "Snowman");
 
 
-        for (JsonElement achievement : oneTime) {
-            String ap = achievement.getAsString();
-            if (allLegendaries.containsKey(ap)) {
-                legendarySkins.put(allLegendaries.get(ap), true);
+        for (String skin : allLegendaries.keySet()) {
+            if (oneTime.contains(stringToJson(skin))) {
+                legendarySkins.put(allLegendaries.get(skin), true);
+            } else {
+                legendarySkins.put(allLegendaries.get(skin), false);
             }
         }
 
@@ -489,23 +536,132 @@ public class HypixelProfile {
     }
 
     public Integer getMegaWallsFinalKills() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "final_kills").getAsInt();
+        return getNestedJson(0, profile, "stats", "Walls3", "final_kills").getAsInt();
     }
 
     public Integer getMegaWallsWins() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "wins").getAsInt();
+        return getNestedJson(0, profile, "stats", "Walls3", "wins").getAsInt();
     }
 
     public Integer getMegaWallsClassPoints() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "class_points").getAsInt();
+        return getNestedJson(0, profile, "stats", "Walls3", "class_points").getAsInt();
     }
 
     public String getMegaWallsSelectedClass() {
-        JsonObject mwStats = getNestedJson(profile, "stats", "Walls3").getAsJsonObject();
-        return getNestedJson(mwStats, "chosen_class").getAsString();
+        return getNestedJson("None", profile, "stats", "Walls3", "chosen_class").getAsString();
+    }
+
+    public ArrayList<String> getMaxGames() {
+        ArrayList<String> maxGames = new ArrayList<>();
+        JsonObject achievements = getAchievements();
+        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
+        List<String> playerOneTimeString = new ArrayList<>();
+        for (JsonElement element : playerOneTime) {
+            // Account for Hypixel Bug listing achievements as Empty Arrays instead of Strings
+            try {
+                playerOneTimeString.add(element.getAsString());
+            } catch (Exception ignored) {
+            }
+        }
+        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
+        JsonElement achievementsResources = getAchievementsResources();
+        for (String game : achievementsResources.getAsJsonObject().keySet()) {
+            if (game.equals("skyclash") || game.equals("truecombat")) {
+                continue;
+            }
+            boolean maxed = true;
+            for ( String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
+                if (isLegacy) {
+                    continue;
+                }
+                if (!playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
+                    maxed = false;
+                    break;
+                }
+            }
+
+            if (!maxed) {
+                continue;
+            }
+
+            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
+                if (isLegacy) {
+                    continue;
+                }
+
+                int maxTier = 0;
+                for (JsonElement tier : getNestedJson(0, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
+                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
+                    if (tierAmount > maxTier) {
+                        maxTier = tierAmount;
+                    }
+                }
+                if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() < maxTier) {
+                    maxed = false;
+                    break;
+                }
+            }
+
+            if (maxed) {
+                maxGames.add(game);
+            }
+        }
+
+
+
+        return maxGames;
+    }
+
+    public Map<String, Integer> getBlitzStats() {
+        Map<String, Integer> blitzStats = new HashMap<>();
+        blitzStats.put("Ranger", getNestedJson(0, profile, "stats", "HungerGames", "exp_ranger").getAsInt());
+        blitzStats.put("Donkey Tamer", getNestedJson(0, profile, "stats", "HungerGames", "exp_donkeytamer").getAsInt());
+        blitzStats.put("Phoenix", getNestedJson(0, profile, "stats", "HungerGames", "exp_phoenix").getAsInt());
+        blitzStats.put("Warrior", getNestedJson(0, profile, "stats", "HungerGames", "exp_warrior").getAsInt());
+
+        return blitzStats;
+    }
+
+    public Integer getMegaWallsStat(String asString) {
+        try {
+            return getNestedJson(0, profile, "stats", "Walls3", asString).getAsJsonObject().getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getTourneyGamesPlayed(String tournamentField) {
+        try {
+            return getNestedJson(0, profile, "tourney", tournamentField, "games_played").getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getTourneyTimePlayed(String tournamentField) {
+        try {
+            return getNestedJson(0, profile, "tourney", tournamentField, "playtime").getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getTourneyTributesEarned(String tournamentField) {
+        try {
+            return getNestedJson(0, profile, "tourney", tournamentField, "tributes_earned").getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getStat(String field) {
+        try {
+            return getNestedJson(0, profile, "stats", field).getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
     }
 }
 

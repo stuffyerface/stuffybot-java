@@ -5,16 +5,48 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static me.stuffy.stuffybot.utils.MiscUtils.toSkillIssue;
+
 public class DiscordUtils {
-    public static MessageEmbed makeEmbed(String embedTitle, String embedContent, int embedColor) {
+    public static MessageEmbed makeEmbed(String embedTitle, String embedSubtitle, String embedContent, int embedColor) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(embedTitle);
-        embedBuilder.setDescription(embedContent);
+        String[] lines = embedContent.split("\n");
+        int lineCount = lines.length;
+        if (lineCount <= 15) {
+            if(embedSubtitle == null)
+                embedBuilder.setDescription(embedContent);
+            else
+                embedBuilder.setDescription("-# " + embedSubtitle + "\n" + embedContent);
+        } else {
+            if(embedSubtitle != null) {
+                embedBuilder.setDescription("-# " + embedSubtitle);
+            }
+            StringBuilder column1 = new StringBuilder();
+            StringBuilder column2 = new StringBuilder();
+            for (int i = 0; i < lineCount; i++) {
+                if (i % 2 == 0) {
+                    column1.append(lines[i]).append("\n");
+                } else {
+                    column2.append(lines[i]).append("\n");
+                }
+            }
+            embedBuilder.addField("", column1.toString(), true);
+            embedBuilder.addField("", column2.toString(), true);
+        }
         embedBuilder.setColor(embedColor);
         embedBuilder.setFooter("Stuffy Bot by @stuffy");
         embedBuilder.setTimestamp(new Date().toInstant());
@@ -22,16 +54,39 @@ public class DiscordUtils {
     }
 
     public static MessageEmbed makeErrorEmbed(String embedTitle, String embedContent) {
-        return makeEmbed(":no_entry: " + embedTitle, embedContent, 0xff0000);
+        if (Calendar.getInstance().get(Calendar.MONTH) == Calendar.APRIL && Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1){
+            embedTitle = toSkillIssue(embedTitle);
+            embedContent = toSkillIssue(embedContent);
+        }
+        return makeEmbed(":no_entry: " + embedTitle, null, embedContent, 0xff0000);
     }
 
     public static MessageEmbed makeUpdateEmbed(String embedTitle, String embedContent) {
-        return makeEmbed(":mega: " + embedTitle, embedContent, 0xffef14);
+        return makeEmbed(":mega: " + embedTitle, null, embedContent, 0xffef14);
+    }
+
+    public static MessageEmbed makeStaffRankChangeEmbed(String ign, String oldRank, String newRank, String position) {
+        String embedContent = "### **" + ign + "**:  `" + oldRank + "` ⇒ `" + newRank + "`\nPlayer stats: [Plancke](https://plancke.io/hypixel/player/stats/" + ign + ")\n";
+
+        if (position != null){
+            embedContent += "Suspected Position: " + position + "\n";
+        }
+        int color = 0xaaaaaa;
+        if(newRank.equals("GM")){
+            color = 0x00aa00;
+        }
+        if (newRank.equals("ADMIN")){
+            color = 0xff5555;
+        }
+        return makeEmbed(":mega: Rank Change Detected", null, embedContent, color);
     }
 
     public static MessageEmbed makeStatsEmbed(String embedTitle, String embedContent) {
+        return makeEmbed(embedTitle, null, embedContent, 0xf7cb72);
+    }
 
-        return makeEmbed(embedTitle, embedContent, 0xf7cb72);
+    public static MessageEmbed makeStatsEmbed(String embedTitle, String embedSubtitle, String embedContent) {
+        return makeEmbed(embedTitle, embedSubtitle , embedContent, 0xf7cb72);
     }
 
     public static String getDiscordUsername(String id){
@@ -74,16 +129,46 @@ public class DiscordUtils {
         return discordTimeUnix(timestamp, "R");
     }
 
-    public static void verifyUser(User user, String ign) {
-        Bot bot = Bot.getInstance();
-        bot.getHomeGuild().addRoleToMember(user, bot.getVerifiedRole()).queue();
-        // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
-        updateRoles(user, ign, false);
+    public static void verifyButton(ButtonInteractionEvent event) {
+        // Look up the user in the database, and check if they have already verified/linked
+        // If they are verified, verify them
+        // If they are linked, attempt to verify them
+        // If they are not linked, or the verification fails, prompt them to verify
+
+        String userId = event.getUser().getId();
+        if(isVerified(userId)){
+            MessageCreateData data = new MessageCreateBuilder()
+                    .setEmbeds(makeErrorEmbed("Verification Error", "You have already verified your identity, silly goose.")).build();
+                    event.reply(data).setEphemeral(true).queue();
+            return;
+        }
+
+
+        Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
+                .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
+                                .setPlaceholder("Your Minecraft Username")
+                                .setMaxLength(16)
+                                .setMinLength(1)
+                                .setRequired(true)
+                                .build()),
+                        ActionRow.of(
+                                TextInput.create("captcha", "CAPTCHA", TextInputStyle.PARAGRAPH)
+                                        .setPlaceholder("Enter the word 'stuffy'.\n" +
+                                                "To prevent abuse, failing the CAPTCHA " +
+                                                "will result in a short timeout.")
+                                        .setRequired(false)
+                                        .build()))
+                .build();
+        event.replyModal(modal).queue();
     }
 
     public static void updateRoles(User user, String ign, boolean announce) {
         Bot bot = Bot.getInstance();
         // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
+    }
+
+    public static boolean isVerified(String userId) {
+        return true;
     }
 
     public static String getUsername(SlashCommandInteractionEvent event) {
