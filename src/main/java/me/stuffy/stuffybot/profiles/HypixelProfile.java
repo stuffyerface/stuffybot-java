@@ -631,5 +631,37 @@ public class HypixelProfile {
             return 0;
         }
     }
+
+    public Integer getTourneyGamesPlayed(String tournamentField) {
+        try {
+            return getNestedJson(0, profile, "tourney", tournamentField, "games_played").getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getTourneyTimePlayed(String tournamentField) {
+        try {
+            return getNestedJson(0, profile, "tourney", tournamentField, "playtime").getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getTourneyTributesEarned(String tournamentField) {
+        try {
+            return getNestedJson(0, profile, "tourney", tournamentField, "tributes_earned").getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
+
+    public Integer getStat(String field) {
+        try {
+            return getNestedJson(0, profile, "stats", field).getAsInt();
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+    }
 }
 

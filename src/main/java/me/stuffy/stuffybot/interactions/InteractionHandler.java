@@ -1,5 +1,7 @@
 package me.stuffy.stuffybot.interactions;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
 import me.stuffy.stuffybot.utils.StatisticsManager;
@@ -30,12 +32,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
+import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
+    private final Map<String, Integer> tournamentMap = getTournamentMap();
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -227,9 +231,42 @@ public class InteractionHandler extends ListenerAdapter {
                             .toList();
 
                     e.replyChoices(choices).queue();
+                    break;
                 }
             }
+            case "tournament" -> {
+                if (commandOption.equals("tournament")) {
+                    List<Command.Choice> choices = new ArrayList<>();
+                    tournamentMap.forEach((name, id) -> {
+                        if (name.toLowerCase().startsWith(currentInput.toLowerCase()) && choices.size() <= 25){
+                            choices.add(new Command.Choice(name, id));
+                        }
+                    });
+                    e.replyChoices(choices).queue();
+                    break;
+                }
+            }
+            default -> {
+                e.replyChoices(Collections.emptyList()).queue();
+            }
         }
+    }
+
+    private Map<String, Integer> getTournamentMap() {
+        Map<String, Integer> tournaments = new HashMap<>();
+        JsonObject tournamentData = getTournamentData();
+        for (JsonElement entry : tournamentData.getAsJsonArray("tournaments")) {
+            JsonObject tournament = entry.getAsJsonObject();
+            int id = tournament.get("id").getAsInt();
+            String name = tournament.get("name").getAsString();
+            int iteration = tournament.get("iteration").getAsInt();
+            iteration++;
+
+            tournaments.put(name + " #" + iteration, id);
+        }
+
+
+        return tournaments;
     }
 
     @Override
