@@ -22,10 +22,14 @@ public class MiscUtils {
     public static JsonElement getNestedJson(JsonObject object, String... keys) {
         JsonElement currentElement = object;
         for (String key : keys) {
-            if (currentElement.isJsonObject() && currentElement.getAsJsonObject().has(key)) {
-                currentElement = currentElement.getAsJsonObject().get(key);
-            } else {
-                throw new IllegalArgumentException("Key " + key + " not found or not a JsonObject");
+            // Split the key at character '.' and iterate through the keys
+            String[] splitKey = key.split("\\.");
+            for (String split : splitKey) {
+                if (currentElement.isJsonObject() && currentElement.getAsJsonObject().has(split)) {
+                    currentElement = currentElement.getAsJsonObject().get(split);
+                } else {
+                    throw new IllegalArgumentException("Key " + key + " not found or not a JsonObject");
+                }
             }
         }
         return currentElement;
