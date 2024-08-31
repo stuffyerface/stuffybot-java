@@ -34,7 +34,8 @@ import java.util.stream.Stream;
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
-import static me.stuffy.stuffybot.utils.MiscUtils.*;
+import static me.stuffy.stuffybot.utils.MiscUtils.genBase64;
+import static me.stuffy.stuffybot.utils.MiscUtils.requiresIgn;
 
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);

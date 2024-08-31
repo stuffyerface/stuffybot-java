@@ -11,9 +11,9 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import java.text.DecimalFormat;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
-import static me.stuffy.stuffybot.utils.DiscordUtils.*;
+import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
 import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.*;
+import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
 
 public class PitCommand {
 
