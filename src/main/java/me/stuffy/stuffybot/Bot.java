@@ -1,9 +1,9 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.commands.*;
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
+import me.stuffy.stuffybot.interactions.InteractionHandler;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
@@ -14,6 +14,12 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.ArrayList;
 
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
@@ -33,29 +39,21 @@ public class Bot extends ListenerAdapter {
 
         // Initialize home guild
         this.homeGuild = jda.getGuildById("795108903733952562");
-//        this.homeGuild = jda.getGuildById("818238263110008863");
         assert this.homeGuild != null : "Failed to find home guild";
 
 
         // Log startup
         String time = DiscordUtils.discordTimeNow();
         String self = jda.getSelfUser().getAsMention();
-        Logger logger = new Logger();
-        logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
+        Logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
 
-        // Register commands
+        // Listen for interactions
         jda.addEventListener(
-                new VerifyCommand("verify", "Links your discord account to your Minecraft account"),
-                new MaxedGamesCommand("maxes", "Find the games with all achievements unlocked"),
-                new TournamentCommand("tournament", "Shows tournament stats"),
-                new AchievementCommand("achievements", "Shows achievements progress for a user"),
-                new StatsCommand("stats", "Shows overall hypixel stats for a user"),
-                new PitCommand("pit", "Shows pit stats for a user"),
-                new TkrCommand("tkr", "Shows completed maps in TKR"),
-                new MegaWallsCommand("megawalls", "Shows Mega Walls stats for a user")
+                new InteractionHandler()
         );
 
-
+        // Register commands "global"ly or "local"ly
+        registerCommands("local");
 
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
@@ -93,5 +91,54 @@ public class Bot extends ListenerAdapter {
     public void onGuildLeave(GuildLeaveEvent event) {
         Guild leftGuild = event.getGuild();
         Logger.log("<Guilds> Bot left guild: " + leftGuild.getName() + " (" + leftGuild.getId() + ")");
+    }
+
+    public void registerCommands(String scope) {
+        OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN", false);
+        // Create a list of commands first
+        ArrayList<CommandData> commandList = new ArrayList<>();
+//        commandList.add(Commands.slash("help", "*Should* show a help message"));
+        commandList.add(Commands.slash("pit", "Get Pit stats for a player")
+                .addOptions(ignOption));
+        commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
+                .addOptions(ignOption));
+        commandList.add(Commands.slash("tkr", "Get TKR stats for a player")
+                .addOptions(ignOption));
+        commandList.add(Commands.slash("maxes", "Get maxed games for a player")
+                .addOptions(ignOption));
+        commandList.add(Commands.slash("blitz", "Get Blitz Ultimate Kit xp for a player")
+                .addOptions(ignOption));
+        commandList.add(Commands.slash("megawalls", "Get Mega Walls skins for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.STRING, "skins", "Which skins to look at", false).setAutoComplete(true)));
+        commandList.add(Commands.slash("tournament", "Get tournament stats for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.INTEGER, "tournament", "Which tournament to look at (Leave empty for latest)", false).setAutoComplete(true)));
+
+
+        if (scope.equals("local")) {
+            //clearLocalCommands();
+            this.homeGuild.updateCommands().addCommands(
+                    commandList
+            ).queue();
+            Logger.log("<Commands> Successfully Registered commands in guild.");
+        } else if (scope.equals("global")){
+            jda.updateCommands().addCommands(
+                    commandList
+            ).queue();
+            Logger.log("<Commands> Successfully Registered commands globally.");
+        } else {
+            throw new IllegalArgumentException("Invalid scope: " + scope);
+        }
+    }
+
+    public void clearCommands() {
+        jda.updateCommands().queue();
+        Logger.log("<Commands> Successfully cleared commands.");
+    }
+
+    public void clearLocalCommands() {
+        this.homeGuild.updateCommands().queue();
+        Logger.log("<Commands> Successfully cleared local commands.");
     }
 }

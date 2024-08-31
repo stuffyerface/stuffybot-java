@@ -1,43 +1,25 @@
 package me.stuffy.stuffybot.commands;
 
+import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import me.stuffy.stuffybot.utils.APIException;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.Map;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
-import static me.stuffy.stuffybot.utils.DiscordUtils.*;
+import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
 
-public class TkrCommand extends BaseCommand{
-    public TkrCommand(String name, String description) {
-        super(name, description,
-                new OptionData(OptionType.STRING, "ign", "The username of the player you want to look up", false));
-    }
-
-    @Override
-    protected void onCommand(SlashCommandInteractionEvent event) {
-        String ign = getUsername(event);
-        HypixelProfile hypixelProfile;
-        try{
-            hypixelProfile = getHypixelProfile(ign);
-        } catch (Exception e){
-            event.getHook().sendMessage("").addEmbeds(
-                    makeErrorEmbed(
-                            "API Error",
-                            "An error occurred while fetching your Hypixel profile. Please try again later."
-                    )
-            ).queue();
-            return;
-        }
-
+public class TkrCommand {
+    public static MessageCreateData tkr(InteractionId interactionId) throws APIException {
+        String ign = interactionId.getOptions().get("ign");
+        HypixelProfile hypixelProfile = getHypixelProfile(ign);
         String username = hypixelProfile.getDisplayName();
 
         Map<String, Boolean> uniqueGolds = hypixelProfile.getTkrMaps();
-        String embedContent = "";
+        StringBuilder embedContent = new StringBuilder();
         int uniqueGoldCount = 0;
 
         for (Map.Entry<String, Boolean> entry : uniqueGolds.entrySet()) {
@@ -46,28 +28,20 @@ public class TkrCommand extends BaseCommand{
             if (value) {
                 uniqueGoldCount++;
             }
-            embedContent += (value ? "✅ " : "❌ ") + key + "\n";
+            embedContent.append(value ? "✅ " : "❌ ").append(key).append("\n");
         }
 
+        MessageEmbed tkrStats = makeStatsEmbed(
+                "TKR Stats for " + username,
+                "Unique Gold Medals: **" + uniqueGoldCount + "**/5",
+                embedContent.toString()
+        );
 
-        embedContent = "Unique Gold Medals: **" + uniqueGoldCount + "**/5\n\n" + embedContent;
-
-
-        event.getHook().sendMessage("").addEmbeds(
-                makeStatsEmbed(
-                        "TKR Unique Gold Medals for " + username,
-                        embedContent
-                )
-        ).queue();
-    }
-
-    @Override
-    protected void onButton(ButtonInteractionEvent event) {
-
-    }
-
-    @Override
-    protected void cleanupEventResources(String messageId) {
-
+        return new MessageCreateBuilder()
+                .addEmbeds(tkrStats)
+//                .addActionRow(
+//                        secondary("achievements:" + interactionId.getUserId() + ":game=tkr," + interactionId.getOptionsString(), "Looking for TKR Achievements?")
+//                )
+                .build();
     }
 }
