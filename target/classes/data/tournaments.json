@@ -6,10 +6,21 @@
       "icon": "BedWars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1543014000",
-        "end": "1543186800"
+        "start": 1543014000,
+        "end": 1543186800
       },
-      "data": { }
+      "data": {
+        "timeLimit" : 1200,
+        "tourneyField" : "bedwars4s_0",
+        "wins" : "Bedwars.tourney_bedwars4s_0_wins_bedwars",
+        "losses" : "Bedwars.tourney_bedwars4s_0_losses_bedwars",
+        "finalKills" : "Bedwars.tourney_bedwars4s_0_final_kills_bedwars",
+        "finalDeaths" : "Bedwars.tourney_bedwars4s_0_final_deaths_bedwars",
+        "winstreak" : "Bedwars.tourney_bedwars4s_0_winstreak2",
+        "killstreak" : "Bedwars.tourney_bedwars4s_0_killstreak_bedwars",
+        "kills" : "Bedwars.tourney_bedwars4s_0_kills_bedwars",
+        "deaths" : "Bedwars.tourney_bedwars4s_0_deaths_bedwars"
+      }
     },
     {
       "id": 1,
@@ -17,10 +28,16 @@
       "icon": "SG-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1546642800",
-        "end": "1546815600"
+        "start": 1546642800,
+        "end": 1546815600
       },
-      "data": { }
+      "data": {
+        "timeLimit" : 720,
+        "tourneyField" : "blitz_duo_0",
+        "wins" : "HungerGames.tourney_blitz_duo_0_wins_teams",
+        "kills" : "HungerGames.tourney_blitz_duo_0_kills",
+        "deaths" : "HungerGames.tourney_blitz_duo_0_deaths"
+      }
     },
     {
       "id": 2,
@@ -28,10 +45,19 @@
       "icon": "Skywars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1552687200",
-        "end": "1552860000"
+        "start": 1552687200,
+        "end": 1552860000
       },
-      "data": { }
+      "data": {
+        "timeLimit" : 480,
+        "tourneyField" : "sw_crazy_solo_0",
+        "wins" : "SkyWars.tourney_sw_crazy_solo_0_wins",
+        "losses" : "SkyWars.tourney_sw_crazy_solo_0_losses",
+        "winstreak" : "SkyWars.tourney_sw_crazy_solo_0_win_streak",
+        "kills" : "SkyWars.tourney_sw_crazy_solo_0_kills",
+        "deaths" : "SkyWars.tourney_sw_crazy_solo_0_deaths",
+        "killstreak" : "SkyWars.tourney_sw_crazy_solo_0_killstreak"
+      }
     },
     {
       "id": 3,
@@ -39,21 +65,38 @@
       "icon": "CVC-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1572040800",
-        "end": "1572213600"
+        "start": 1572040800,
+        "end": 1572213600
       },
-      "data": { }
+      "data": {
+        "timeLimit" : 480,
+        "tourneyField" : "mcgo_defusal_0",
+        "wins" : "MCGO.game_wins_tourney_mcgo_defusal_0",
+        "kills" : "MCGO.kills_tourney_mcgo_defusal_0",
+        "deaths" : "MCGO.deaths_tourney_mcgo_defusal_0"
+      }
     },
     {
       "id": 4,
-      "name": "Bed Wars 4v4",
+      "name": "BedWars 4v4",
       "icon": "BedWars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1576278000",
-        "end": "1576450800"
+        "start": 1576278000,
+        "end": 1576450800
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 75,
+        "tourneyField" : "bedwars_two_four_0",
+        "wins" : "Bedwars.tourney_bedwars_two_four_0_wins_bedwars",
+        "losses" : "Bedwars.tourney_bedwars_two_four_0_losses_bedwars",
+        "finalKills" : "Bedwars.tourney_bedwars_two_four_0_final_kills_bedwars",
+        "finalDeaths" : "Bedwars.tourney_bedwars_two_four_0_final_deaths_bedwars",
+        "winstreak" : "Bedwars.tourney_bedwars_two_four_0_winstreak2",
+        "killstreak" : "Bedwars.tourney_bedwars_two_four_0_killstreak_bedwars",
+        "kills" : "Bedwars.tourney_bedwars_two_four_0_kills_bedwars",
+        "deaths" : "Bedwars.tourney_bedwars_two_four_0_deaths_bedwars"
+      }
     },
     {
       "id": 5,
@@ -61,10 +104,16 @@
       "icon": "Quakecraft-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1580511600",
-        "end": "1580684400"
+        "start": 1580511600,
+        "end": 1580684400
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 250,
+        "tourneyField" : "quake_solo2_0",
+        "wins" : "Quake.wins_tourney_quake_solo2_1",
+        "kills" : "Quake.kills_tourney_quake_solo2_1",
+        "deaths" : "Quake.deaths_tourney_quake_solo2_1"
+      }
     },
     {
       "id": 6,
@@ -72,10 +121,19 @@
       "icon": "Skywars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1585951200",
-        "end": "1586124000"
+        "start": 1585951200,
+        "end": 1586124000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 120,
+        "tourneyField" : "sw_insane_doubles_0",
+        "wins" : "SkyWars.tourney_sw_insane_doubles_0_wins",
+        "losses" : "SkyWars.tourney_sw_insane_doubles_0_losses",
+        "winstreak" : "SkyWars.tourney_sw_insane_doubles_0_win_streak",
+        "kills" : "SkyWars.tourney_sw_insane_doubles_0_kills",
+        "deaths" : "SkyWars.tourney_sw_insane_doubles_0_deaths",
+        "killstreak" : "SkyWars.tourney_sw_insane_doubles_0_killstreak"
+      }
     },
     {
       "id": 7,
@@ -83,10 +141,21 @@
       "icon": "BedWars-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1591999200",
-        "end": "1592172000"
+        "start": 1591999200,
+        "end": 1592172000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 80,
+        "tourneyField" : "bedwars4s_1",
+        "wins" : "Bedwars.tourney_bedwars4s_1_wins_bedwars",
+        "losses" : "Bedwars.tourney_bedwars4s_1_losses_bedwars",
+        "finalKills" : "Bedwars.tourney_bedwars4s_1_final_kills_bedwars",
+        "finalDeaths" : "Bedwars.tourney_bedwars4s_1_final_deaths_bedwars",
+        "winstreak" : "Bedwars.tourney_bedwars4s_1_winstreak2",
+        "killstreak" : "Bedwars.tourney_bedwars4s_1_killstreak_bedwars",
+        "kills" : "Bedwars.tourney_bedwars4s_1_kills_bedwars",
+        "deaths" : "Bedwars.tourney_bedwars4s_1_deaths_bedwars"
+      }
     },
     {
       "id": 8,
@@ -94,10 +163,14 @@
       "icon": "TurboKartRacers-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1596837600",
-        "end": "1597010400"
+        "start": 1596837600,
+        "end": 1597010400
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 72,
+        "tourneyField" : "gingerbread_solo_0",
+        "wins" : "GingerBread.tourney_gingerbread_solo_0_gold_trophy"
+      }
     },
     {
       "id": 9,
@@ -105,10 +178,16 @@
       "icon": "SG-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1602885600",
-        "end": "1603058400"
+        "start": 1602885600,
+        "end": 1603058400
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 70,
+        "tourneyField" : "blitz_duo_1",
+        "wins" : "HungerGames.tourney_blitz_duo_1_wins_teams",
+        "kills" : "HungerGames.tourney_blitz_duo_1_kills",
+        "deaths" : "HungerGames.tourney_blitz_duo_1_deaths"
+      }
     },
     {
       "id": 10,
@@ -116,10 +195,16 @@
       "icon": "Arcade-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1608332400",
-        "end": "1608505200"
+        "start": 1608332400,
+        "end": 1608505200
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 60,
+        "tourneyField" : "grinch_simulator_0",
+        "wins" : "Arcade.wins_grinch_simulator_v2_tourney",
+        "losses" : "Arcade.losses_grinch_simulator_v2_tourney",
+        "grinch_gifts" : "Arcade.gifts_grinch_simulator_v2_tourney"
+      }
     },
     {
       "id": 11,
@@ -127,10 +212,16 @@
       "icon": "CVC-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1614985200",
-        "end": "1615158000"
+        "start": 1614985200,
+        "end": 1615158000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 40,
+        "tourneyField" : "mcgo_defusal_1",
+        "wins" : "MCGO.game_wins_tourney_mcgo_defusal_0",
+        "kills" : "MCGO.kills_tourney_mcgo_defusal_0",
+        "deaths" : "MCGO.deaths_tourney_mcgo_defusal_0"
+      }
     },
     {
       "id": 12,
@@ -138,10 +229,15 @@
       "icon": "TNT-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1628892000",
-        "end": "1629064800"
+        "start": 1628892000,
+        "end": 1629064800
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 120,
+        "tourneyField" : "tnt_run_0",
+        "wins" : "TNTGames.wins_tourney_tnt_run_0",
+        "losses" : "TNTGames.deaths_tourney_tnt_run_0"
+      }
     },
     {
       "id": 13,
@@ -149,10 +245,19 @@
       "icon": "Skywars-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1634335200",
-        "end": "1634508000"
+        "start": 1634335200,
+        "end": 1634508000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 120,
+        "tourneyField" : "sw_insane_doubles_1",
+        "wins" : "SkyWars.tourney_sw_insane_doubles_1_wins",
+        "losses" : "SkyWars.tourney_sw_insane_doubles_1_losses",
+        "winstreak" : "SkyWars.tourney_sw_insane_doubles_1_win_streak",
+        "kills" : "SkyWars.tourney_sw_insane_doubles_1_kills",
+        "deaths" : "SkyWars.tourney_sw_insane_doubles_1_deaths",
+        "killstreak" : "SkyWars.tourney_sw_insane_doubles_1_killstreak"
+      }
     },
     {
       "id": 14,
@@ -160,10 +265,16 @@
       "icon": "Quakecraft-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1639782000",
-        "end": "1639954800"
+        "start": 1639782000,
+        "end": 1639954800
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 200,
+        "tourneyField" : "quake_solo2_1",
+        "wins" : "Quake.wins_tourney_quake_solo2_1",
+        "kills" : "Quake.kills_tourney_quake_solo2_1",
+        "deaths" : "Quake.deaths_tourney_quake_solo2_1"
+      }
     },
     {
       "id": 15,
@@ -171,10 +282,21 @@
       "icon": "BedWars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1647640800",
-        "end": "1647813600"
+        "start": 1647640800,
+        "end": 1647813600
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 40,
+        "tourneyField" : "bedwars_two_four_0",
+        "wins" : "Bedwars.tourney_bedwars_two_four_0_wins_bedwars",
+        "losses" : "Bedwars.tourney_bedwars_two_four_0_losses_bedwars",
+        "finalKills" : "Bedwars.tourney_bedwars_two_four_0_final_kills_bedwars",
+        "finalDeaths" : "Bedwars.tourney_bedwars_two_four_0_final_deaths_bedwars",
+        "winstreak" : "Bedwars.tourney_bedwars_two_four_0_winstreak2",
+        "killstreak" : "Bedwars.tourney_bedwars_two_four_0_killstreak_bedwars",
+        "kills" : "Bedwars.tourney_bedwars_two_four_0_kills_bedwars",
+        "deaths" : "Bedwars.tourney_bedwars_two_four_0_deaths_bedwars"
+      }
     },
     {
       "id": 16,
@@ -182,10 +304,17 @@
       "icon": "Arcade-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1660341600",
-        "end": "1660514400"
+        "start": 1660341600,
+        "end": 1660514400
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 50,
+        "tourneyField" : "mini_walls_0",
+        "wins" : "Arcade.wins_tourney_mini_walls_0",
+        "deaths" : "Arcade.deaths_tourney_mini_walls_0",
+        "kills" : "Arcade.kills_tourney_mini_walls_0",
+        "finalKills" : "Arcade.final_kills_tourney_mini_walls_0"
+      }
     },
     {
       "id": 17,
@@ -193,10 +322,14 @@
       "icon": "TurboKartRacers-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1666994400",
-        "end": "1667167200"
+        "start": 1666994400,
+        "end": 1667167200
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 72,
+        "tourneyField" : "gingerbread_solo_1",
+        "wins" : "GingerBread.tourney_gingerbread_solo_1_gold_trophy"
+      }
     },
     {
       "id": 18,
@@ -204,10 +337,16 @@
       "icon": "SG-64.png",
       "iteration": 2,
       "duration": {
-        "start": "1679695200",
-        "end": "1679868000"
+        "start": 1679695200,
+        "end": 1679868000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 70,
+        "tourneyField" : "blitz_duo_2",
+        "wins" : "HungerGames.tourney_blitz_duo_2_wins_teams",
+        "kills" : "HungerGames.tourney_blitz_duo_2_kills",
+        "deaths" : "HungerGames.tourney_blitz_duo_2_deaths"
+      }
     },
     {
       "id": 19,
@@ -215,10 +354,16 @@
       "icon": "WoolWars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1693000800",
-        "end": "1693173600"
+        "start": 1693000800,
+        "end": 1693163760
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 100,
+        "tourneyField" : "wool_wars_0",
+        "wins" : "WoolGames.wool_wars.stats.tourney.wool_wars_0.wins",
+        "kills" : "WoolGames.wool_wars.stats.tourney.wool_wars_0.kills",
+        "deaths" : "WoolGames.wool_wars.stats.tourney.wool_wars_0.deaths"
+      }
     },
     {
       "id": 20,
@@ -226,10 +371,16 @@
       "icon": "WoolWars-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1694210400",
-        "end": "1694383200"
+        "start": 1694210400,
+        "end": 1694383200
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 40,
+        "tourneyField" : "wool_wars_1",
+        "wins" : "WoolGames.wool_wars.stats.tourney.wool_wars_1.wins",
+        "kills" : "WoolGames.wool_wars.stats.tourney.wool_wars_1.kills",
+        "deaths" : "WoolGames.wool_wars.stats.tourney.wool_wars_1.deaths"
+      }
     },
     {
       "id": 21,
@@ -237,10 +388,21 @@
       "icon": "BedWars-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1697839200",
-        "end": "1698012000"
+        "start": 1697839200,
+        "end": 1698012000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 40,
+        "tourneyField" : "bedwars_two_four_1",
+        "wins" : "Bedwars.tourney_bedwars_two_four_1_wins_bedwars",
+        "losses" : "Bedwars.tourney_bedwars_two_four_1_losses_bedwars",
+        "finalKills" : "Bedwars.tourney_bedwars_two_four_1_final_kills_bedwars",
+        "finalDeaths" : "Bedwars.tourney_bedwars_two_four_1_final_deaths_bedwars",
+        "winstreak" : "Bedwars.tourney_bedwars_two_four_1_winstreak2",
+        "killstreak" : "Bedwars.tourney_bedwars_two_four_1_killstreak_bedwars",
+        "kills" : "Bedwars.tourney_bedwars_two_four_1_kills_bedwars",
+        "deaths" : "Bedwars.tourney_bedwars_two_four_1_deaths_bedwars"
+      }
     },
     {
       "id": 22,
@@ -248,10 +410,16 @@
       "icon": "Arcade-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1702681200",
-        "end": "1702854000"
+        "start": 1702681200,
+        "end": 1702854000
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 60,
+        "tourneyField" : "grinch_simulator_1",
+        "wins" : "Arcade.wins_grinch_simulator_v2_tourney_grinch_simulator_1",
+        "losses" : "Arcade.losses_grinch_simulator_v2_tourney_grinch_simulator_1",
+        "grinch_gifts" : "Arcade.gifts_grinch_simulator_v2_tourney_grinch_simulator_1"
+      }
     },
     {
       "id": 23,
@@ -259,10 +427,15 @@
       "icon": "TNT-64.png",
       "iteration": 1,
       "duration": {
-        "start": "1710540000",
-        "end": "1710712800"
+        "start": 1710540000,
+        "end": 1710712800
       },
-      "data": { }
+      "data": {
+        "gameLimit" : 80,
+        "tourneyField" : "tnt_run_1",
+        "wins" : "TNTGames.wins_tourney_tnt_run_1",
+        "losses" : "TNTGames.deaths_tourney_tnt_run_1"
+      }
     },
     {
       "id": 24,
@@ -270,8 +443,8 @@
       "icon": "Skywars-64.png",
       "iteration": 0,
       "duration": {
-        "start": "1719007200",
-        "end": "1719180000"
+        "start": 1719007200,
+        "end": 1719180000
       },
       "data": {
         "gameLimit" : 120,
