@@ -1,9 +1,9 @@
 {
   "lastUpdated": 0,
-  "classes" : [
+  "classes": [
     {
-      "id" : "cow",
-      "name" : "Cow",
+      "id": "cow",
+      "name": "Cow",
       "skins": [
         {
           "name": "Moo Brawler",
@@ -625,8 +625,8 @@
       ]
     },
     {
-      "id" : "skeleton",
-      "name" : "Skeleton",
+      "id": "skeleton",
+      "name": "Skeleton",
       "skins": [
         {
           "name": "Marksman",
