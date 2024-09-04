@@ -83,18 +83,22 @@ public class APIUtils {
                 return new HypixelProfile(object.get("player").getAsJsonObject());
             }
             case 400 -> {
+                logError(response.body());
                 logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
                 throw new APIException("Hypixel", "A field is missing, this should never happen.");
             }
             case 403 -> {
+                logError(response.body());
                 logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
                 throw new APIException("Hypixel", "Invalid API Key, contact the Stuffy immediately.");
             }
             case 429 -> {
+                logError(response.body());
                 logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
                 throw new APIException("Hypixel", "Rate limited by Hypixel API, try again later.");
             }
             default -> {
+                logError(response.body());
                 logError("Unknown Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
                 throw new APIException("Hypixel", "I've never seen this error before.");
             }
