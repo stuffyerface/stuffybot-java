@@ -220,7 +220,7 @@ public class HypixelProfile {
                 // Mega Walls
                 "Walls3.wins",
 
-                // Turbo Kart Racers TODO: Reduce to golds?
+                // Turbo Kart Racers
                 "GingerBread.gold_trophy", "GingerBread.tourney_gingerbread_solo_1_gold_trophy",
 
                 // SkyWars
