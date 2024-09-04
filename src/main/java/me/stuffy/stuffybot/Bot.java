@@ -58,6 +58,21 @@ public class Bot extends ListenerAdapter {
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
         new ActiveEvents().startFixedRateEvent();
+
+        // Handle SIGTERM
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Logger.log("<Shutdown> Bot shutting down, saving data...");
+            // Wait like 5 seconds for data to save
+            Logger.log("<Shutdown> Not going down without a fight!");
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            // #TODO: Upload logs
+            // #TODO: Update Bot stats
+            Logger.log("<Shutdown> Data saved, allowing for shutdown.");
+        }));
     }
     public static Bot getInstance() {
         return INSTANCE;
