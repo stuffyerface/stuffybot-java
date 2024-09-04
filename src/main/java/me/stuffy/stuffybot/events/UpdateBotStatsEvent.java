@@ -12,7 +12,7 @@ import static me.stuffy.stuffybot.utils.APIUtils.updateUsersStats;
 
 public class UpdateBotStatsEvent extends BaseEvent{
     public UpdateBotStatsEvent() {
-        super("UpdateBotStats", 30, TimeUnit.MINUTES);
+        super("UpdateBotStats", 2, TimeUnit.HOURS);
     }
 
     @Override
@@ -31,13 +31,18 @@ public class UpdateBotStatsEvent extends BaseEvent{
         Map<String, Integer> commandsRun = globalData.getCommandsRun();
         Map<String, Integer> userCommandsRun = globalData.getUserCommandsRun();
 
-        if(commandsRun.isEmpty() && uniqueUsers.isEmpty()) {
+        if(commandsRun.isEmpty()) {
             Logger.log("<UpdateBotStats> No data to update.");
-            return;
+        } else {
+            updateBotStats(totalServers, commandsRun);
+            Logger.log("<UpdateBotStats> Updated bot stats.");
         }
-        updateBotStats(totalServers, commandsRun);
-        updateUsersStats(uniqueUsers, userCommandsRun);
-        Logger.log("<UpdateBotStats> Updated bot stats.");
+        if(uniqueUsers.isEmpty()) {
+            Logger.log("<UpdateBotStats> No unique users to update.");
+        } else {
+            updateUsersStats(uniqueUsers, userCommandsRun);
+            Logger.log("<UpdateBotStats> Updated user stats.");
+        }
 
         globalData.clearCommandsRun();
         globalData.clearUniqueUsers();
