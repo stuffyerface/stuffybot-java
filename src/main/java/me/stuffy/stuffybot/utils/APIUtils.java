@@ -169,6 +169,61 @@ public class APIUtils {
         return profile;
     }
 
+    private static final LoadingCache<UUID, MojangProfile> mojangProfileUUIDCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build(
+                    new CacheLoader<UUID, MojangProfile>() {
+                        public MojangProfile load(@NotNull UUID uuid) {
+                            try{
+                                return fetchMojangProfile(uuid);
+                            } catch (APIException e){
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+            );
+
+    public static MojangProfile getMojangProfile(UUID uuid) throws APIException{
+        try{
+            return mojangProfileUUIDCache.getUnchecked(uuid);
+        } catch (RuntimeException e){
+            if (e.getCause().getCause() instanceof APIException) {
+                throw (APIException) e.getCause().getCause();
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public static MojangProfile fetchMojangProfile(UUID uuid) throws APIException {
+        HttpRequest getRequest = HttpRequest.newBuilder()
+                .uri(URI.create(mojangSessionApiUrl + "session/minecraft/profile/" + uuid.toString()))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.sendAsync(getRequest, HttpResponse.BodyHandlers.ofString()).join();
+        switch (response.statusCode()) {
+            case 200 -> {
+                JsonParser parser = new JsonParser();
+                JsonElement element = parser.parse(response.body());
+                JsonObject object = element.getAsJsonObject();
+                String name = object.get("name").getAsString();
+                return new MojangProfile(name, uuid);
+            }
+            case 204,404 -> {
+                logError("Mojang API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                throw new APIException("Mojang", "There is no Minecraft account with that UUID.");
+            }
+            case 429 -> {
+                logError("Mojang API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                throw new APIException("Mojang", "Rate limited by Mojang API, try again later.");
+            }
+            default -> {
+                logError("Unknown Mojang API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                throw new APIException("Mojang", "I've never seen this error before.");
+            }
+        }
+    }
+
     private static final LoadingCache<String, JsonElement> achievementsCache = CacheBuilder.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
             .build(
