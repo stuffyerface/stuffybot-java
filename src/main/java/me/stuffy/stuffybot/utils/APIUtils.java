@@ -3,6 +3,7 @@ package me.stuffy.stuffybot.utils;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -325,7 +326,52 @@ public class APIUtils {
 
 
     public static void updateBotStats(int totalServers, Map<String, Integer> commandsRun) {
-        // TODO: Update PublicAPI/bot.json to update total servers and individual commands run
+        GHContent botStats = getGitHubFile(privateApiRepo, "apis/bot.json");
+        if (botStats == null) throw new IllegalStateException("Failed to get bot.json from GitHub");
+
+        try {
+            // Read the JSON content
+            String botStatsContent = readFile(botStats);
+            JsonObject fullJson = JsonParser.parseString(botStatsContent).getAsJsonObject();
+
+            // Update the JSON content
+            fullJson.addProperty("lastUpdated", System.currentTimeMillis());
+            JsonArray allBots = fullJson.get("bots").getAsJsonArray();
+            String botId = Bot.getInstance().getJDA().getSelfUser().getId();
+
+            JsonObject bot = null;
+            for (JsonElement element : allBots) {
+                JsonObject currentBot = element.getAsJsonObject();
+                if (currentBot.get("id").getAsString().equals(botId)) {
+                    bot = currentBot;
+                    break;
+                }
+            }
+
+            if (bot == null) {
+                throw new IllegalStateException("Failed to find bot in bot.json");
+            }
+
+            bot.addProperty("servers", totalServers);
+
+            JsonObject commands = bot.get("commandsRun").getAsJsonObject();
+
+            for (Map.Entry<String, Integer> entry : commandsRun.entrySet()) {
+                String command = entry.getKey();
+                int count = entry.getValue();
+                int currentCount = 0;
+                if(commands.has(command)) currentCount = commands.get(command).getAsInt();
+                commands.addProperty(command, currentCount + count);
+            }
+
+            fullJson.add("bots", allBots);
+
+            // Write the updated content back to the JSON file
+            updateGitHubFile(privateApiRepo, "apis/bot.json", fullJson.toString(), "Updated bot stats.");
+            log("<Stats> Updated bot stats for " + totalServers + " servers.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void updateUsersStats(Map<String, String> uniqueUsers, Map<String, Integer> userCommandsRun) {
