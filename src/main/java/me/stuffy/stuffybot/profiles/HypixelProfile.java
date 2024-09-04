@@ -59,6 +59,11 @@ public class HypixelProfile {
         return uuid;
     }
 
+    public HypixelProfile setDisplayName(String displayName) {
+        this.displayName = displayName;
+        return this;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
