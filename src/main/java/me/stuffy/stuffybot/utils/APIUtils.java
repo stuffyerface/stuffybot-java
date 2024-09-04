@@ -28,7 +28,8 @@ public class APIUtils {
     static String mojangApiUrl = "https://api.mojang.com/";
     public static HypixelProfile getHypixelProfile(String username) throws APIException {
         MojangProfile profile = getMojangProfile(username);
-        return getHypixelProfile(profile.getUuid());
+        String ign = profile.getUsername();
+        return getHypixelProfile(profile.getUuid()).setDisplayName(ign);
     }
 
     private static final LoadingCache<UUID, HypixelProfile> hypixelProfileCache = CacheBuilder.newBuilder()
