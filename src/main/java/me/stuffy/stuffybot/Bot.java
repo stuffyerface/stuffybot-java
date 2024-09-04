@@ -5,6 +5,7 @@ import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
 import me.stuffy.stuffybot.interactions.InteractionHandler;
 import me.stuffy.stuffybot.profiles.GlobalData;
+import me.stuffy.stuffybot.utils.APIUtils;
 import me.stuffy.stuffybot.utils.DiscordUtils;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
@@ -21,9 +22,12 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.kohsuke.github.GitHub;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import static me.stuffy.stuffybot.utils.APIUtils.connectToGitHub;
+import static me.stuffy.stuffybot.utils.APIUtils.uploadLogs;
 
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
@@ -48,9 +52,10 @@ public class Bot extends ListenerAdapter {
         assert this.homeGuild != null : "Failed to find home guild";
 
         // Log startup
-        String time = DiscordUtils.discordTimeNow();
-        String self = jda.getSelfUser().getAsMention();
-        Logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
+        String startupTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss"));
+        String self = jda.getSelfUser().getName();
+        Logger.setLogName(startupTime);
+        Logger.log("<Startup> Bot " + self + " started successfully " + startupTime + ".");
 
         // Initialize GitHub
         GITHUB = connectToGitHub();
@@ -74,10 +79,14 @@ public class Bot extends ListenerAdapter {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Logger.log("<Shutdown> Bot shutting down, saving data...");
 
-            // #TODO: Upload logs
+            if(jda != null) {
+                jda.shutdown();
+            }
 
             // Update Bot Stats
             UpdateBotStatsEvent.publicExecute();
+            Logger.log("<Shutdown> Data saved, allowing for shutdown.");
+            uploadLogs();
             Logger.log("<Shutdown> Data saved, allowing for shutdown.");
         }));
     }
