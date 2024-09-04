@@ -1,7 +1,6 @@
 package me.stuffy.stuffybot.utils;
 
 import me.stuffy.stuffybot.Bot;
-import me.stuffy.stuffybot.profiles.MojangProfile;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;

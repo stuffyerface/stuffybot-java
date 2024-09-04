@@ -23,10 +23,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static me.stuffy.stuffybot.utils.Logger.log;
@@ -326,9 +323,60 @@ public class APIUtils {
         return privateApiRepo;
     }
 
-    public static void updateCommandStat(String discordId, String discordUsername, String commandName) {
-        // Update PrivateAPI/linkeddb.csv to update runner plus total interactions
-        // Update PublicAPI/bot.json to increment count for command stat on this bot
+
+    public static void updateBotStats(int totalServers, Map<String, Integer> commandsRun) {
+        // TODO: Update PublicAPI/bot.json to update total servers and individual commands run
+    }
+
+    public static void updateUsersStats(Map<String, String> uniqueUsers, Map<String, Integer> userCommandsRun) {
+        GHContent linkedDB = getGitHubFile(privateApiRepo, "apis/linkeddb.csv");
+        if (linkedDB == null) throw new IllegalStateException("Failed to get linkeddb.csv from GitHub");
+
+        try {
+            // Read the CSV content
+            String linkedDBContent = readFile(linkedDB);
+            List<String[]> csvData;
+            try (CSVReader reader = new CSVReader(new StringReader(linkedDBContent))) {
+                csvData = reader.readAll();
+            }
+
+            int newUsers = 0;
+            int updatedUsers = 0;
+            int newCommandsRun = 0;
+            // Update the CSV content
+            for (String discordId : uniqueUsers.keySet()) {
+                String discordName = uniqueUsers.get(discordId);
+                int commandsRun = userCommandsRun.getOrDefault(discordId, 0);
+                newCommandsRun += commandsRun;
+                boolean updated = false;
+                for (String[] row : csvData) {
+                    if (row[0].equals(discordId)) {
+                        row[1] = discordName;
+                        row[5] = String.valueOf(commandsRun + Integer.parseInt(row[5]));
+                        updated = true;
+                        updatedUsers++;
+                        break;
+                    }
+                }
+                if (!updated) {
+                    newUsers++;
+                    csvData.add(new String[]{discordId, discordName, "", "", "", String.valueOf(commandsRun)});
+                }
+            }
+
+            // Write the updated content back to the CSV file
+            StringWriter stringWriter = new StringWriter();
+            try (CSVWriter writer = new CSVWriter(stringWriter)) {
+                writer.writeAll(csvData);
+            }
+            String updatedContent = stringWriter.toString();
+            updateGitHubFile(privateApiRepo, "apis/linkeddb.csv", updatedContent,
+                    "Added `" + newCommandsRun + "` new commands run by `" + newUsers + "` new users and `"
+                            + updatedUsers + "` existing users.");
+            Logger.log("<Stats> Updated stats for " + newUsers + " new users and " + updatedUsers + " existing users.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String readFile(GHContent content) {
@@ -355,7 +403,7 @@ public class APIUtils {
         try {
             // Read the CSV content
             String linkedDBContent = readFile(linkedDB);
-            List<String[]> csvData = new ArrayList<>();
+            List<String[]> csvData;
             try (CSVReader reader = new CSVReader(new StringReader(linkedDBContent))) {
                 csvData = reader.readAll();
             }
