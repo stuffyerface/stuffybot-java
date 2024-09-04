@@ -2,6 +2,8 @@ package me.stuffy.stuffybot.interactions;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import me.stuffy.stuffybot.Bot;
+import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
@@ -74,6 +76,10 @@ public class InteractionHandler extends ListenerAdapter {
         InteractionId interactionId = new InteractionId(id, commandName, event.getUser().getId(), optionsArray);
 
         Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray.toString());
+
+        GlobalData globalData = Bot.getGlobalData();
+        globalData.incrementCommandsRun(event.getUser().getId(), commandName);
+        globalData.addUniqueUser(event.getUser().getId(), event.getUser().getName());
 
         MessageCreateData response = null;
         try {
@@ -280,6 +286,10 @@ public class InteractionHandler extends ListenerAdapter {
         if (event.getAuthor().isBot()) {
             return;
         }
+        String authorId = event.getAuthor().getId();
+        String authorName = event.getAuthor().getName();
+        Bot.getGlobalData().addUniqueUser(authorId, authorName);
+
         Message.suppressContentIntentWarning();
         String message = event.getMessage().getContentRaw();
         if (message.toLowerCase().startsWith("ap!")) {

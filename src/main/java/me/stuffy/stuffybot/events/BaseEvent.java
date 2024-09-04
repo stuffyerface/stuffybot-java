@@ -21,7 +21,7 @@ public abstract class BaseEvent {
     }
 
     public void startFixedRateEvent() {
-        scheduler.scheduleAtFixedRate(this::execute, 0, interval, timeUnit);
+        scheduler.scheduleAtFixedRate(this::execute, interval, interval, timeUnit);
     }
 
     protected abstract void execute();
