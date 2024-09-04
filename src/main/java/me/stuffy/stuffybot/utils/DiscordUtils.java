@@ -58,11 +58,11 @@ public class DiscordUtils {
             embedTitle = toSkillIssue(embedTitle);
             embedContent = toSkillIssue(embedContent);
         }
-        return makeEmbed(":no_entry: " + embedTitle, null, embedContent, 0xff0000);
+        return makeEmbed(":no_entry: " + embedTitle, null, embedContent, 0xC95353);
     }
 
     public static MessageEmbed makeUpdateEmbed(String embedTitle, String embedContent) {
-        return makeEmbed(":mega: " + embedTitle, null, embedContent, 0xffef14);
+        return makeEmbed(":mega: " + embedTitle, null, embedContent, 0xEBD773);
     }
 
     public static MessageEmbed makeStaffRankChangeEmbed(String ign, String oldRank, String newRank, String position) {
@@ -82,11 +82,11 @@ public class DiscordUtils {
     }
 
     public static MessageEmbed makeStatsEmbed(String embedTitle, String embedContent) {
-        return makeEmbed(embedTitle, null, embedContent, 0xf7cb72);
+        return makeEmbed(embedTitle, null, embedContent, 0x6D8FCE);
     }
 
     public static MessageEmbed makeStatsEmbed(String embedTitle, String embedSubtitle, String embedContent) {
-        return makeEmbed(embedTitle, embedSubtitle , embedContent, 0xf7cb72);
+        return makeEmbed(embedTitle, embedSubtitle , embedContent, 0x6D8FCE);
     }
 
     public static String getDiscordUsername(String id){
