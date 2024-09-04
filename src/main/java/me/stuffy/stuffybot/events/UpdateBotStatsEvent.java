@@ -3,11 +3,12 @@ package me.stuffy.stuffybot.events;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.utils.Logger;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class UpdateBotStatsEvent extends BaseEvent{
     public UpdateBotStatsEvent() {
-        super("UpdateBotStats", 1, TimeUnit.HOURS);
+        super("UpdateBotStats", 6, TimeUnit.HOURS);
     }
 
     @Override
@@ -16,8 +17,11 @@ public class UpdateBotStatsEvent extends BaseEvent{
         // How many commands have been run
         Bot bot = Bot.getInstance();
         int totalServers = bot.getJDA().getGuilds().size();
-        Logger.log("<UpdateBotStats> Total servers: " + totalServers);
 
-//        int totalCommandsRun = bot.getStatisticsManager().getTotalCommandsRun();
+
+        Map<String, Integer> recentInteractions = Bot.getGlobalData().getInteractions();
+        // # TODO: Update the bot stats on the website
+        Bot.getGlobalData().clearInteractions();
+
     }
 }

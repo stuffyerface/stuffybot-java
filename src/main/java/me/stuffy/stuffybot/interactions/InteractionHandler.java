@@ -2,6 +2,7 @@ package me.stuffy.stuffybot.interactions;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InteractionException;
 import me.stuffy.stuffybot.utils.Logger;
 import me.stuffy.stuffybot.utils.StatisticsManager;
@@ -35,7 +36,6 @@ import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.genBase64;
-import static me.stuffy.stuffybot.utils.MiscUtils.requiresIgn;
 
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -50,8 +50,13 @@ public class InteractionHandler extends ListenerAdapter {
         ArrayList<String> optionsArray = new ArrayList<String>();
 
 
-        if(requiresIgn(commandName) && event.getOption("ign") == null){
-            String ign = getUsername(event);
+        if(event.getOption("ign") == null){
+            String ign = null;
+            try {
+                ign = getUsername(event);
+            } catch (APIException e) {
+                event.getHook().sendMessageEmbeds(makeErrorEmbed(e.getAPIType() + " API Error", e.getMessage())).setEphemeral(true).queue();
+            }
             optionsArray.add("ign=" + ign);
         }
 

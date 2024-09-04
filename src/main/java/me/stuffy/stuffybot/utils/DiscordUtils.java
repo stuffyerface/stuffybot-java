@@ -1,6 +1,7 @@
 package me.stuffy.stuffybot.utils;
 
 import me.stuffy.stuffybot.Bot;
+import me.stuffy.stuffybot.profiles.MojangProfile;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -13,11 +14,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
 import static me.stuffy.stuffybot.utils.MiscUtils.toSkillIssue;
 
 public class DiscordUtils {
@@ -171,11 +170,15 @@ public class DiscordUtils {
         return true;
     }
 
-    public static String getUsername(SlashCommandInteractionEvent event) {
+    public static String getUsername(SlashCommandInteractionEvent event) throws APIException {
         String username = event.getOption("ign") == null ? null : event.getOption("ign").getAsString();
         if (username == null) {
-            // TODO: First, check the database
-            username = getDiscordUsername(event.getUser().getName());
+            if (Bot.getGlobalData().getLinkedAccounts().containsKey(event.getUser().getId())) {
+                UUID uuid = Bot.getGlobalData().getLinkedAccounts().get(event.getUser().getId());
+                username = getMojangProfile(uuid).getUsername();
+            } else {
+                username = getDiscordUsername(event.getUser().getName());
+            }
         }
         return username;
     }
