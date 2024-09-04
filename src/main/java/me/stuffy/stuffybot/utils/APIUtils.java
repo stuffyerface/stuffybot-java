@@ -311,6 +311,19 @@ public class APIUtils {
         }
     }
 
+    public static void uploadGitHubFile(String repo, String path, String content, String message) {
+        try {
+            Bot.getGitHub().getRepository(repo).createContent()
+                    .path(path)
+                    .content(content)
+                    .message(message)
+                    .commit();
+            log("<GitHub> Uploaded file " + path + " in " + repo + " successfully.");
+        } catch (IOException e) {
+            logError("<GitHub> Failed to upload file " + path + " in " + repo + ": " + e.getMessage());
+        }
+    }
+
     public static GHContent getGitHubFile(String repo, String path) {
         try {
             return Bot.getGitHub().getRepository(repo).getFileContent(path);
@@ -481,8 +494,20 @@ public class APIUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
+    public static void uploadLogs() {
+        try {
+            // Read the logs content
+            String logsContent = String.join("\n", Logger.getLogs());
+
+            String logName = Logger.getLogName();
+
+            // Write the updated content back to the logs file
+            uploadGitHubFile(privateApiRepo, "apis/logs/" + Bot.getInstance().getJDA().getSelfUser().getAsTag() + "/" + logName + ".txt", logsContent, "Uploaded logs for " + logName + ".");
+            Logger.log("<Logs> Uploaded logs to GitHub.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
