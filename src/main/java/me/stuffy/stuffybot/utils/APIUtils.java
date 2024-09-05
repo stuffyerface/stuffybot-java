@@ -11,6 +11,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.commands.TournamentCommand;
+import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
 import org.jetbrains.annotations.NotNull;
@@ -411,6 +412,7 @@ public class APIUtils {
                 for (String[] row : csvData) {
                     if (row[0].equals(discordId)) {
                         row[1] = discordName;
+                        if (row[5].isEmpty()) row[5] = "0";
                         row[5] = String.valueOf(commandsRun + Integer.parseInt(row[5]));
                         updated = true;
                         updatedUsers++;
@@ -454,7 +456,7 @@ public class APIUtils {
     }
 
     public static void updateLinkedDB(String discordId, UUID uuid, String ign) {
-        String discordName = Objects.requireNonNull(Bot.getInstance().getJDA().getUserById(discordId)).getName();
+        String discordName = Bot.getGlobalData().getUniqueUsers().getOrDefault(discordId, "NULL");
 
         GHContent linkedDB = getGitHubFile(privateApiRepo, "apis/linkeddb.csv");
         if (linkedDB == null) throw new IllegalStateException("Failed to get linkeddb.csv from GitHub");
@@ -479,7 +481,7 @@ public class APIUtils {
                 }
             }
             if (!updated) {
-                csvData.add(new String[]{discordId, uuid.toString(), ign});
+                csvData.add(new String[]{discordId, discordName, uuid.toString(), ign, "", ""});
             }
 
             // Write the updated content back to the CSV file

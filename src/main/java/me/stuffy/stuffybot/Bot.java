@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.kohsuke.github.GitHub;
 
 import java.time.LocalDateTime;
@@ -84,10 +85,19 @@ public class Bot extends ListenerAdapter {
             }
 
             // Update Bot Stats
-            UpdateBotStatsEvent.publicExecute();
-            Logger.log("<Shutdown> Data saved, allowing for shutdown.");
-            uploadLogs();
-            Logger.log("<Shutdown> Data saved, allowing for shutdown.");
+            try{
+                UpdateBotStatsEvent.publicExecute();
+                Logger.log("<Shutdown> Bot Stats saved, allowing for shutdown.");
+            } catch (Exception e) {
+                Logger.log("<Shutdown> Failed to save Bot Stats, allowing for shutdown.");
+            }
+            try {
+                uploadLogs();
+                Logger.log("<Shutdown> Logs uploaded, allowing for shutdown.");
+            }
+            catch (Exception e) {
+                Logger.log("<Shutdown> Failed to upload logs, allowing for shutdown.");
+            }
         }));
     }
     public static Bot getInstance() {
