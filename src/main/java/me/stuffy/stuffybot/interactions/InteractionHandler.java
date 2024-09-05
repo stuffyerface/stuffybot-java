@@ -145,7 +145,7 @@ public class InteractionHandler extends ListenerAdapter {
             } catch (InteractionException e) {
                 event.deferEdit().queue();
                 MessageEmbed errorEmbed = makeErrorEmbed("Invalid Button Ownership",
-                        "You can't use modify commands run by others.\n-# " + e.getMessage());
+                        "You can't use buttons on commands run by others.\n-# " + e.getMessage());
                 event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
                 return;
             }
