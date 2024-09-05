@@ -290,7 +290,6 @@ public class InteractionHandler extends ListenerAdapter {
         String authorName = event.getAuthor().getName();
         Bot.getGlobalData().addUniqueUser(authorId, authorName);
 
-        Message.suppressContentIntentWarning();
         String message = event.getMessage().getContentRaw();
         if (message.toLowerCase().startsWith("ap!")) {
             Logger.logError("<LegacyCommand> @" + event.getAuthor().getName() + ": " + message);

@@ -42,8 +42,9 @@ public class Bot extends ListenerAdapter {
         INSTANCE = this;
         // Get token from env variable
         String token = System.getenv("BOT_TOKEN");
-        JDABuilder builder = JDABuilder.createDefault(token) ;
-        builder.setActivity(Activity.customStatus("hating slash commands"));
+        JDABuilder builder = JDABuilder.createDefault(token);
+        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT); // # TODO: Remove intents when possible
+        builder.setActivity(Activity.customStatus("almost ready..."));
         builder.addEventListeners(this);
         JDA jda = builder.build().awaitReady();
         this.jda = jda;
