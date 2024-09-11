@@ -11,7 +11,6 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.commands.TournamentCommand;
-import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +36,7 @@ public class APIUtils {
     static String mojangSessionApiUrl = "https://sessionserver.mojang.com/";
     static String privateApiRepo = "stuffybot/PrivateAPI";
     static String publicApiRepo = "stuffybot/PublicAPI";
+    static String stuffyApiUrl = "https://raw.githubusercontent.com/stuffybot/PublicAPI/main/";
 
     public static HypixelProfile getHypixelProfile(String username) throws APIException {
         MojangProfile profile = getMojangProfile(username);
@@ -274,8 +274,45 @@ public class APIUtils {
         }
     }
 
+    private static final LoadingCache<String, JsonElement> playCommandCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build(
+                    new CacheLoader<>() {
+                        public JsonElement load(@NotNull String key) {
+                            return fetchPlayCommands();
+                        }
+                    }
+            );
+
+    public static JsonElement getPlayCommands() {
+        return playCommandCache.getUnchecked("achievements");
+    }
+
+    private static JsonElement fetchPlayCommands() {
+        try {
+            HttpRequest getRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(stuffyApiUrl + "apis/playcommands.json"))
+                    .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+
+                JsonParser parser = new JsonParser();
+
+                return parser.parse(response.body());
+
+            } else {
+                throw new IllegalStateException("Unexpected response from Stuffy API: " + response.statusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch play commands from Stuffy API", e);
+        }
+    }
+
 
     public static JsonObject getTournamentData() {
+        // # TODO: Switch to https://raw.githubusercontent.com/stuffybot/PublicAPI/main/apis/tournaments.json
         try (InputStream inputStream = TournamentCommand.class.getResourceAsStream("/data/tournaments.json")) {
             assert inputStream != null;
             try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {

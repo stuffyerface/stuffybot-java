@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
+import static me.stuffy.stuffybot.utils.APIUtils.getPlayCommands;
 import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.genBase64;
@@ -228,7 +229,7 @@ public class InteractionHandler extends ListenerAdapter {
                                 "Dreadlord", "Enderman", "Golem", "Herobrine", "Hunter", "Moleman", "Phoenix", "Pigman", "Pirate", "Renegade",
                                 "Shaman", "Shark", "Sheep", "Skeleton", "Snowman", "Spider", "Squid", "Werewolf", "Zombie");
                     for (String skin : skins) {
-                        if (skin.toLowerCase().startsWith(currentInput.toLowerCase())) {
+                        if (skin.toLowerCase().contains(currentInput.toLowerCase())) {
                             options.add(skin);
                         }
                     }
@@ -250,10 +251,52 @@ public class InteractionHandler extends ListenerAdapter {
                 if (commandOption.equals("tournament")) {
                     List<Command.Choice> choices = new ArrayList<>();
                     tournamentMap.forEach((name, id) -> {
-                        if (name.toLowerCase().startsWith(currentInput.toLowerCase()) && choices.size() <= 25){
+                        if (name.toLowerCase().contains(currentInput.toLowerCase()) && choices.size() <= 25){
                             choices.add(new Command.Choice(name, id));
                         }
                     });
+                    e.replyChoices(choices).queue();
+                    break;
+                }
+            }
+            case "playcommand" -> {
+                if (commandOption.equals("game")) {
+                    JsonElement gameData = getPlayCommands().getAsJsonObject().get("gameData");
+                    if (gameData == null) {
+                        e.replyChoices(Collections.emptyList()).queue();
+                        break;
+                    }
+
+                    List<Command.Choice> choices = new ArrayList<>();
+                    for (JsonElement entry : gameData.getAsJsonArray()) {
+                        String gameName = entry.getAsJsonObject().get("name").getAsString();
+                        JsonElement modes = entry.getAsJsonObject().get("modes");
+                        if (modes == null) {
+                            continue;
+                        }
+
+                        for (JsonElement modeEntry : modes.getAsJsonArray()) {
+                            if(!modeEntry.getAsJsonObject().has("name") || !modeEntry.getAsJsonObject().has("identifier")) {
+                                continue;
+                            }
+                            String modeName = modeEntry.getAsJsonObject().get("name").getAsString();
+                            String fullGameName;
+                            if (gameName.equals(modeName)) {
+                                fullGameName = gameName;
+                            } else {
+                                fullGameName = gameName + ": " + modeName;
+                            }
+                            String identifier = modeEntry.getAsJsonObject().get("identifier").getAsString();
+                            if (fullGameName.toLowerCase().contains(currentInput.toLowerCase())) {
+                                choices.add(new Command.Choice(fullGameName, identifier));
+                            }
+                        }
+                    }
+
+                    if (choices.size() > 25) {
+                        choices = choices.subList(0, 24);
+                    }
+
                     e.replyChoices(choices).queue();
                     break;
                 }

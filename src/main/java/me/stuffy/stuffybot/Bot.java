@@ -54,7 +54,7 @@ public class Bot extends ListenerAdapter {
         assert this.homeGuild != null : "Failed to find home guild";
 
         // Log startup
-        String startupTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss"));
+        String startupTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss"));
         String self = jda.getSelfUser().getName();
         Logger.setLogName(startupTime);
         Logger.log("<Startup> Bot " + self + " started successfully " + startupTime + ".");
@@ -81,9 +81,8 @@ public class Bot extends ListenerAdapter {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Logger.log("<Shutdown> Bot shutting down, saving data...");
 
-            if(jda != null) {
-                jda.shutdown();
-            }
+            // Close JDA
+            jda.shutdown();
 
             // Update Bot Stats
             try{
@@ -175,6 +174,8 @@ public class Bot extends ListenerAdapter {
 //                )));
         commandList.add(Commands.slash("link", "Link a Minecraft account so you don't have to type your IGN every time")
                 .addOptions(ignOptionRequired));
+        commandList.add(Commands.slash("playcommand", "Lookup the command to quickly hop into a game")
+                .addOptions(new OptionData(OptionType.STRING, "game", "Search for a play command", true).setAutoComplete(true)));
 
 
         if (scope.equals("local")) {
