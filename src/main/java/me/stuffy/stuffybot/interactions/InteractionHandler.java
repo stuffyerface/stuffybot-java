@@ -337,7 +337,7 @@ public class InteractionHandler extends ListenerAdapter {
         if (message.toLowerCase().startsWith("ap!")) {
             Logger.logError("<LegacyCommand> @" + event.getAuthor().getName() + ": " + message);
             MessageCreateData data = new MessageCreateBuilder()
-                    .addEmbeds(makeErrorEmbed("Outdated Command", "We no longer support chat based commands,\nInstead try using slash commands.\n-# Join our [Discord](https://discord.gg/zqVkUrUmzN) for more info."))
+                    .addEmbeds(makeErrorEmbed("Outdated Command", "We no longer support chat based commands,\nInstead try using slash commands.\n-# Join our [Discord](https://discord.gg/8jdmT5Db3Y) for more info."))
                     .build();
             event.getMessage().reply(
                     data

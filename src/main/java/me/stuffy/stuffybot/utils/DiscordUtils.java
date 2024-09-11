@@ -19,12 +19,12 @@ import static me.stuffy.stuffybot.utils.APIUtils.getMojangProfile;
 import static me.stuffy.stuffybot.utils.MiscUtils.toSkillIssue;
 
 public class DiscordUtils {
-    public static MessageEmbed makeEmbed(String embedTitle, String embedSubtitle, String embedContent, int embedColor) {
+    public static MessageEmbed makeEmbed(String embedTitle, String embedSubtitle, String embedContent, int embedColor, Integer maxLines) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(embedTitle);
         String[] lines = embedContent.split("\n");
         int lineCount = lines.length;
-        if (lineCount <= 15) {
+        if (lineCount <= maxLines) {
             if(embedSubtitle == null)
                 embedBuilder.setDescription(embedContent);
             else
@@ -51,6 +51,9 @@ public class DiscordUtils {
         return embedBuilder.build();
     }
 
+    public static MessageEmbed makeEmbed(String embedTitle, String embedSubtitle, String embedContent, int embedColor) {
+        return makeEmbed(embedTitle, null, embedContent, embedColor, 15);
+    }
     public static MessageEmbed makeErrorEmbed(String embedTitle, String embedContent) {
         if (Calendar.getInstance().get(Calendar.MONTH) == Calendar.APRIL && Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1){
             embedTitle = toSkillIssue(embedTitle);

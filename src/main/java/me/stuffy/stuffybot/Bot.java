@@ -147,7 +147,7 @@ public class Bot extends ListenerAdapter {
         OptionData ignOptionRequired = new OptionData(OptionType.STRING, "ign", "The player's IGN", true);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
-//        commandList.add(Commands.slash("help", "*Should* show a help message"));
+        commandList.add(Commands.slash("help", "Learn about the bot and its commands"));
         commandList.add(Commands.slash("pit", "Get Pit stats for a player")
                 .addOptions(ignOption));
         commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
