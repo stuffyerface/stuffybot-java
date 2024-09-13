@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -164,14 +165,15 @@ public class Bot extends ListenerAdapter {
         commandList.add(Commands.slash("tournament", "Get tournament stats for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.INTEGER, "tournament", "Which tournament to look at (Leave empty for latest)", false).setAutoComplete(true)));
-//        commandList.add(Commands.slash("achievements", "Get achievement stats for a player")
-//                .addOptions(ignOption)
-//                .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at", false).setAutoComplete(true))
-//                .addOptions(new OptionData(OptionType.STRING, "type", "Which achievements to look at", false).addChoices(
-//                        new Command.Choice("All", "all"),
-//                        new Command.Choice("Challenge", "challenge"),
-//                        new Command.Choice("Tiered", "tiered")
-//                )));
+        commandList.add(Commands.slash("achievements", "Get achievement stats for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at", false).setAutoComplete(true))
+                .addOptions(new OptionData(OptionType.STRING, "type", "Which achievements to look at", false).addChoices(
+                        new Command.Choice("All", "all"),
+                        new Command.Choice("Challenge", "challenge"),
+                        new Command.Choice("Tiered", "tiered")
+                        )
+                ));
         commandList.add(Commands.slash("link", "Link a Minecraft account so you don't have to type your IGN every time")
                 .addOptions(ignOptionRequired));
         commandList.add(Commands.slash("playcommand", "Lookup the command to quickly hop into a game")

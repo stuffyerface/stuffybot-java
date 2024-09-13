@@ -10,6 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
+
 public class MiscUtils {
     private static final Gson gson = new Gson();
     public static UUID formatUUID(String uuid) {
@@ -201,5 +203,33 @@ public class MiscUtils {
             return remainingMinutes + "m";
         return hours + "h " + remainingMinutes + "m";
     }
+    public static int getMaxAchievements() {
+        JsonObject achievementData = getAchievementsResources().getAsJsonObject();
+        int total = 0;
+        for (String game : achievementData.keySet()) {
+            JsonObject gameData = achievementData.getAsJsonObject(game);
 
+            JsonObject oneTime = gameData.getAsJsonObject("one_time");
+            JsonObject tiered = gameData.getAsJsonObject("tiered");
+
+            for (String key : oneTime.keySet()) {
+                boolean isLegacy = getNestedJson(false, oneTime, key, "legacy").getAsBoolean();
+                if (!isLegacy) {
+                    total++;
+                }
+            }
+
+            for (String key : tiered.keySet()) {
+                boolean isLegacy = getNestedJson(false, tiered, key, "legacy").getAsBoolean();
+                if (!isLegacy) {
+                    total+= getNestedJson(tiered, key, "tiers").getAsJsonArray().size();
+                }
+            }
+        }
+        return total;
+    }
+
+    public static int getMaxAchievementPoints() {
+        return 100000;
+    }
 }
