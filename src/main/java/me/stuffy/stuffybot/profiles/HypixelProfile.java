@@ -20,6 +20,8 @@ public class HypixelProfile {
     private int achievementsUnlocked;
     private int legacyAchievementPoints;
     private int legacyAchievementsUnlocked;
+    private String easiestChallenge;
+    private double easiestChallengeGlobalPercent;
 
     public HypixelProfile(JsonObject profile) {
         this.profile = profile.deepCopy();
@@ -35,6 +37,9 @@ public class HypixelProfile {
         int unlockCount = 0;
         int unlockCountLegacy = 0;
         int pointCountLegacy = 0;
+
+        String easiestChallenge = null;
+        double easiestChallengeGlobalPercent = 0;
 
         JsonObject achievements = getAchievements();
         List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
@@ -57,6 +62,12 @@ public class HypixelProfile {
                         unlockCountLegacy++;
                         pointCountLegacy += getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "points").getAsInt();
                     }
+                } else {
+                    double globalPercentUnlocked = getNestedJson(0.0, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "globalPercentUnlocked").getAsDouble();
+                    if (globalPercentUnlocked > easiestChallengeGlobalPercent) {
+                        easiestChallengeGlobalPercent = globalPercentUnlocked;
+                        easiestChallenge = game + ": " + getNestedJson("Unknown", achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "name").getAsString();
+                    }
                 }
             }
 
@@ -78,6 +89,8 @@ public class HypixelProfile {
         this.achievementsUnlocked = unlockCount;
         this.legacyAchievementsUnlocked = unlockCountLegacy;
         this.legacyAchievementPoints = pointCountLegacy;
+        this.easiestChallenge = easiestChallenge;
+        this.easiestChallengeGlobalPercent = easiestChallengeGlobalPercent;
     }
 
     private static Rank determineRank(JsonObject profile) {
@@ -672,19 +685,19 @@ public class HypixelProfile {
     }
 
     public int getAchievementsUnlocked() {
-        return achievementsUnlocked;
+        return this.achievementsUnlocked;
     }
 
     public int getLegacyAchievementsUnlocked() {
-        return legacyAchievementsUnlocked;
+        return this.legacyAchievementsUnlocked;
     }
 
     public int getLegacyAchievementPoints() {
-        return legacyAchievementPoints;
+        return this.legacyAchievementPoints;
     }
 
     public String getEasiestChallenge() {
-        return "`Game: Easy Challenge` (0.03%)";
+        return this.easiestChallenge + " (" + String.format("%.2f", this.easiestChallengeGlobalPercent) + "%)";
     }
 
     public String getEasiestTiered() {
