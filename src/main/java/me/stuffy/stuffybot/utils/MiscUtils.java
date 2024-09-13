@@ -238,6 +238,14 @@ public class MiscUtils {
     }
 
     public static int getMaxAchievementPoints() {
-        return 100000;
+        JsonObject achievementData = getAchievementsResources().getAsJsonObject();
+        int total = 0;
+        for (String game : achievementData.keySet()) {
+            JsonObject gameData = achievementData.getAsJsonObject(game);
+
+            int totalPoints = getNestedJson(0, gameData, "total_points").getAsInt();
+            total += totalPoints;
+        }
+        return total;
     }
 }
