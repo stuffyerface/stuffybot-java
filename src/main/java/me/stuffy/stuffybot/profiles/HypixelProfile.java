@@ -66,7 +66,7 @@ public class HypixelProfile {
                     double globalPercentUnlocked = getNestedJson(0.0, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "globalPercentUnlocked").getAsDouble();
                     if (globalPercentUnlocked > easiestChallengeGlobalPercent) {
                         easiestChallengeGlobalPercent = globalPercentUnlocked;
-                        easiestChallenge = game + ": " + getNestedJson("Unknown", achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "name").getAsString();
+                        easiestChallenge = getNestedJson("Unknown", achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "name").getAsString();
                     }
                 }
             }
