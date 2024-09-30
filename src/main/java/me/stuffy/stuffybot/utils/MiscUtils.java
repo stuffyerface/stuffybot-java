@@ -167,8 +167,8 @@ public class MiscUtils {
         return sb.toString();
     }
 
-    public static String toReadableName(String resourcesName) {
-        Map<String,String> resourceNames = new HashMap<>();
+    private static Map<String,String> getResourceNames() {
+        Map<String, String> resourceNames = new HashMap<>();
         resourceNames.put("arcade", "Arcade");
         resourceNames.put("arena", "Arena Brawl");
         resourceNames.put("bedwars", "Bed Wars");
@@ -201,7 +201,21 @@ public class MiscUtils {
         resourceNames.put("warlords", "Warlords");
         resourceNames.put("woolgames", "Wool Games");
 
+        return resourceNames;
+    }
+
+    public static String toReadableName(String resourcesName) {
+        Map<String,String> resourceNames = getResourceNames();
         return resourceNames.getOrDefault(resourcesName, resourcesName);
+    }
+
+    public static String fromReadableName(String readableName) {
+        Map<String,String> resourceNames = getResourceNames();
+        Map<String,String> reverseMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : resourceNames.entrySet()) {
+            reverseMap.put(entry.getValue(), entry.getKey());
+        }
+        return reverseMap.getOrDefault(readableName, readableName);
     }
 
     public static String minutesFormatted(int minutes) {
@@ -247,5 +261,14 @@ public class MiscUtils {
             total += totalPoints;
         }
         return total;
+    }
+
+    public static Map<String, String> autoCompleteAchGames() {
+        Map<String, String> games = new HashMap<>();
+        JsonObject achievementData = getAchievementsResources().getAsJsonObject();
+        for (String game : achievementData.keySet()) {
+            games.put(game, toReadableName(game));
+        }
+        return games;
     }
 }
