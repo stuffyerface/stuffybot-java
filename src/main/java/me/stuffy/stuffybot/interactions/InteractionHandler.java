@@ -4,10 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.profiles.GlobalData;
-import me.stuffy.stuffybot.utils.APIException;
-import me.stuffy.stuffybot.utils.InteractionException;
-import me.stuffy.stuffybot.utils.Logger;
-import me.stuffy.stuffybot.utils.StatisticsManager;
+import me.stuffy.stuffybot.utils.*;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -38,6 +35,7 @@ import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.APIUtils.getPlayCommands;
 import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
+import static me.stuffy.stuffybot.utils.MiscUtils.autoCompleteAchGames;
 import static me.stuffy.stuffybot.utils.MiscUtils.genBase64;
 
 public class InteractionHandler extends ListenerAdapter {
@@ -53,7 +51,7 @@ public class InteractionHandler extends ListenerAdapter {
         ArrayList<String> optionsArray = new ArrayList<String>();
 
 
-        if(event.getOption("ign") == null){
+        if (event.getOption("ign") == null) {
             String ign = null;
             try {
                 ign = getUsername(event);
@@ -66,7 +64,7 @@ public class InteractionHandler extends ListenerAdapter {
         Pattern pattern = Pattern.compile("[,=:]");
         for (OptionMapping option : event.getOptions()) {
             String optionString = option.getAsString();
-            if(pattern.matcher(optionString).find()){
+            if (pattern.matcher(optionString).find()) {
                 MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# Invalid character in option  `" + option.getName() + "`");
                 event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
                 return;
@@ -84,7 +82,8 @@ public class InteractionHandler extends ListenerAdapter {
 
         MessageCreateData response = null;
         try {
-            response = getResponse(interactionId);;
+            response = getResponse(interactionId);
+            ;
         } catch (InteractionException e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + e.getMessage());
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
@@ -97,7 +96,7 @@ public class InteractionHandler extends ListenerAdapter {
             return;
         }
 
-        if(response != null) {
+        if (response != null) {
             event.getHook().sendMessage(response).queue();
         }
 
@@ -152,7 +151,7 @@ public class InteractionHandler extends ListenerAdapter {
             }
         }
 
-        if (interactionId.getCommand().equals("verify")){
+        if (interactionId.getCommand().equals("verify")) {
             verifyButton(event);
             return;
         }
@@ -197,10 +196,10 @@ public class InteractionHandler extends ListenerAdapter {
             toLog += " `" + mapping.getId() + "=" + mapping.getAsString() + "`";
         }
         Logger.log(toLog);
-        if(event.getModalId().equals("verify")) {
+        if (event.getModalId().equals("verify")) {
             String ign = Objects.requireNonNull(event.getValue("ign")).getAsString();
             String captcha = Objects.requireNonNull(event.getValue("captcha")).getAsString();
-            if(!captcha.equals("stuffy")) {
+            if (!captcha.equals("stuffy")) {
                 // TODO: Make this actually time out for 5 minutes
                 MessageEmbed errorEmbed = makeErrorEmbed("Verification Error", "You entered the CAPTCHA incorrectly.\n-# Try again in " + discordTimeUnix(Instant.now().plusSeconds(300).toEpochMilli()));
                 MessageCreateData data = new MessageCreateBuilder()
@@ -220,14 +219,13 @@ public class InteractionHandler extends ListenerAdapter {
         String commandName = e.getName();
         String commandOption = e.getFocusedOption().getName();
         String currentInput = e.getFocusedOption().getValue();
-
         switch (commandName) {
             case "megawalls" -> {
                 if (commandOption.equals("skins")) {
                     List<String> options = new ArrayList<>();
                     List<String> skins = Arrays.asList("Legendary", "Angel", "Arcanist", "Assassin", "Automaton", "Blaze", "Cow", "Creeper", "Dragon",
-                                "Dreadlord", "Enderman", "Golem", "Herobrine", "Hunter", "Moleman", "Phoenix", "Pigman", "Pirate", "Renegade",
-                                "Shaman", "Shark", "Sheep", "Skeleton", "Snowman", "Spider", "Squid", "Werewolf", "Zombie");
+                            "Dreadlord", "Enderman", "Golem", "Herobrine", "Hunter", "Moleman", "Phoenix", "Pigman", "Pirate", "Renegade",
+                            "Shaman", "Shark", "Sheep", "Skeleton", "Snowman", "Spider", "Squid", "Werewolf", "Zombie");
                     for (String skin : skins) {
                         if (skin.toLowerCase().contains(currentInput.toLowerCase())) {
                             options.add(skin);
@@ -244,19 +242,17 @@ public class InteractionHandler extends ListenerAdapter {
                             .toList();
 
                     e.replyChoices(choices).queue();
-                    break;
                 }
             }
             case "tournament" -> {
                 if (commandOption.equals("tournament")) {
                     List<Command.Choice> choices = new ArrayList<>();
                     tournamentMap.forEach((name, id) -> {
-                        if (name.toLowerCase().contains(currentInput.toLowerCase()) && choices.size() <= 25){
+                        if (name.toLowerCase().contains(currentInput.toLowerCase()) && choices.size() <= 25) {
                             choices.add(new Command.Choice(name, id));
                         }
                     });
                     e.replyChoices(choices).queue();
-                    break;
                 }
             }
             case "playcommand" -> {
@@ -276,7 +272,7 @@ public class InteractionHandler extends ListenerAdapter {
                         }
 
                         for (JsonElement modeEntry : modes.getAsJsonArray()) {
-                            if(!modeEntry.getAsJsonObject().has("name") || !modeEntry.getAsJsonObject().has("identifier")) {
+                            if (!modeEntry.getAsJsonObject().has("name") || !modeEntry.getAsJsonObject().has("identifier")) {
                                 continue;
                             }
                             String modeName = modeEntry.getAsJsonObject().get("name").getAsString();
@@ -298,7 +294,23 @@ public class InteractionHandler extends ListenerAdapter {
                     }
 
                     e.replyChoices(choices).queue();
-                    break;
+                }
+            }
+            case "achievements" -> {
+                if (commandOption.equals("game")) {
+                    Map<String, String> gameData = autoCompleteAchGames();
+                    List<Command.Choice> choices = new ArrayList<>();
+                    for (Map.Entry<String, String> entry : gameData.entrySet()) {
+                        if (entry.getValue().toLowerCase().contains(currentInput.toLowerCase())) {
+                            choices.add(new Command.Choice(entry.getValue(), entry.getValue()));
+                        }
+                    }
+
+                    if (choices.size() > 25) {
+                        choices = choices.subList(0, 24);
+                    }
+
+                    e.replyChoices(choices).queue();
                 }
             }
             default -> {
@@ -329,9 +341,9 @@ public class InteractionHandler extends ListenerAdapter {
         if (event.getAuthor().isBot()) {
             return;
         }
-        String authorId = event.getAuthor().getId();
-        String authorName = event.getAuthor().getName();
-        Bot.getGlobalData().addUniqueUser(authorId, authorName);
+//        String authorId = event.getAuthor().getId();
+//        String authorName = event.getAuthor().getName();
+//        Bot.getGlobalData().addUniqueUser(authorId, authorName);
 
         String message = event.getMessage().getContentRaw();
         if (message.toLowerCase().startsWith("ap!")) {

@@ -52,7 +52,7 @@ public class DiscordUtils {
     }
 
     public static MessageEmbed makeEmbed(String embedTitle, String embedSubtitle, String embedContent, int embedColor) {
-        return makeEmbed(embedTitle, null, embedContent, embedColor, 15);
+        return makeEmbed(embedTitle, embedSubtitle, embedContent, embedColor, 15);
     }
     public static MessageEmbed makeErrorEmbed(String embedTitle, String embedContent) {
         if (Calendar.getInstance().get(Calendar.MONTH) == Calendar.APRIL && Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1){
