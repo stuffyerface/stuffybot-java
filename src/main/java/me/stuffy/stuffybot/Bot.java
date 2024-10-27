@@ -178,6 +178,8 @@ public class Bot extends ListenerAdapter {
                 .addOptions(ignOptionRequired));
         commandList.add(Commands.slash("playcommand", "Lookup the command to quickly hop into a game")
                 .addOptions(new OptionData(OptionType.STRING, "game", "Search for a play command", true).setAutoComplete(true)));
+        commandList.add(Commands.slash("search", "Search for an achievement by name, or description.")
+                .addOptions(new OptionData(OptionType.STRING, "search", "Search for an Achievement", true).setAutoComplete(true)));
 
 
         if (scope.equals("local")) {

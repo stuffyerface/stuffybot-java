@@ -32,11 +32,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
-import static me.stuffy.stuffybot.utils.APIUtils.getPlayCommands;
-import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
+import static me.stuffy.stuffybot.utils.APIUtils.*;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
-import static me.stuffy.stuffybot.utils.MiscUtils.autoCompleteAchGames;
-import static me.stuffy.stuffybot.utils.MiscUtils.genBase64;
+import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -308,6 +306,45 @@ public class InteractionHandler extends ListenerAdapter {
 
                     if (choices.size() > 25) {
                         choices = choices.subList(0, 24);
+                    }
+
+                    e.replyChoices(choices).queue();
+                }
+            }
+            case "search" -> {
+                if (commandOption.equals("search")) {
+                    int searchCount = 0;
+                    JsonObject achievementsResources = getAchievementsResources().getAsJsonObject();
+                    List<Command.Choice> choices = new ArrayList<>();
+
+                    for (String game : achievementsResources.keySet()) {
+                        if (searchCount == 25) { break; }
+                        JsonObject gameAchievements = achievementsResources.get(game).getAsJsonObject();
+                        JsonObject gameOneTime = gameAchievements.get("one_time").getAsJsonObject();
+                        JsonObject gameTiered = gameAchievements.get("tiered").getAsJsonObject();
+                        for(String oneTimeID : gameOneTime.keySet()){
+                            if (searchCount == 25) { break; }
+                            JsonObject oneTimeAchievement = gameOneTime.get(oneTimeID).getAsJsonObject();
+                            String achievementName = oneTimeAchievement.get("name").getAsString();
+                            String achievementDescription = oneTimeAchievement.get("description").getAsString();
+
+                            if(achievementName.toLowerCase().contains(currentInput.toLowerCase()) || achievementDescription.toLowerCase().contains(currentInput.toLowerCase())) {
+                                choices.add(new Command.Choice(toReadableName(game) + ": " + achievementName, game.toUpperCase() + "_" + oneTimeID));
+                                searchCount++;
+                            }
+                        }
+
+                        for(String tieredID : gameTiered.keySet()){
+                            if (searchCount == 25) { break; }
+                            JsonObject tieredAchievement = gameTiered.get(tieredID).getAsJsonObject();
+                            String achievementName = tieredAchievement.get("name").getAsString();
+                            String achievementDescription = tieredAchievement.get("description").getAsString();
+
+                            if(achievementName.toLowerCase().contains(currentInput.toLowerCase()) || achievementDescription.toLowerCase().contains(currentInput.toLowerCase())) {
+                                choices.add(new Command.Choice(toReadableName(game) + ": " + achievementName, game.toUpperCase() + "_" + tieredID));
+                                searchCount++;
+                            }
+                        }
                     }
 
                     e.replyChoices(choices).queue();
