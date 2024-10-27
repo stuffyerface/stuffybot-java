@@ -38,7 +38,7 @@ public class PlayCommandCommand {
                 }
                 if (input.equals(identifier)) {
                     return new MessageCreateBuilder().addEmbeds(
-                            makeStatsEmbed("Play Command Search", "-# Use this to quickly join a game from anywhere." +
+                            makeStatsEmbed("Play Command Search", "-# Use this to quickly join a game from anywhere.\n" +
                                     "\n**" + fullName + "**\n `/play " + identifier + "`")
                     ).build();
                 }

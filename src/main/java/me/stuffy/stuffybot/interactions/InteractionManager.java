@@ -45,6 +45,7 @@ public class InteractionManager {
                 case "link" -> LinkCommand.link(interactionId);
                 case "playcommand" -> PlayCommandCommand.playCommand(interactionId);
                 case "help" -> HelpCommand.help();
+                case "search" -> SearchCommand.search(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
