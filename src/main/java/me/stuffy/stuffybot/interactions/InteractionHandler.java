@@ -162,9 +162,29 @@ public class InteractionHandler extends ListenerAdapter {
             }
         }
 
-        if (interactionId.getCommand().equals("verify")) { //# TODO give permanent buttons better handling
-            Verification.verifyButton(event);
-            return;
+        // Verify Button
+        switch (interactionId.getCommand()) {
+            case "verify" -> {
+                Verification.verifyButton(event);
+                return;
+            }
+
+
+            // Update Button
+            case "update" -> {
+                MessageCreateData data = new MessageCreateBuilder()
+                        .setEmbeds(makeErrorEmbed("OOPS!", "This feature is currently unavailable in preparation for an overhaul.")).build();
+                event.reply(data).setEphemeral(true).queue();
+
+                return;
+            }
+
+
+            // Unverify Button
+            case "unverify" -> {
+                Verification.unverifyButton(event);
+                return;
+            }
         }
 
         event.deferEdit().queue();

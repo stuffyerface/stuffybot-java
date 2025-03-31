@@ -17,7 +17,7 @@ public class SetupCommand {
                         "-# :globe_with_meridians: You do __not__ need to verify your account to use commands inside or outside of this discord, receive announcements from Stuffy Bot, or any other feature we offer.\n" +
                         "\n" +
                         "If you just wish to link your account so slash commands will automatically assume your username for the `ign` field, you may use use " +
-                        "/link" + // #TODO make this reference the /link command
+                        "</link:1281037425032040491>" +
                         ", which will not require verifying in game.\n" +
                         "\n" +
                         "If you've earned new accomplishments and want to update them, click the update button below.\n" +
