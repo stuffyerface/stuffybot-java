@@ -27,9 +27,9 @@ public class UpdateBotStatsEvent extends BaseEvent{
 
         int totalServers = bot.getJDA().getGuilds().size();
 
-        Map<String, String> uniqueUsers = globalData.getUniqueUsers();
-        Map<String, Integer> commandsRun = globalData.getCommandsRun();
-        Map<String, Integer> userCommandsRun = globalData.getUserCommandsRun();
+        Map<String, String> uniqueUsers = globalData.getSessionUniqueUsers();
+        Map<String, Integer> commandsRun = globalData.getSessionCommandsRun();
+        Map<String, Integer> userCommandsRun = globalData.getSessionUserCommandsRun();
 
         if(commandsRun.isEmpty()) {
             Logger.log("<UpdateBotStats> No data to update.");

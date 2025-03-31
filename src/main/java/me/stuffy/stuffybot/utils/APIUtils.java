@@ -493,7 +493,7 @@ public class APIUtils {
     }
 
     public static void updateLinkedDB(String discordId, UUID uuid, String ign) {
-        String discordName = Bot.getGlobalData().getUniqueUsers().getOrDefault(discordId, "NULL");
+        String discordName = Bot.getGlobalData().getSessionUniqueUsers().getOrDefault(discordId, "NULL");
 
         GHContent linkedDB = getGitHubFile(privateApiRepo, "apis/linkeddb.csv");
         if (linkedDB == null) throw new IllegalStateException("Failed to get linkeddb.csv from GitHub");
