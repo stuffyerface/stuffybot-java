@@ -3,15 +3,7 @@ package me.stuffy.stuffybot.utils;
 import me.stuffy.stuffybot.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.*;
 
@@ -128,48 +120,6 @@ public class DiscordUtils {
      */
     public static String discordTimeUnix(long timestamp) {
         return discordTimeUnix(timestamp, "R");
-    }
-
-    public static void verifyButton(ButtonInteractionEvent event) {
-        // Look up the user in the database, and check if they have already verified/linked
-        // If they are verified, verify them
-        // If they are linked, attempt to verify them
-        // If they are not linked, or the verification fails, prompt them to verify
-
-        String userId = event.getUser().getId();
-        if(isVerified(userId)){
-            MessageCreateData data = new MessageCreateBuilder()
-                    .setEmbeds(makeErrorEmbed("Verification Error", "You have already verified your identity, silly goose.")).build();
-                    event.reply(data).setEphemeral(true).queue();
-            return;
-        }
-
-
-        Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
-                .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
-                                .setPlaceholder("Your Minecraft Username")
-                                .setMaxLength(16)
-                                .setMinLength(1)
-                                .setRequired(true)
-                                .build()),
-                        ActionRow.of(
-                                TextInput.create("captcha", "CAPTCHA", TextInputStyle.PARAGRAPH)
-                                        .setPlaceholder("Enter the word 'stuffy'.\n" +
-                                                "To prevent abuse, failing the CAPTCHA " +
-                                                "will result in a short timeout.")
-                                        .setRequired(false)
-                                        .build()))
-                .build();
-        event.replyModal(modal).queue();
-    }
-
-    public static void updateRoles(User user, String ign, boolean announce) {
-        Bot bot = Bot.getInstance();
-        // bot.getHomeGuild().getMember(user).modifyNickname(ign).queue();
-    }
-
-    public static boolean isVerified(String userId) {
-        return true;
     }
 
     public static String getUsername(SlashCommandInteractionEvent event) throws APIException {
