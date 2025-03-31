@@ -94,4 +94,12 @@ public class GlobalData {
     public ArrayList<String> getVerifiedAccounts() {
         return verifiedAccounts;
     }
+
+    public void setVerifiedAccount(String discordId, boolean verified) {
+        if(verified) {
+            this.verifiedAccounts.add(discordId);
+        } else {
+            this.verifiedAccounts.remove(discordId);
+        }
+    }
 }

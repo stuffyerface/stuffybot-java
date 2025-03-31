@@ -54,6 +54,17 @@ public class DiscordUtils {
         return makeEmbed(":no_entry: " + embedTitle, null, embedContent, 0xC95353);
     }
 
+    public static MessageEmbed makeEmbedWithImage(String embedTitle, String embedSubtitle, String embedContent, String imageUrl, int embedColor) {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle(embedTitle);
+        embedBuilder.setDescription("-# " + embedSubtitle + "\n" + embedContent);
+        embedBuilder.setColor(embedColor);
+        embedBuilder.setFooter("Stuffy Bot by @stuffy");
+        embedBuilder.setTimestamp(new Date().toInstant());
+        embedBuilder.setImage(imageUrl);
+        return embedBuilder.build();
+    }
+
     public static MessageEmbed makeUpdateEmbed(String embedTitle, String embedContent) {
         return makeEmbed(":mega: " + embedTitle, null, embedContent, 0xEBD773);
     }

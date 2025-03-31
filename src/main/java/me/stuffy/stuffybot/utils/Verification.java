@@ -1,7 +1,7 @@
 package me.stuffy.stuffybot.utils;
 
 import me.stuffy.stuffybot.Bot;
-import me.stuffy.stuffybot.profiles.GlobalData;
+import me.stuffy.stuffybot.profiles.HypixelProfile;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -15,28 +15,39 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
-import static me.stuffy.stuffybot.utils.DiscordUtils.makeErrorEmbed;
+import static me.stuffy.stuffybot.utils.APIUtils.*;
+import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 
 public class Verification {
+    private static final Map<String, Long> captchaTimeouts = new HashMap<>();
+
     public static void verifyButton(ButtonInteractionEvent event) {
         User user = event.getUser();
         String userId = event.getUser().getId();
 
+        if(captchaTimeouts.containsKey(userId)){
+            if(captchaTimeouts.get(userId) > Instant.now().toEpochMilli()) {
+                MessageCreateData data = new MessageCreateBuilder()
+                        .setEmbeds(makeErrorEmbed("Verification Error", "You have failed a CAPTCHA too recently. Please try again " + discordTimeUnix(captchaTimeouts.get(userId)) + ".")).build();
+                event.reply(data).setEphemeral(true).queue();
+                return;
+            }
+            else {
+                captchaTimeouts.remove(userId);
+            }
+        }
+
         // #TODO if I am verified in linked db, update me according to info there
         if(isVerified(userId)){
             MessageCreateData data = new MessageCreateBuilder()
-                    .setEmbeds(DiscordUtils.makeErrorEmbed("Verification Error", "You have already verified your identity, silly goose.")).build();
+                    .setEmbeds(makeErrorEmbed("Verification Error", "You have already verified your identity, silly goose.")).build();
             event.reply(data).setEphemeral(true).queue();
             return;
         }
-
-        // #TODO if I am linked, check if my mc account has this discord account listed in api, if yes, verifyUser()
-        // #TODO prompt the user with the modal, even if they are linked
-        // #TODO if the account does not have the discord linked, time out for 3 minutes, teach them how
-        // #TODO if all is valid, verify them
 
         Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
                 .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
@@ -69,9 +80,9 @@ public class Verification {
     public static void verifyModal(ModalInteractionEvent event) {
         String ign = Objects.requireNonNull(event.getValue("ign")).getAsString();
         String captcha = Objects.requireNonNull(event.getValue("captcha")).getAsString();
-        if (!captcha.equals("stuffy")) {
-            // TODO: Make this actually time out for 5 minutes
-            MessageEmbed errorEmbed = makeErrorEmbed("Verification Error", "You entered the CAPTCHA incorrectly.\n-# Try again in " + discordTimeUnix(Instant.now().plusSeconds(300).toEpochMilli()));
+
+        if (!ign.matches("[a-zA-Z0-9_]+")) {
+            MessageEmbed errorEmbed = makeErrorEmbed("Verification Error", "Your Minecraft username may only contain letters, numbers, and underscores.");
             MessageCreateData data = new MessageCreateBuilder()
                     .addEmbeds(errorEmbed)
                     .build();
@@ -79,8 +90,69 @@ public class Verification {
             return;
         }
 
-        event.reply("You got the captcha right, " + ign).setEphemeral(true).queue();
+        if (!captcha.equals("stuffy")) {
+            long timeout = Instant.now().plusSeconds(120).toEpochMilli();
+            captchaTimeouts.put(event.getUser().getId(), timeout);
+            MessageEmbed errorEmbed = makeErrorEmbed("Verification Error", "You entered the CAPTCHA incorrectly.\n-# Try again " + discordTimeUnix(timeout) + ".");
+            MessageCreateData data = new MessageCreateBuilder()
+                    .addEmbeds(errorEmbed)
+                    .build();
+            event.reply(data).setEphemeral(true).queue();
+            return;
+        }
 
+        HypixelProfile profile = null;
+        try {
+            profile = getHypixelProfile(ign);
+        } catch (APIException e) {
+            event.replyEmbeds(makeErrorEmbed("Hypixel API Error", e.errorMessage)).setEphemeral(true).queue();
+            return;
+        }
+        if ( profile == null) {
+            event.replyEmbeds(makeErrorEmbed("Hypixel API Error", "The user " + ign + " does not seem to exist. SpoOo00oky")).setEphemeral(true).queue();
+            return;
+        }
+
+        ign = profile.getDisplayName();
+
+        String linkedDiscord = null;
+        try {
+            linkedDiscord = profile.getDiscord();
+        } catch (Exception e) {
+            event.replyEmbeds(makeEmbedWithImage("Verification Error", "Check your linked discord in game","The user `" + ign + "` does not have a discord linked.\n\nFollow the steps below to correct this, and try again.", "https://i.imgur.com/HHs9nbZ.gif", 0xC95353)).setEphemeral(true).queue();
+            return;
+        }
+
+        String discordUsername = event.getUser().getName();
+        if(!linkedDiscord.equals(discordUsername)){
+            event.replyEmbeds(makeEmbedWithImage("Verification Error", "Check your linked discord in game", "The user `" + ign + "` has a different discord linked.\n In Game Linked Discord: `" + linkedDiscord + "`\n Your Discord Username: `" + discordUsername + "`\n\nFollow the steps below to correct this, and try again.", "https://i.imgur.com/HHs9nbZ.gif", 0xC95353)).setEphemeral(true).queue();
+            return;
+        }
+
+
+        // User is verified, whoop-whoop
+        updateLinkedDB(event.getUser().getId(), profile.getUuid(), ign);
+        setVerifiedStatus(event.getUser().getId(), true);
+        event.replyEmbeds(DiscordUtils.makeEmbed("Verification Successful", "You have been verified.", "You may now enjoy all of the perks that come with that. You may unverify at any time.", 0x3d84a2)).setEphemeral(true).queue();
+    }
+
+    public static void unverifyButton(ButtonInteractionEvent event) {
+        User user = event.getUser();
+        String userId = event.getUser().getId();
+        if(!isVerified(userId)){
+            MessageCreateData data = new MessageCreateBuilder()
+                    .setEmbeds(makeErrorEmbed("Unverification Error", "You have not yet verified, there is nothing to undo!")).build();
+            event.reply(data).setEphemeral(true).queue();
+            return;
+        }
+
+        setVerifiedStatus(userId, false);
+
+        // TODO: Remove verified role, add unverified role
+        // TODO: Remove all roles that the player has already earned
+
+        MessageEmbed embed = DiscordUtils.makeEmbed("Unverify", "You have been unverified.", "You may verify again at any time.", 0x3d84a2);
+        event.replyEmbeds(embed).setEphemeral(true).queue();
     }
 
     public static void verifyUser(User user) {

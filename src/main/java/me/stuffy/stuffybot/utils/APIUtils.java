@@ -492,6 +492,40 @@ public class APIUtils {
         }
     }
 
+    public static void setVerifiedStatus(String discordId, Boolean verified) {
+        GHContent linkedDB = getGitHubFile(privateApiRepo, "apis/linkeddb.csv");
+        if (linkedDB == null) throw new IllegalStateException("Failed to get linkeddb.csv from GitHub");
+
+        try {
+            // Read the CSV content
+            String linkedDBContent = readFile(linkedDB);
+            List<String[]> csvData;
+            try (CSVReader reader = new CSVReader(new StringReader(linkedDBContent))) {
+                csvData = reader.readAll();
+            }
+
+            // Update the CSV content
+            for (String[] row : csvData) {
+                if (row[0].equals(discordId)) {
+                    row[4] = verified ? "TRUE" : "FALSE";
+                    break;
+                }
+            }
+
+            // Write the updated content back to the CSV file
+            StringWriter stringWriter = new StringWriter();
+            try (CSVWriter writer = new CSVWriter(stringWriter)) {
+                writer.writeAll(csvData);
+            }
+            String updatedContent = stringWriter.toString();
+            updateGitHubFile(privateApiRepo, "apis/linkeddb.csv", updatedContent, "`@" + Bot.getGlobalData().getSessionUniqueUsers().getOrDefault(discordId, "NULL") + "` verified status set to `" + verified + "`");
+            Bot.getGlobalData().setVerifiedAccount(discordId, verified);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void updateLinkedDB(String discordId, UUID uuid, String ign) {
         String discordName = Bot.getGlobalData().getSessionUniqueUsers().getOrDefault(discordId, "NULL");
 
