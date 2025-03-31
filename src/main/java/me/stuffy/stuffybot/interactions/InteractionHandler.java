@@ -5,8 +5,7 @@ import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.utils.*;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+    import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -22,7 +21,6 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static me.stuffy.stuffybot.commands.SetupCommand.setupLinkingButton;
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.APIUtils.*;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
@@ -48,6 +47,16 @@ public class InteractionHandler extends ListenerAdapter {
         String id = genBase64(3);
         event.deferReply().queue();
         ArrayList<String> optionsArray = new ArrayList<String>();
+
+        if (commandName.equals("setup")) {
+            String tosetup = event.getOption("tosetup").getAsString();
+            if (tosetup.equals("verify")) {
+                setupLinkingButton(event);
+                MessageEmbed successEmbed = makeEmbed("Verification Setup", "Successful setup", "The Verify Embed has been setup successfully.", 0x3d84a2);
+                event.getHook().setEphemeral(true).sendMessageEmbeds(successEmbed).queue();
+                return;
+            }
+        }
 
 
         if (event.getOption("ign") == null) {

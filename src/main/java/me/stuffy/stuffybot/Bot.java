@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -196,6 +197,15 @@ public class Bot extends ListenerAdapter {
         } else {
             throw new IllegalArgumentException("Invalid scope: " + scope);
         }
+
+        // Setup commands for home guild only
+        this.homeGuild.upsertCommand(
+                Commands.slash("setup", "Home guild setup command")
+                        .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+                        .addOptions(new OptionData(OptionType.STRING, "tosetup", "Which thing you wish to Setup", true).addChoices(
+                            new Command.Choice("Verify", "verify")
+                        ))
+        ).queue();
     }
 
     public void clearCommands() {
