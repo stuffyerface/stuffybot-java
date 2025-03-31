@@ -35,6 +35,7 @@ import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
 import static me.stuffy.stuffybot.utils.APIUtils.*;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
+import static me.stuffy.stuffybot.utils.Verification.verifyModal;
 
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -81,7 +82,6 @@ public class InteractionHandler extends ListenerAdapter {
         MessageCreateData response = null;
         try {
             response = getResponse(interactionId);
-            ;
         } catch (InteractionException e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + e.getMessage());
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
@@ -102,7 +102,11 @@ public class InteractionHandler extends ListenerAdapter {
         String uid = interactionId.getId();
         InteractionHook hook = event.getHook();
         ScheduledFuture<?> scheduledFuture = scheduler.schedule(() -> {
-            hook.editOriginalComponents().queue();
+            try {
+                hook.editOriginalComponents().queue();
+            } catch (Exception e) {
+                Logger.logError("Unable to remove original components, the message may have been deleted.");
+            }
         }, 30, TimeUnit.SECONDS);
 
         scheduledTasks.put(uid, scheduledFuture);
@@ -149,8 +153,8 @@ public class InteractionHandler extends ListenerAdapter {
             }
         }
 
-        if (interactionId.getCommand().equals("verify")) {
-            verifyButton(event);
+        if (interactionId.getCommand().equals("verify")) { //# TODO give permanent buttons better handling
+            Verification.verifyButton(event);
             return;
         }
 
@@ -194,22 +198,10 @@ public class InteractionHandler extends ListenerAdapter {
             toLog += " `" + mapping.getId() + "=" + mapping.getAsString() + "`";
         }
         Logger.log(toLog);
+
         if (event.getModalId().equals("verify")) {
-            String ign = Objects.requireNonNull(event.getValue("ign")).getAsString();
-            String captcha = Objects.requireNonNull(event.getValue("captcha")).getAsString();
-            if (!captcha.equals("stuffy")) {
-                // TODO: Make this actually time out for 5 minutes
-                MessageEmbed errorEmbed = makeErrorEmbed("Verification Error", "You entered the CAPTCHA incorrectly.\n-# Try again in " + discordTimeUnix(Instant.now().plusSeconds(300).toEpochMilli()));
-                MessageCreateData data = new MessageCreateBuilder()
-                        .addEmbeds(errorEmbed)
-                        .build();
-                event.reply(data).setEphemeral(true).queue();
-                return;
-            }
-
-            event.reply("You got the captcha right, " + ign).setEphemeral(true).queue();
+            verifyModal(event);
         }
-
     }
 
     @Override
