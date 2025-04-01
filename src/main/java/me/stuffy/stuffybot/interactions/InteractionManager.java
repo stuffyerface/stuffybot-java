@@ -41,6 +41,11 @@ public class InteractionManager {
                 case "blitz" -> BlitzCommand.blitz(interactionId);
                 case "megawalls" -> MegaWallsCommand.megawalls(interactionId);
                 case "tournament" -> TournamentCommand.tournament(interactionId);
+                case "achievements" -> AchievementsCommand.achievements(interactionId);
+                case "link" -> LinkCommand.link(interactionId);
+                case "playcommand" -> PlayCommandCommand.playCommand(interactionId);
+                case "help" -> HelpCommand.help();
+                case "search" -> SearchCommand.search(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
