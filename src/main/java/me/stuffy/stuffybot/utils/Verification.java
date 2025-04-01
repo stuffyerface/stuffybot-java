@@ -133,6 +133,11 @@ public class Verification {
         // User is verified, whoop-whoop
         updateLinkedDB(event.getUser().getId(), profile.getUuid(), ign);
         setVerifiedStatus(event.getUser().getId(), true);
+
+        Bot bot = Bot.getInstance();
+        bot.getJDA().getGuildById(Config.getHomeGuildId()).addRoleToMember(event.getUser(), bot.getVerifiedRole()).queue();
+        bot.getJDA().getGuildById(Config.getHomeGuildId()).removeRoleFromMember(event.getUser(), bot.getNotVerifiedRole()).queue();
+
         event.replyEmbeds(DiscordUtils.makeEmbed("Verification Successful", "You have been verified.", "You may now enjoy all of the perks that come with that. You may unverify at any time.", 0x3d84a2)).setEphemeral(true).queue();
     }
 
@@ -148,7 +153,10 @@ public class Verification {
 
         setVerifiedStatus(userId, false);
 
-        // TODO: Remove verified role, add unverified role
+        Bot bot = Bot.getInstance();
+        bot.getJDA().getGuildById(Config.getHomeGuildId()).removeRoleFromMember(event.getUser(), bot.getVerifiedRole()).queue();
+        bot.getJDA().getGuildById(Config.getHomeGuildId()).addRoleToMember(event.getUser(), bot.getNotVerifiedRole()).queue();
+
         // TODO: Remove all roles that the player has already earned
 
         MessageEmbed embed = DiscordUtils.makeEmbed("Unverify", "You have been unverified.", "You may verify again at any time.", 0x3d84a2);
