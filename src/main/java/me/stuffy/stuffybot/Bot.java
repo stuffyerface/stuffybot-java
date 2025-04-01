@@ -5,8 +5,7 @@ import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
 import me.stuffy.stuffybot.interactions.InteractionHandler;
 import me.stuffy.stuffybot.profiles.GlobalData;
-import me.stuffy.stuffybot.utils.APIUtils;
-import me.stuffy.stuffybot.utils.DiscordUtils;
+import me.stuffy.stuffybot.utils.Config;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -51,15 +50,17 @@ public class Bot extends ListenerAdapter {
         JDA jda = builder.build().awaitReady();
         this.jda = jda;
 
+        String homeGuildID = Config.getHomeGuildId();
         // Initialize home guild
-        this.homeGuild = jda.getGuildById("795108903733952562");
+        this.homeGuild = jda.getGuildById(homeGuildID);
         assert this.homeGuild != null : "Failed to find home guild";
 
         // Log startup
         String startupTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss"));
         String self = jda.getSelfUser().getName();
         Logger.setLogName(startupTime);
-        Logger.log("<Startup> Bot " + self + " started successfully " + startupTime + ".");
+        String environment = Config.getEnvironment();
+        Logger.log("<Startup> Bot " + self + " started successfully " + startupTime + ". Environment: " + environment);
 
         // Initialize GitHub
         GITHUB = connectToGitHub();
@@ -120,7 +121,13 @@ public class Bot extends ListenerAdapter {
 
 
     public Role getVerifiedRole() {
-        return this.homeGuild.getRoleById("795118862940635216");
+        String roleID = Config.getVerifiedRoleId();
+        return this.homeGuild.getRoleById(roleID);
+    }
+
+    public Role getNotVerifiedRole() {
+        String roleID = Config.getNotVerifiedRoleId();
+        return this.homeGuild.getRoleById(roleID);
     }
 
     public static void main(String[] args) throws InterruptedException {

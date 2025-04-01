@@ -1,5 +1,6 @@
 package me.stuffy.stuffybot.commands;
 
+import me.stuffy.stuffybot.utils.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -9,7 +10,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class SetupCommand {
     public static void setupLinkingButton(SlashCommandInteractionEvent event) {
-
+        String linkCommandId = Config.getLinkCommandId();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Verify or Update");
         embedBuilder.setDescription(
@@ -17,7 +18,7 @@ public class SetupCommand {
                         "-# :globe_with_meridians: You do __not__ need to verify your account to use commands inside or outside of this discord, receive announcements from Stuffy Bot, or any other feature we offer.\n" +
                         "\n" +
                         "If you just wish to link your account so slash commands will automatically assume your username for the `ign` field, you may use use " +
-                        "</link:1281037425032040491>" +
+                        "</link:" + linkCommandId + ">" +
                         ", which will not require verifying in game.\n" +
                         "\n" +
                         "If you've earned new accomplishments and want to update them, click the update button below.\n" +
