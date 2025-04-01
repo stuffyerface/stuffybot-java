@@ -38,4 +38,8 @@ public class Config {
     public static String getLinkCommandId() {
         return properties.getProperty("linkCommandId");
     }
+
+    public static String getCustomStatus() {
+        return properties.getProperty("customStatus");
+    }
 }
