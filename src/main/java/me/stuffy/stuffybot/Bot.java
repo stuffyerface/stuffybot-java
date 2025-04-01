@@ -75,7 +75,8 @@ public class Bot extends ListenerAdapter {
         );
 
         // Register commands "global"ly or "local"ly
-        registerCommands("local");
+        String environmentScope = Config.getEnvironment().equals("production") ? "global" : "local";
+        registerCommands(environmentScope);
 
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
