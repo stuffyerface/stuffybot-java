@@ -4,7 +4,8 @@ package me.stuffy.stuffybot;
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
 import me.stuffy.stuffybot.interactions.InteractionHandler;
-import me.stuffy.stuffybot.utils.DiscordUtils;
+import me.stuffy.stuffybot.profiles.GlobalData;
+import me.stuffy.stuffybot.utils.Config;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -14,38 +15,59 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.kohsuke.github.GitHub;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+
+import static me.stuffy.stuffybot.utils.APIUtils.connectToGitHub;
+import static me.stuffy.stuffybot.utils.APIUtils.uploadLogs;
 
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
     private final JDA jda;
     private Guild homeGuild;
+    private static GitHub GITHUB;
+    private static GlobalData GLOBAL_DATA;
 
 
     public Bot() throws InterruptedException {
         INSTANCE = this;
         // Get token from env variable
         String token = System.getenv("BOT_TOKEN");
-        JDABuilder builder = JDABuilder.createDefault(token) ;
-        builder.setActivity(Activity.customStatus("hating slash commands"));
+        JDABuilder builder = JDABuilder.createDefault(token);
+        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT); // # TODO: Remove intents when possible
+        String customStatus = Config.getCustomStatus();
+        builder.setActivity(Activity.customStatus(customStatus));
         builder.addEventListeners(this);
         JDA jda = builder.build().awaitReady();
         this.jda = jda;
 
+        String homeGuildID = Config.getHomeGuildId();
         // Initialize home guild
-        this.homeGuild = jda.getGuildById("795108903733952562");
+        this.homeGuild = jda.getGuildById(homeGuildID);
         assert this.homeGuild != null : "Failed to find home guild";
 
-
         // Log startup
-        String time = DiscordUtils.discordTimeNow();
-        String self = jda.getSelfUser().getAsMention();
-        Logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
+        String startupTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss"));
+        String self = jda.getSelfUser().getName();
+        Logger.setLogName(startupTime);
+        String environment = Config.getEnvironment();
+        Logger.log("<Startup> Bot " + self + " started successfully " + startupTime + ". Environment: " + environment);
+
+        // Initialize GitHub
+        GITHUB = connectToGitHub();
+
+        // Initialize Global Data
+        GLOBAL_DATA = new GlobalData();
 
         // Listen for interactions
         jda.addEventListener(
@@ -58,9 +80,40 @@ public class Bot extends ListenerAdapter {
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
         new ActiveEvents().startFixedRateEvent();
+
+        // Handle SIGTERM
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Logger.log("<Shutdown> Bot shutting down, saving data...");
+
+            // Close JDA
+            jda.shutdown();
+
+            // Update Bot Stats
+            try{
+                UpdateBotStatsEvent.publicExecute();
+                Logger.log("<Shutdown> Bot Stats saved, allowing for shutdown.");
+            } catch (Exception e) {
+                Logger.log("<Shutdown> Failed to save Bot Stats, allowing for shutdown.");
+            }
+            try {
+                uploadLogs();
+                Logger.log("<Shutdown> Logs uploaded, allowing for shutdown.");
+            }
+            catch (Exception e) {
+                Logger.log("<Shutdown> Failed to upload logs, allowing for shutdown.");
+            }
+        }));
     }
     public static Bot getInstance() {
         return INSTANCE;
+    }
+
+    public static GitHub getGitHub() {
+        return GITHUB;
+    }
+
+    public static GlobalData getGlobalData() {
+        return GLOBAL_DATA;
     }
 
     public Guild getHomeGuild() {
@@ -69,7 +122,13 @@ public class Bot extends ListenerAdapter {
 
 
     public Role getVerifiedRole() {
-        return this.homeGuild.getRoleById("795118862940635216");
+        String roleID = Config.getVerifiedRoleId();
+        return this.homeGuild.getRoleById(roleID);
+    }
+
+    public Role getNotVerifiedRole() {
+        String roleID = Config.getNotVerifiedRoleId();
+        return this.homeGuild.getRoleById(roleID);
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -95,9 +154,10 @@ public class Bot extends ListenerAdapter {
 
     public void registerCommands(String scope) {
         OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN", false);
+        OptionData ignOptionRequired = new OptionData(OptionType.STRING, "ign", "The player's IGN", true);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
-//        commandList.add(Commands.slash("help", "*Should* show a help message"));
+        commandList.add(Commands.slash("help", "Learn about the bot and its commands"));
         commandList.add(Commands.slash("pit", "Get Pit stats for a player")
                 .addOptions(ignOption));
         commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
@@ -114,6 +174,21 @@ public class Bot extends ListenerAdapter {
         commandList.add(Commands.slash("tournament", "Get tournament stats for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.INTEGER, "tournament", "Which tournament to look at (Leave empty for latest)", false).setAutoComplete(true)));
+        commandList.add(Commands.slash("achievements", "Get achievement stats for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at", false).setAutoComplete(true))
+                .addOptions(new OptionData(OptionType.STRING, "type", "Which achievements to look at", false).addChoices(
+                        new Command.Choice("All", "all"),
+                        new Command.Choice("Challenge", "challenge"),
+                        new Command.Choice("Tiered", "tiered")
+                        )
+                ));
+        commandList.add(Commands.slash("link", "Link a Minecraft account so you don't have to type your IGN every time")
+                .addOptions(ignOptionRequired));
+        commandList.add(Commands.slash("playcommand", "Lookup the command to quickly hop into a game")
+                .addOptions(new OptionData(OptionType.STRING, "game", "Search for a play command", true).setAutoComplete(true)));
+        commandList.add(Commands.slash("search", "Search for an achievement by name, or description.")
+                .addOptions(new OptionData(OptionType.STRING, "search", "Search for an Achievement", true).setAutoComplete(true)));
 
 
         if (scope.equals("local")) {
@@ -130,6 +205,15 @@ public class Bot extends ListenerAdapter {
         } else {
             throw new IllegalArgumentException("Invalid scope: " + scope);
         }
+
+        // Setup commands for home guild only
+        this.homeGuild.upsertCommand(
+                Commands.slash("setup", "Home guild setup command")
+                        .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+                        .addOptions(new OptionData(OptionType.STRING, "tosetup", "Which thing you wish to Setup", true).addChoices(
+                            new Command.Choice("Verify", "verify")
+                        ))
+        ).queue();
     }
 
     public void clearCommands() {

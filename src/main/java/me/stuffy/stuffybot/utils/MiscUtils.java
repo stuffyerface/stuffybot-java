@@ -10,6 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
+
 public class MiscUtils {
     private static final Gson gson = new Gson();
     public static UUID formatUUID(String uuid) {
@@ -36,6 +38,14 @@ public class MiscUtils {
     }
 
     public static JsonElement getNestedJson(Integer defaultValue, Object object, String... keys) {
+        try {
+            return getNestedJson((JsonObject) object, keys);
+        } catch (IllegalArgumentException e) {
+            return stringToJson(defaultValue.toString());
+        }
+    }
+
+    public static JsonElement getNestedJson(Double defaultValue, Object object, String... keys) {
         try {
             return getNestedJson((JsonObject) object, keys);
         } catch (IllegalArgumentException e) {
@@ -157,8 +167,8 @@ public class MiscUtils {
         return sb.toString();
     }
 
-    public static String toReadableName(String resourcesName) {
-        Map<String,String> resourceNames = new HashMap<>();
+    private static Map<String,String> getResourceNames() {
+        Map<String, String> resourceNames = new HashMap<>();
         resourceNames.put("arcade", "Arcade");
         resourceNames.put("arena", "Arena Brawl");
         resourceNames.put("bedwars", "Bed Wars");
@@ -191,7 +201,21 @@ public class MiscUtils {
         resourceNames.put("warlords", "Warlords");
         resourceNames.put("woolgames", "Wool Games");
 
+        return resourceNames;
+    }
+
+    public static String toReadableName(String resourcesName) {
+        Map<String,String> resourceNames = getResourceNames();
         return resourceNames.getOrDefault(resourcesName, resourcesName);
+    }
+
+    public static String fromReadableName(String readableName) {
+        Map<String,String> resourceNames = getResourceNames();
+        Map<String,String> reverseMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : resourceNames.entrySet()) {
+            reverseMap.put(entry.getValue(), entry.getKey());
+        }
+        return reverseMap.getOrDefault(readableName, readableName);
     }
 
     public static String minutesFormatted(int minutes) {
@@ -201,5 +225,50 @@ public class MiscUtils {
             return remainingMinutes + "m";
         return hours + "h " + remainingMinutes + "m";
     }
+    public static int getMaxAchievements() {
+        JsonObject achievementData = getAchievementsResources().getAsJsonObject();
+        int total = 0;
+        for (String game : achievementData.keySet()) {
+            JsonObject gameData = achievementData.getAsJsonObject(game);
 
+            JsonObject oneTime = gameData.getAsJsonObject("one_time");
+            JsonObject tiered = gameData.getAsJsonObject("tiered");
+
+            for (String key : oneTime.keySet()) {
+                boolean isLegacy = getNestedJson(false, oneTime, key, "legacy").getAsBoolean();
+                if (!isLegacy) {
+                    total++;
+                }
+            }
+
+            for (String key : tiered.keySet()) {
+                boolean isLegacy = getNestedJson(false, tiered, key, "legacy").getAsBoolean();
+                if (!isLegacy) {
+                    total+= getNestedJson(tiered, key, "tiers").getAsJsonArray().size();
+                }
+            }
+        }
+        return total;
+    }
+
+    public static int getMaxAchievementPoints() {
+        JsonObject achievementData = getAchievementsResources().getAsJsonObject();
+        int total = 0;
+        for (String game : achievementData.keySet()) {
+            JsonObject gameData = achievementData.getAsJsonObject(game);
+
+            int totalPoints = getNestedJson(0, gameData, "total_points").getAsInt();
+            total += totalPoints;
+        }
+        return total;
+    }
+
+    public static Map<String, String> autoCompleteAchGames() {
+        Map<String, String> games = new HashMap<>();
+        JsonObject achievementData = getAchievementsResources().getAsJsonObject();
+        for (String game : achievementData.keySet()) {
+            games.put(game, toReadableName(game));
+        }
+        return games;
+    }
 }

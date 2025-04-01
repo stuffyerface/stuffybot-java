@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tournaments Schema",
+  "description": "Schema for tournament data, including the name, iteration, duration, and data for navigating the api to find specific stats",
+  "type": "object",
+  "properties": {
+    "lastUpdated": {
+      "type": "integer",
+      "description": "Unix timestamp of the last time the data was updated"
+    },
+    "tournaments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The id of the tournament, denoted by the index in which it happened"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the tournament"
+          },
+          "icon": {
+            "type": "string",
+            "description": "The path to the icon of the tournament, located at https://hypixel.net/styles/hypixel-v2/images/game-icons/{icon}"
+          },
+          "iteration": {
+            "type": "integer",
+            "description": "The iteration of the tournament"
+          },
+          "duration": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "integer",
+                "description": "Unix timestamp of the start of the tournament"
+              },
+              "end": {
+                "type": "integer",
+                "description": "Unix timestamp of the end of the tournament"
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "timeLimit": {
+                "type": "integer",
+                "description": "The maximum playtime for participants in minutes"
+              },
+              "gameLimit": {
+                "type": "integer",
+                "description": "The maximum amount of games a participant can play"
+              },
+              "tourneyField": {
+                "type": "string",
+                "description": "The field in the player's data that contains the tournament data"
+              },
+              "wins": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of wins"
+              },
+              "losses": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of losses"
+              },
+              "winstreak": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of wins in a row"
+              },
+              "kills": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of kills"
+              },
+              "deaths": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of deaths"
+              },
+              "killstreak": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of kills in a row"
+              },
+              "assists": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of assists"
+              },
+              "finalKills": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of final kills"
+              },
+              "finalDeaths": {
+                "type": "string",
+                "description": "The field in the player's stats that contains the amount of final deaths"
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "timeLimit"
+                ]
+              },
+              {
+                "required": [
+                  "gameLimit"
+                ]
+              }
+            ],
+            "required": [
+              "tourneyField",
+              "wins"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "iteration",
+          "duration",
+          "data"
+        ]
+      }
+    }
+  }
+}

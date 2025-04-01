@@ -12,16 +12,85 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class HypixelProfile {
-    private UUID uuid;
+    private final UUID uuid;
+    private final Rank rank;
+    private final JsonObject profile;
     private String displayName;
-    private Rank rank;
-    private JsonObject profile;
+    private final int achievementPoints;
+    private int achievementsUnlocked;
+    private int legacyAchievementPoints;
+    private int legacyAchievementsUnlocked;
+    private String easiestChallenge;
+    private double easiestChallengeGlobalPercent;
 
     public HypixelProfile(JsonObject profile) {
         this.profile = profile.deepCopy();
         this.uuid = MiscUtils.formatUUID(profile.get("uuid").getAsString());
         this.displayName = profile.get("displayname").getAsString();
         this.rank = determineRank(profile);
+        this.achievementPoints = getNestedJson(0, profile, "achievementPoints").getAsInt();
+
+        instantiateAchievements();
+    }
+
+    private void instantiateAchievements() {
+        int unlockCount = 0;
+        int unlockCountLegacy = 0;
+        int pointCountLegacy = 0;
+
+        String easiestChallenge = null;
+        double easiestChallengeGlobalPercent = 0;
+
+        JsonObject achievements = getAchievements();
+        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
+        List<String> playerOneTimeString = new ArrayList<>();
+        for (JsonElement element : playerOneTime) {
+            try {
+                playerOneTimeString.add(element.getAsString());
+            } catch (Exception ignored) {
+            }
+        }
+        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
+        JsonElement achievementsResources = getAchievementsResources();
+        for (String game : achievementsResources.getAsJsonObject().keySet()) {
+            for (String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
+                if (playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
+                    if (!isLegacy) {
+                        unlockCount++;
+                    } else {
+                        unlockCountLegacy++;
+                        pointCountLegacy += getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "points").getAsInt();
+                    }
+                } else {
+                    double globalPercentUnlocked = getNestedJson(0.0, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "globalPercentUnlocked").getAsDouble();
+                    if (globalPercentUnlocked > easiestChallengeGlobalPercent) {
+                        easiestChallengeGlobalPercent = globalPercentUnlocked;
+                        easiestChallenge = getNestedJson("Unknown", achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "name").getAsString();
+                    }
+                }
+            }
+
+            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
+                for (JsonElement tier : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
+                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
+                    if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() >= tierAmount) {
+                        if (!isLegacy) {
+                            unlockCount++;
+                        } else {
+                            unlockCountLegacy++;
+                            pointCountLegacy += tier.getAsJsonObject().get("points").getAsInt();
+                        }
+                    }
+                }
+            }
+        }
+        this.achievementsUnlocked = unlockCount;
+        this.legacyAchievementsUnlocked = unlockCountLegacy;
+        this.legacyAchievementPoints = pointCountLegacy;
+        this.easiestChallenge = easiestChallenge;
+        this.easiestChallengeGlobalPercent = easiestChallengeGlobalPercent;
     }
 
     private static Rank determineRank(JsonObject profile) {
@@ -59,6 +128,11 @@ public class HypixelProfile {
         return uuid;
     }
 
+    public HypixelProfile setDisplayName(String displayName) {
+        this.displayName = displayName;
+        return this;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -69,14 +143,6 @@ public class HypixelProfile {
 
     public String getDiscord() {
         return getNestedJson(profile, "socialMedia", "links", "DISCORD").getAsString();
-    }
-
-    public String[] getMaxedGames() {
-        // return an array of strings with the maxed games
-        JsonElement allAchievements = getAchievementsResources();
-        JsonElement achievements = getNestedJson(profile, "achievements");
-
-        return new String[0];
     }
 
     public JsonObject getProfile() {
@@ -103,12 +169,8 @@ public class HypixelProfile {
         return getNestedJson(profile, "karma").getAsInt();
     }
 
-    public Integer getAchievementPoints() {
-        if (!profile.has("achievementPoints")) {
-            return 0;
-        }
-
-        return getNestedJson(profile, "achievementPoints").getAsInt();
+    public int getAchievementPoints() {
+        return this.achievementPoints;
     }
 
     public String getOnlineStatus() {
@@ -215,7 +277,7 @@ public class HypixelProfile {
                 // Mega Walls
                 "Walls3.wins",
 
-                // Turbo Kart Racers TODO: Reduce to golds?
+                // Turbo Kart Racers
                 "GingerBread.gold_trophy", "GingerBread.tourney_gingerbread_solo_1_gold_trophy",
 
                 // SkyWars
@@ -360,48 +422,6 @@ public class HypixelProfile {
         combined.add("achievementsTiered", getNestedJson(profile, "achievements"));
         combined.add("achievementsOneTime", getNestedJson(profile, "achievementsOneTime"));
         return combined;
-    }
-
-    public Integer getLegacyAchievementPoints() {
-        int legacyPoints = 0;
-        JsonObject achievements = getAchievements();
-        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
-        List<String> playerOneTimeString = new ArrayList<>();
-        for (JsonElement element : playerOneTime) {
-            try {
-                playerOneTimeString.add(element.getAsString());
-            } catch (Exception ignored) {
-            }
-        }
-        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
-        JsonElement achievementsResources = getAchievementsResources();
-        for (String game : achievementsResources.getAsJsonObject().keySet()) {
-            for (String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
-                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
-                if (!isLegacy) {
-                    continue;
-                }
-                if (playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
-                    legacyPoints += getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "points").getAsInt();
-                }
-            }
-
-            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
-                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
-                if (!isLegacy) {
-                    continue;
-                }
-
-
-                for (JsonElement tier : getNestedJson(0, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
-                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
-                    if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() >= tierAmount) {
-                        legacyPoints += tier.getAsJsonObject().get("points").getAsInt();
-                    }
-                }
-            }
-        }
-        return legacyPoints;
     }
 
     public Integer getPit(String stat) {
@@ -662,6 +682,26 @@ public class HypixelProfile {
         } catch (IllegalArgumentException e) {
             return 0;
         }
+    }
+
+    public int getAchievementsUnlocked() {
+        return this.achievementsUnlocked;
+    }
+
+    public int getLegacyAchievementsUnlocked() {
+        return this.legacyAchievementsUnlocked;
+    }
+
+    public int getLegacyAchievementPoints() {
+        return this.legacyAchievementPoints;
+    }
+
+    public String getEasiestChallenge() {
+        return this.easiestChallenge + " (" + String.format("%.2f", this.easiestChallengeGlobalPercent) + "%)";
+    }
+
+    public String getEasiestTiered() {
+        return "`Game: Close Tiered III` (97.78%)";
     }
 }
 
