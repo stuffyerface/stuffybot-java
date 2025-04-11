@@ -3,6 +3,7 @@ package me.stuffy.stuffybot.events;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.utils.Logger;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,13 @@ public class UpdateBotStatsEvent extends BaseEvent{
         Bot bot = Bot.getInstance();
         GlobalData globalData = Bot.getGlobalData();
 
-        int totalServers = bot.getJDA().getGuilds().size();
+        Guild[] guilds = bot.getJDA().getGuilds().toArray(new Guild[0]);
+        int totalUsers = 0;
+        int totalServers = 0;
+        for (Guild guild : guilds) {
+            totalServers++;
+            totalUsers += guild.getMemberCount();
+        }
 
         Map<String, String> uniqueUsers = globalData.getSessionUniqueUsers();
         Map<String, Integer> commandsRun = globalData.getSessionCommandsRun();
@@ -34,7 +41,7 @@ public class UpdateBotStatsEvent extends BaseEvent{
         if(commandsRun.isEmpty()) {
             Logger.log("<UpdateBotStats> No data to update.");
         } else {
-            updateBotStats(totalServers, commandsRun);
+            updateBotStats(totalServers, totalUsers, commandsRun);
             Logger.log("<UpdateBotStats> Updated bot stats.");
         }
         if(uniqueUsers.isEmpty()) {
