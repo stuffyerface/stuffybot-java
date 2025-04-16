@@ -646,7 +646,7 @@ public class HypixelProfile {
 
     public Integer getMegaWallsStat(String asString) {
         try {
-            return getNestedJson(0, profile, "stats", "Walls3", asString).getAsJsonObject().getAsInt();
+            return getNestedJson(0, profile, "stats", "Walls3", asString).getAsInt();
         } catch (IllegalArgumentException e) {
             return 0;
         }
