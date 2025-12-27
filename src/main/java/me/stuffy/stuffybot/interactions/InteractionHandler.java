@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.utils.*;
-    import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -224,7 +224,7 @@ public class InteractionHandler extends ListenerAdapter {
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         String toLog = "<Modal> @" + event.getUser().getName() + ": `" + event.getModalId() + "`";
         for (ModalMapping mapping : event.getValues()) {
-            toLog += " `" + mapping.getId() + "=" + mapping.getAsString() + "`";
+            toLog += " `" + mapping.getCustomId() + "=" + mapping.getAsString() + "`";
         }
         Logger.log(toLog);
 

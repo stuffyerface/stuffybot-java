@@ -4,6 +4,7 @@ import kotlin.Triple;
 import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.utils.APIException;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -13,7 +14,7 @@ import java.text.DecimalFormat;
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
 import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
-import static net.dv8tion.jda.api.interactions.components.buttons.Button.secondary;
+import static net.dv8tion.jda.api.components.buttons.Button.secondary;
 
 public class PitCommand {
 
@@ -48,9 +49,9 @@ public class PitCommand {
         String newInteractionId = InteractionId.newCommand("pitDetailed", interactionId).getInteractionString();
         return new MessageCreateBuilder()
                 .addEmbeds(pitStats)
-                .addActionRow(
+                .setComponents(ActionRow.of(
                         secondary(newInteractionId, "Challenge Achievement Progress")
-                )
+                ))
                 .build();
     }
 
@@ -88,9 +89,9 @@ public class PitCommand {
         String newInteractionId = InteractionId.newCommand("pit", interactionId).getInteractionString();
         return new MessageCreateBuilder()
                 .addEmbeds(extraPitStats)
-                .addActionRow(
+                .setComponents(ActionRow.of(
                         secondary(newInteractionId, "Back to Pit Stats")
-                )
+                ))
                 .build();
     }
 }

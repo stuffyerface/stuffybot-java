@@ -34,7 +34,7 @@ import static me.stuffy.stuffybot.utils.APIUtils.uploadLogs;
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
     private final JDA jda;
-    private Guild homeGuild;
+    private final Guild homeGuild;
     private static GitHub GITHUB;
     private static GlobalData GLOBAL_DATA;
 
