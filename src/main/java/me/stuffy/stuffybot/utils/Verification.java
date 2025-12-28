@@ -2,14 +2,14 @@ package me.stuffy.stuffybot.utils;
 
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
+import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -49,21 +49,22 @@ public class Verification {
             return;
         }
 
-        Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
-                .addComponents(ActionRow.of(TextInput.create("ign", "Minecraft Username", TextInputStyle.SHORT)
-                                .setPlaceholder("Your Minecraft Username")
-                                .setMaxLength(16)
-                                .setMinLength(1)
-                                .setRequired(true)
-                                .build()),
-                        ActionRow.of(
-                                TextInput.create("captcha", "CAPTCHA", TextInputStyle.PARAGRAPH)
-                                        .setPlaceholder("Enter the word 'stuffy'.\n" +
-                                                "To prevent abuse, failing the CAPTCHA " +
-                                                "will result in a short timeout.")
-                                        .setRequired(false)
-                                        .build()))
+        TextInput ign = TextInput.create("ign", TextInputStyle.SHORT)
+                .setPlaceholder("Your Minecraft Username")
+                .setMaxLength(16)
+                .setMinLength(1)
+                .setRequired(true)
                 .build();
+
+        TextInput captcha = TextInput.create("captcha", TextInputStyle.PARAGRAPH)
+                .setPlaceholder("Enter the word 'stuffy'.\n" +
+                        "To prevent abuse, failing the CAPTCHA " +
+                        "will result in a short timeout.")
+                .setRequired(false)
+                .build();
+
+        Modal modal = Modal.create("verify", "Verify your identity in Stuffy Discord")
+                .addComponents(Label.of("Minecraft Username", ign), Label.of("CAPTCHA", captcha)).build();
         event.replyModal(modal).queue();
     }
 

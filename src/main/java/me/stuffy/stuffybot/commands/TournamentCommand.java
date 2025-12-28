@@ -6,8 +6,9 @@ import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InvalidOptionException;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -154,7 +155,7 @@ public class TournamentCommand {
 
         return new MessageCreateBuilder()
                 .addEmbeds(makeStatsEmbed(emoji + " " + title.toString(), subtitle, description.toString()))
-                .addActionRow(buttons)
+                .setComponents(ActionRow.of(buttons))
                 .build();
     }
 }

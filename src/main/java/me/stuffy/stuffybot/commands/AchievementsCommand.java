@@ -7,8 +7,9 @@ import me.stuffy.stuffybot.interactions.InteractionId;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.utils.APIException;
 import me.stuffy.stuffybot.utils.InvalidOptionException;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -194,7 +195,7 @@ public class AchievementsCommand {
             embedContent += "Tiered Points: " + tieredUnlockedPoints + "/" + tieredMaxPoints + "\n\n";
         }
 
-        messageCreateBuilder.addActionRow(allButton, challengeButton, tieredButton);
+        messageCreateBuilder.setComponents(ActionRow.of(allButton, challengeButton, tieredButton));
 
         messageCreateBuilder.addEmbeds(makeStatsEmbed(embedTitle, embedContent));
 

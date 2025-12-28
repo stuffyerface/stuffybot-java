@@ -376,7 +376,7 @@ public class APIUtils {
     }
 
 
-    public static void updateBotStats(int totalServers, Map<String, Integer> commandsRun) {
+    public static void updateBotStats(int totalServers, int totalUsers, Map<String, Integer> commandsRun) {
         GHContent botStats = getGitHubFile(privateApiRepo, "apis/bot.json");
         if (botStats == null) throw new IllegalStateException("Failed to get bot.json from GitHub");
 
@@ -404,6 +404,7 @@ public class APIUtils {
             }
 
             bot.addProperty("servers", totalServers);
+            bot.addProperty("totalusers", totalUsers);
 
             JsonObject commands = bot.get("commandsRun").getAsJsonObject();
 

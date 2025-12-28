@@ -2,9 +2,10 @@ package me.stuffy.stuffybot.commands;
 
 import me.stuffy.stuffybot.utils.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -31,11 +32,11 @@ public class SetupCommand {
 
         MessageCreateData toBeSent = new MessageCreateBuilder().addEmbeds(
                 embedBuilder.build()
-        ).addActionRow(
+        ).setComponents(ActionRow.of(
                 Button.of(ButtonStyle.SECONDARY, "000:verify:null", "Verify"),
                 Button.of(ButtonStyle.SECONDARY, "000:update:null", "Update"),
                 Button.of(ButtonStyle.DANGER, "000:unverify:null", "Unverify")
-        ).build();
+        )).build();
 
         event.getChannel().sendMessage(toBeSent).queue();
     }
