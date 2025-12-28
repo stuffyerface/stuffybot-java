@@ -15,13 +15,15 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.kohsuke.github.GitHub;
 
 import java.time.LocalDateTime;
@@ -75,7 +77,11 @@ public class Bot extends ListenerAdapter {
         );
 
         // Register commands "global"ly or "local"ly
-        String environmentScope = Config.getEnvironment().equals("production") ? "global" : "local";
+        String environmentScope = switch (Config.getEnvironment()) {
+            case "development" -> "local";
+            case "production", "development_global" -> "global";
+            default -> throw new IllegalArgumentException("Invalid environment: " + Config.getEnvironment());
+        };
         registerCommands(environmentScope);
 
         // Start events
@@ -153,29 +159,33 @@ public class Bot extends ListenerAdapter {
         Logger.log("<Guilds> Bot left guild: " + leftGuild.getName() + " (" + leftGuild.getId() + ")");
     }
 
-    public void registerCommands(String scope) {
+    private SlashCommandData createSlashCommand(String name, String description) {
+        return Commands.slash(name, description).setContexts(InteractionContextType.ALL).setIntegrationTypes(IntegrationType.ALL);
+    }
+
+    private void registerCommands(String scope) {
         OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN", false);
         OptionData ignOptionRequired = new OptionData(OptionType.STRING, "ign", "The player's IGN", true);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
-        commandList.add(Commands.slash("help", "Learn about the bot and its commands"));
-        commandList.add(Commands.slash("pit", "Get Pit stats for a player")
+        commandList.add(createSlashCommand("help", "Learn about the bot and its commands"));
+        commandList.add(createSlashCommand("pit", "Get Pit stats for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
+        commandList.add(createSlashCommand("stats", "Get Hypixel stats for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("tkr", "Get TKR stats for a player")
+        commandList.add(createSlashCommand("tkr", "Get TKR stats for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("maxes", "Get maxed games for a player")
+        commandList.add(createSlashCommand("maxes", "Get maxed games for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("blitz", "Get Blitz Ultimate Kit xp for a player")
+        commandList.add(createSlashCommand("blitz", "Get Blitz Ultimate Kit xp for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("megawalls", "Get Mega Walls skins for a player")
+        commandList.add(createSlashCommand("megawalls", "Get Mega Walls skins for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.STRING, "skins", "Which skins to look at", false).setAutoComplete(true)));
-        commandList.add(Commands.slash("tournament", "Get tournament stats for a player")
+        commandList.add(createSlashCommand("tournament", "Get tournament stats for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.INTEGER, "tournament", "Which tournament to look at (Leave empty for latest)", false).setAutoComplete(true)));
-        commandList.add(Commands.slash("achievements", "Get achievement stats for a player")
+        commandList.add(createSlashCommand("achievements", "Get achievement stats for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at", false).setAutoComplete(true))
                 .addOptions(new OptionData(OptionType.STRING, "type", "Which achievements to look at", false).addChoices(
@@ -184,16 +194,18 @@ public class Bot extends ListenerAdapter {
                         new Command.Choice("Tiered", "tiered")
                         )
                 ));
-        commandList.add(Commands.slash("link", "Link a Minecraft account so you don't have to type your IGN every time")
+        commandList.add(createSlashCommand("link", "Link a Minecraft account so you don't have to type your IGN every time")
                 .addOptions(ignOptionRequired));
-        commandList.add(Commands.slash("playcommand", "Lookup the command to quickly hop into a game")
+        commandList.add(createSlashCommand("playcommand", "Lookup the command to quickly hop into a game")
                 .addOptions(new OptionData(OptionType.STRING, "game", "Search for a play command", true).setAutoComplete(true)));
-        commandList.add(Commands.slash("search", "Search for an achievement by name, or description.")
+        commandList.add(createSlashCommand("search", "Search for an achievement by name, or description.")
                 .addOptions(new OptionData(OptionType.STRING, "search", "Search for an Achievement", true).setAutoComplete(true)));
+        commandList.add(createSlashCommand("uuid", "Get UUID info for a Minecraft player")
+                .addOptions(ignOptionRequired));
 
 
         if (scope.equals("local")) {
-            //clearLocalCommands();
+            jda.updateCommands().queue();
             this.homeGuild.updateCommands().addCommands(
                     commandList
             ).queue();
@@ -215,15 +227,5 @@ public class Bot extends ListenerAdapter {
                             new Command.Choice("Verify", "verify")
                         ))
         ).queue();
-    }
-
-    public void clearCommands() {
-        jda.updateCommands().queue();
-        Logger.log("<Commands> Successfully cleared commands.");
-    }
-
-    public void clearLocalCommands() {
-        this.homeGuild.updateCommands().queue();
-        Logger.log("<Commands> Successfully cleared local commands.");
     }
 }

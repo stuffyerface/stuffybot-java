@@ -82,13 +82,17 @@ public class InteractionHandler extends ListenerAdapter {
 
         InteractionId interactionId = new InteractionId(id, commandName, event.getUser().getId(), optionsArray);
 
-        Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray.toString());
+        if (event.getIntegrationOwners().isUserIntegration()) {
+            Logger.log("<UserCommand> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray);
+        } else {
+            Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray);
+        }
 
         GlobalData globalData = Bot.getGlobalData();
         globalData.incrementCommandsRun(event.getUser().getId(), commandName);
         globalData.addUniqueUser(event.getUser().getId(), event.getUser().getName());
 
-        MessageCreateData response = null;
+        MessageCreateData response;
         try {
             response = getResponse(interactionId);
         } catch (InteractionException e) {
@@ -97,7 +101,7 @@ public class InteractionHandler extends ListenerAdapter {
             return;
         } catch (Exception e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Unknown Error", "Uh Oh! I have no idea what went wrong, report this.\n-# Everybody makes mistakes.");
-            Logger.logError("Unknown error in command: " + commandName + " " + optionsArray.toString() + " " + e.getMessage());
+            Logger.logError("Unknown error in command: " + commandName + " " + optionsArray + " " + e.getMessage());
             e.printStackTrace();
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             return;
