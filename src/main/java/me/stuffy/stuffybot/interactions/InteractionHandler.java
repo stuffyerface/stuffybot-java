@@ -44,6 +44,10 @@ public class InteractionHandler extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String commandName = event.getName();
+        String subcommandName = event.getSubcommandName();
+        if (subcommandName == null) {
+            subcommandName = "";
+        }
         String id = genBase64(3);
         event.deferReply().queue();
         ArrayList<String> optionsArray = new ArrayList<String>();
@@ -80,7 +84,7 @@ public class InteractionHandler extends ListenerAdapter {
             optionsArray.add(option.getName() + "=" + optionString);
         }
 
-        InteractionId interactionId = new InteractionId(id, commandName, event.getUser().getId(), optionsArray);
+        InteractionId interactionId = new InteractionId(id, commandName, subcommandName, event.getUser().getId(), optionsArray);
 
         if (event.getIntegrationOwners().isUserIntegration()) {
             Logger.log("<UserCommand> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray);
