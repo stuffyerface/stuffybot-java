@@ -118,15 +118,18 @@ public class InteractionHandler extends ListenerAdapter {
         StatisticsManager.incrementCommandUsage(commandName);
         String uid = interactionId.getId();
         InteractionHook hook = event.getHook();
-        ScheduledFuture<?> scheduledFuture = scheduler.schedule(() -> {
+        ScheduledFuture<?> removeComponents = scheduler.schedule(() -> {
             try {
+                if(hook.retrieveOriginal().complete().getComponents().isEmpty()) {
+                    return;
+                }
                 hook.editOriginalComponents().queue();
             } catch (Exception e) {
                 Logger.logError("Unable to remove original components, the message may have been deleted.");
             }
         }, 30, TimeUnit.SECONDS);
 
-        scheduledTasks.put(uid, scheduledFuture);
+        scheduledTasks.put(uid, removeComponents);
     }
 
     @Override
