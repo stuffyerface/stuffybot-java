@@ -1,19 +1,15 @@
 package me.stuffy.stuffybot.interactions;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.utils.*;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -27,11 +23,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import static me.stuffy.stuffybot.commands.SetupCommand.setupLinkingButton;
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
-import static me.stuffy.stuffybot.utils.APIUtils.*;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 import static me.stuffy.stuffybot.utils.Verification.verifyModal;
@@ -39,7 +33,6 @@ import static me.stuffy.stuffybot.utils.Verification.verifyModal;
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
-    private final Map<String, Integer> tournamentMap = getTournamentMap();
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
