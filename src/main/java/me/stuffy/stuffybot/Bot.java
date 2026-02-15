@@ -224,7 +224,7 @@ public class Bot extends ListenerAdapter {
         this.homeGuild.upsertCommand(
                 Commands.slash("setup", "Home guild setup command")
                         .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-                        .addOptions(new OptionData(OptionType.STRING, "tosetup", "Which thing you wish to Setup", true).addChoices(
+                        .addOptions(new OptionData(OptionType.STRING, "toSetup", "Which thing you wish to Setup", true).addChoices(
                             new Command.Choice("Verify", "verify")
                         ))
         ).queue();
