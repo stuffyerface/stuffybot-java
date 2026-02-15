@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.utils.MiscUtils;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
@@ -681,6 +682,41 @@ public class HypixelProfile {
             return getNestedJson(0, profile, "stats", field).getAsInt();
         } catch (IllegalArgumentException e) {
             return 0;
+        }
+    }
+
+    public String getStatFormatted(String field) {
+        try {
+            DecimalFormat df = new DecimalFormat("#,###");
+            return df.format(getStat(field));
+        } catch (IllegalArgumentException e) {
+            return "0";
+        }
+    }
+
+    public String getStatString(String field) {
+        try {
+            return getNestedJson("", profile, "stats", field).getAsString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return "";
+        }
+    }
+
+    public JsonArray getStatArray(String field) {
+        try {
+            return getNestedJson(profile, "stats", field).getAsJsonArray();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return new JsonArray();
+        }
+    }
+
+    public JsonObject getStatObject(String field) {
+        try {
+            return getNestedJson(profile, "stats", field).getAsJsonObject();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return new JsonObject();
         }
     }
 

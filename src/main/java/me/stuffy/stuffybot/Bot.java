@@ -201,6 +201,8 @@ public class Bot extends ListenerAdapter {
                 .addOptions(new OptionData(OptionType.STRING, "search", "Search for an Achievement", true).setAutoComplete(true)));
         commandList.add(createSlashCommand("uuid", "Get UUID info for a Minecraft player")
                 .addOptions(ignOptionRequired));
+        commandList.add(createSlashCommand("warlords", "View Warlords Stats and Weapons Inventory")
+                .addOptions(ignOption));
 
 
         if (scope.equals("local")) {
