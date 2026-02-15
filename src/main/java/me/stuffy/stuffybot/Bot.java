@@ -3,6 +3,7 @@ package me.stuffy.stuffybot;
 
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
+import me.stuffy.stuffybot.interactions.AutoCompleteHandler;
 import me.stuffy.stuffybot.interactions.InteractionHandler;
 import me.stuffy.stuffybot.profiles.GlobalData;
 import me.stuffy.stuffybot.utils.Config;
@@ -20,10 +21,7 @@ import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.*;
 import org.kohsuke.github.GitHub;
 
 import java.time.LocalDateTime;
@@ -73,7 +71,8 @@ public class Bot extends ListenerAdapter {
 
         // Listen for interactions
         jda.addEventListener(
-                new InteractionHandler()
+                new InteractionHandler(),
+                new AutoCompleteHandler()
         );
 
         // Register commands "global"ly or "local"ly
@@ -202,6 +201,8 @@ public class Bot extends ListenerAdapter {
                 .addOptions(new OptionData(OptionType.STRING, "search", "Search for an Achievement", true).setAutoComplete(true)));
         commandList.add(createSlashCommand("uuid", "Get UUID info for a Minecraft player")
                 .addOptions(ignOptionRequired));
+        commandList.add(createSlashCommand("warlords", "View Warlords Stats and Weapons Inventory")
+                .addOptions(ignOption));
 
 
         if (scope.equals("local")) {
@@ -223,7 +224,7 @@ public class Bot extends ListenerAdapter {
         this.homeGuild.upsertCommand(
                 Commands.slash("setup", "Home guild setup command")
                         .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-                        .addOptions(new OptionData(OptionType.STRING, "tosetup", "Which thing you wish to Setup", true).addChoices(
+                        .addOptions(new OptionData(OptionType.STRING, "toSetup", "Which thing you wish to Setup", true).addChoices(
                             new Command.Choice("Verify", "verify")
                         ))
         ).queue();

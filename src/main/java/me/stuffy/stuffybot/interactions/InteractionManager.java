@@ -47,6 +47,10 @@ public class InteractionManager {
                 case "help" -> HelpCommand.help();
                 case "search" -> SearchCommand.search(interactionId);
                 case "uuid" -> UuidCommand.uuid(interactionId);
+                case "warlords" -> WarlordsCommand.warlords(interactionId);
+                case "warlordsClasses" -> WarlordsCommand.warlordsClasses(interactionId);
+                case "warlordsWeapons" -> WarlordsCommand.warlordsWeapons(interactionId);
+                case "warlordsWeaponSummary" -> WarlordsCommand.warlordsWeaponSummary(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
