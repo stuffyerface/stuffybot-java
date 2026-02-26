@@ -156,7 +156,7 @@ public class WarlordsCommand {
             }
         }
         MessageEmbed warlordsStats = makeStatsEmbed(
-                username + "'s Warlords Weapons(" + (page+1) + "/" + totalPages + ")",
+                username + "'s Warlords Weapons (" + (page+1) + "/" + totalPages + ")",
                 stringBuilder.toString()
         );
 
