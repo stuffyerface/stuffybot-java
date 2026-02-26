@@ -483,6 +483,256 @@ public class HypixelProfile {
         return getNestedJson(pitStats, "profile", "xp").getAsLong();
     }
 
+    public Long getPitTotalXpRequirement(Integer prestige) {
+        switch(prestige) {
+            case 1 -> {
+                return 65950L;
+            }
+            case 2 -> {
+                return 138510L;
+            }
+            case 3 -> {
+                return 217680L;
+            }
+            case 4 -> {
+                return 303430L;
+            }
+            case 5 -> {
+                return 395760L;
+            }
+            case 6 -> {
+                return 494700L;
+            }
+            case 7 -> {
+                return 610140L;
+            }
+            case 8 -> {
+                return 742040L;
+            }
+            case 9 -> {
+                return 906930L;
+            }
+            case 10 -> {
+                return 1104780L;
+            }
+            case 11 -> {
+                return 1368580L;
+            }
+            case 12 -> {
+                return 1698330L;
+            }
+            case 13 -> {
+                return 2094030L;
+            }
+            case 14 -> {
+                return 2555680L;
+            }
+            case 15 -> {
+                return 3083280L;
+            }
+            case 16 -> {
+                return 3676830L;
+            }
+            case 17 -> {
+                return 4336330L;
+            }
+            case 18 -> {
+                return 5127730L;
+            }
+            case 19 -> {
+                return 6051030L;
+            }
+            case 20 -> {
+                return 7106230L;
+            }
+            case 21 -> {
+                return 8293330L;
+            }
+            case 22 -> {
+                return 9612330L;
+            }
+            case 23 -> {
+                return 11195130L;
+            }
+            case 24 -> {
+                return 13041730L;
+            }
+            case 25 -> {
+                return 15152130L;
+            }
+            case 26 -> {
+                return 17526330L;
+            }
+            case 27 -> {
+                return 20164330L;
+            }
+            case 28 -> {
+                return 23132080L;
+            }
+            case 29 -> {
+                return 26429580L;
+            }
+            case 30 -> {
+                return 31375830L;
+            }
+            case 31 -> {
+                return 37970830L;
+            }
+            case 32 -> {
+                return 44631780L;
+            }
+            case 33 -> {
+                return 51292730L;
+            }
+            case 34 -> {
+                return 57953680L;
+            }
+            case 35 -> {
+                return 64614630L;
+            }
+            case 36 -> {
+                return 71275580L;
+            }
+            case 37 -> {
+                return 84465580L;
+            }
+            case 38 -> {
+                return 104250580L;
+            }
+            case 39 -> {
+                return 130630580L;
+            }
+            case 40 -> {
+                return 163605580L;
+            }
+            case 41 -> {
+                return 213068080L;
+            }
+            case 42 -> {
+                return 279018080L;
+            }
+            case 43 -> {
+                return 361455580L;
+            }
+            case 44 -> {
+                return 460380580L;
+            }
+            case 45 -> {
+                return 575793080L;
+            }
+            case 46 -> {
+                return 707693080L;
+            }
+            case 47 -> {
+                return 905543080L;
+            }
+            case 48 -> {
+                return 1235293080L;
+            }
+            case 49 -> {
+                return 1894793080L;
+            }
+            case 50 -> {
+                return 5192293080L;
+            }
+            case 51 -> {
+                return 11787293080L;
+            }
+            default -> {
+                return 0L;
+            }
+        }
+    }
+
+    public Integer getPitPrestigeGoldRequirement(Integer prestige) {
+        switch(prestige) {
+            case 1 -> {
+                return 10000;
+            }
+            case 2,3,4 -> {
+                return 20000;
+            }
+            case 5 -> {
+                return 30000;
+            }
+            case 6 -> {
+                return 35000;
+            }
+            case 7 -> {
+                return 40000;
+            }
+            case 8 -> {
+                return 45000;
+            }
+            case 9 -> {
+                return 50000;
+            }
+            case 10 -> {
+                return 60000;
+            }
+            case 11 -> {
+                return 70000;
+            }
+            case 12 -> {
+                return 80000;
+            }
+            case 13 -> {
+                return 90000;
+            }
+            case 14 -> {
+                return 100000;
+            }
+            case 15 -> {
+                return 125000;
+            }
+            case 16 -> {
+                return 150000;
+            }
+            case 17 -> {
+                return 175000;
+            }
+            case 18 -> {
+                return 200000;
+            }
+            case 19 -> {
+                return 250000;
+            }
+            case 20 -> {
+                return 300000;
+            }
+            case 21 -> {
+                return 350000;
+            }
+            case 22 -> {
+                return 400000;
+            }
+            case 23 -> {
+                return 500000;
+            }
+            case 24 -> {
+                return 600000;
+            }
+            case 25 -> {
+                return 700000;
+            }
+            case 26 -> {
+                return 800000;
+            }
+            case 27 -> {
+                return 900000;
+            }
+            case 28,29,30,31,32,33,34,35 -> {
+                return 1000000;
+            }
+            case 36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 -> {
+                return 2000000;
+            }
+            default -> {
+                return 0;
+            }
+        }
+    }
+
 
     public Map<String, Boolean> getTkrMaps() {
         JsonObject tkrStats = getNestedJson(profile, "stats", "GingerBread").getAsJsonObject();

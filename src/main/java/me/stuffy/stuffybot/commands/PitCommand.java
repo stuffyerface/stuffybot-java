@@ -10,10 +10,12 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getHypixelProfile;
 import static me.stuffy.stuffybot.utils.DiscordUtils.makeStatsEmbed;
 import static me.stuffy.stuffybot.utils.MiscUtils.convertToRomanNumeral;
+import static me.stuffy.stuffybot.utils.MiscUtils.getNestedJson;
 import static net.dv8tion.jda.api.components.buttons.Button.secondary;
 
 public class PitCommand {
@@ -23,22 +25,36 @@ public class PitCommand {
         HypixelProfile hypixelProfile = getHypixelProfile(ign);
         String username = hypixelProfile.getDisplayName();
 
-        String pitPrestige = convertToRomanNumeral(hypixelProfile.getPit("prestige"));
+        int currentPrestige = hypixelProfile.getPit("prestige");
+        Long pitLifetimeXp = hypixelProfile.getPitXP();
 
-        Long totalPitXp = hypixelProfile.getPitXP();
-
+        String pitPrestige = convertToRomanNumeral(currentPrestige);
         Integer pitLevel = hypixelProfile.getPit("level");
+
+        long pitPrestigeXp = pitLifetimeXp - hypixelProfile.getPitTotalXpRequirement(currentPrestige);
+        long pitPrestigeXpNext = hypixelProfile.getPitTotalXpRequirement(currentPrestige + 1) - hypixelProfile.getPitTotalXpRequirement(currentPrestige);
+        double pitPrestigeXpPercent = (double) pitPrestigeXp / pitPrestigeXpNext * 100;
+
+        long pitPrestigeGold = getNestedJson(hypixelProfile.getProfile(), "stats.Pit.profile.cash_during_prestige_" + currentPrestige).getAsLong();
+        Integer pitPrestigeGoldNext = hypixelProfile.getPitPrestigeGoldRequirement(currentPrestige);
+        double pitPrestigeGoldPercent = (double) pitPrestigeGold / pitPrestigeGoldNext * 100;
+
         Integer pitRenown = hypixelProfile.getPit("renown");
         Integer pitGold = hypixelProfile.getPit("gold");
-        Integer pitTotalGold = hypixelProfile.getPit("total_gold");
+        Integer pitLifetimeGold = hypixelProfile.getPit("total_gold");
 
         DecimalFormat df = new DecimalFormat("#,###");
+        DecimalFormat df2 = new DecimalFormat("#,###.##");
+        NumberFormat nfK = NumberFormat.getCompactNumberInstance();
 
         String embedContent =
                 "Prestige: [**" + pitPrestige + "**-**" + pitLevel + "**]\n" +
-                "XP: **" + df.format(totalPitXp) + "**\n\n" +
+                "XP Req: " + df.format(pitPrestigeXp) + "/" + df.format(pitPrestigeXpNext) + " (**" + df2.format(Math.min(pitPrestigeXpPercent,100)) + "**%)\n" +
+                "Gold Req: " + df.format(pitPrestigeGold) + "/" + df.format(pitPrestigeGoldNext) + " (**" + df2.format(Math.min(pitPrestigeGoldPercent,100)) + "**%)\n\n" +
                 "Renown: **" + df.format(pitRenown) + "**\n" +
-                "Gold|Total Gold: **" + df.format(pitGold) + "** | " + df.format(pitTotalGold) + "\n";
+                "Gold" + ": **" + df2.format(pitGold) + "**g\n" +
+                "Lifetime Gold: **" + df.format(pitLifetimeGold) + "**g\n" +
+                "Lifetime XP: **" + df.format(pitLifetimeXp) + "**\n";
 
 
         MessageEmbed pitStats = makeStatsEmbed(
