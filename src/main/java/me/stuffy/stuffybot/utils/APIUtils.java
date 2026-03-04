@@ -96,7 +96,7 @@ public class APIUtils {
             }
             case 400 -> {
                 logError(response.body());
-                logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                logError("Hypixel API Error [Status Code: " + response.statusCode() + "] ["+ response.body() +"][UUID: " + uuid + "]");
                 throw new APIException("Hypixel", "A field is missing, this should never happen.");
             }
             case 403 -> {

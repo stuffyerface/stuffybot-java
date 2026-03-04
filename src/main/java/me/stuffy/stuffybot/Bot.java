@@ -204,6 +204,14 @@ public class Bot extends ListenerAdapter {
         commandList.add(createSlashCommand("warlords", "View Warlords Stats and Weapons Inventory")
                 .addOptions(ignOption));
 
+        SubcommandData pitXpCalculator = new SubcommandData("pitxp", "Calculate Pit XP between two levels")
+                .addOptions(
+                        new OptionData(OptionType.INTEGER, "prestige", "Prestige. default 0", false),
+                        new OptionData(OptionType.INTEGER, "starting_level", "Starting Level. default 1", false),
+                        new OptionData(OptionType.INTEGER, "ending_level", "Ending Level. default 120", false));
+        commandList.add(createSlashCommand("calculate", "Various Calculators (calcs)")
+                .addSubcommands(pitXpCalculator));
+
 
         if (scope.equals("local")) {
             jda.updateCommands().queue();
@@ -224,7 +232,7 @@ public class Bot extends ListenerAdapter {
         this.homeGuild.upsertCommand(
                 Commands.slash("setup", "Home guild setup command")
                         .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-                        .addOptions(new OptionData(OptionType.STRING, "toSetup", "Which thing you wish to Setup", true).addChoices(
+                        .addOptions(new OptionData(OptionType.STRING, "to_setup", "Which thing you wish to Setup", true).addChoices(
                             new Command.Choice("Verify", "verify")
                         ))
         ).queue();
