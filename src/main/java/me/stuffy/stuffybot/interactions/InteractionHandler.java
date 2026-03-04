@@ -46,7 +46,7 @@ public class InteractionHandler extends ListenerAdapter {
         ArrayList<String> optionsArray = new ArrayList<String>();
 
         if (commandName.equals("setup")) {
-            String toSetup = event.getOption("toSetup").getAsString();
+            String toSetup = event.getOption("to_setup").getAsString();
             if (toSetup.equals("verify")) {
                 setupLinkingButton(event);
                 MessageEmbed successEmbed = makeEmbed("Verification Setup", "Successful setup", "The Verify Embed has been setup successfully.", 0x3d84a2);

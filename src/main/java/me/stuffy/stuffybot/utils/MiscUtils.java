@@ -271,4 +271,27 @@ public class MiscUtils {
         }
         return games;
     }
+
+    public static long calcPitXp(int prestige, int levelStart, int levelEnd) {
+        long totalXp = 0;
+        for (int level = levelStart; level < levelEnd; level++) {
+            totalXp += (long) Math.ceil((double) (xpMap[(level / 10)] * prestigeXpMultipliers[prestige]) / 100);
+        }
+        return totalXp;
+    }
+
+    private static final long[] xpMap = new long[]{
+            15, 30, 50, 75, 125, 300, 600, 800, 900, 1000, 1200, 1500
+    };
+
+    private static final long[] prestigeXpMultipliers = new long[]{
+            100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000,
+            1200, 1400, 1600, 1800, 2000, 2400, 2800, 3200, 3600, 4000, 4500, 5000, 7500, 10000,
+            10100, 10100, 10100, 10100, 10100, 20000, 30000, 40000, 50000, 75000, 100000, 125000,
+            150000, 175000, 200000, 300000, 500000, 1000000, 5000000, 10000000
+    };
+
+    private long calculatePitXp(int prestige, int levelStart, int levelEnd) {
+        return 0;
+    }
 }

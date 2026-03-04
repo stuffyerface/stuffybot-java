@@ -51,6 +51,7 @@ public class InteractionManager {
                 case "warlordsClasses" -> WarlordsCommand.warlordsClasses(interactionId);
                 case "warlordsWeapons" -> WarlordsCommand.warlordsWeapons(interactionId);
                 case "warlordsWeaponSummary" -> WarlordsCommand.warlordsWeaponSummary(interactionId);
+                case "calculate_pitxp" -> CalculateCommand.calcPit(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
