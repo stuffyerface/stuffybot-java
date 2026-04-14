@@ -283,6 +283,7 @@ public class HypixelProfile {
 
                 // SkyWars
                 "SkyWars.wins",
+                "SkyWars.wins_lab",
 
                 // Crazy Walls
                 "TrueCombat.wins",
@@ -376,6 +377,7 @@ public class HypixelProfile {
 
                 // SkyWars
                 "SkyWars.kills",
+                "SkyWars.kills_lab",
 
                 // Crazy Walls
                 "TrueCombat.kills",
