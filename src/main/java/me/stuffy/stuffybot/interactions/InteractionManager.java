@@ -45,7 +45,8 @@ public class InteractionManager {
                 case "link" -> LinkCommand.link(interactionId);
                 case "playcommand" -> PlayCommandCommand.playCommand(interactionId);
                 case "help" -> HelpCommand.help();
-                case "search" -> SearchCommand.search(interactionId);
+                case "search_achievement" -> SearchCommand.searchAchievement(interactionId);
+                case "search_random" -> SearchCommand.searchRandom(interactionId);
                 case "uuid" -> UuidCommand.uuid(interactionId);
                 case "warlords" -> WarlordsCommand.warlords(interactionId);
                 case "warlordsClasses" -> WarlordsCommand.warlordsClasses(interactionId);

@@ -164,6 +164,7 @@ public class AutoCompleteHandler extends ListenerAdapter {
                     if (commandOption.equals("game")) {
                         Map<String, String> gameData = autoCompleteAchGames();
                         List<Command.Choice> choices = new ArrayList<>();
+                        choices.add(new Command.Choice("All Games", "all"));
                         for (Map.Entry<String, String> entry : gameData.entrySet()) {
                             if (entry.getValue().toLowerCase().contains(currentInput.toLowerCase())) {
                                 choices.add(new Command.Choice(entry.getValue(), entry.getKey()));

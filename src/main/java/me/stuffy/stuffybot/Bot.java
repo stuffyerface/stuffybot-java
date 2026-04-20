@@ -197,8 +197,26 @@ public class Bot extends ListenerAdapter {
                 .addOptions(ignOptionRequired));
         commandList.add(createSlashCommand("playcommand", "Lookup the command to quickly hop into a game")
                 .addOptions(new OptionData(OptionType.STRING, "game", "Search for a play command", true).setAutoComplete(true)));
+
+        SubcommandData searchRandomAchievement = new SubcommandData("random", "Get a random achievement")
+                .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at, Leave blank for all", false).setAutoComplete(true))
+                .addOptions(new OptionData(OptionType.STRING, "type", "Which type of achievement, Leave blank for all", false).addChoices(
+                        new Command.Choice("Challenge", "challenge"),
+                        new Command.Choice("Tiered", "tiered"),
+                        new Command.Choice("Both", "both")
+                ))
+                .addOptions(new OptionData(OptionType.STRING, "exclude", "Types to Exclude", false).addChoices(
+                        new Command.Choice("Legacy", "legacy"),
+                        new Command.Choice("Seasonal", "seasonal"),
+                        new Command.Choice("Both", "both"),
+                        new Command.Choice("None", "none")
+                ));
+        SubcommandData searchAchievement = new SubcommandData("achievement", "Search achievement by name")
+                .addOptions(new OptionData(OptionType.STRING, "search", "Name of the achievement", true).setAutoComplete(true));
         commandList.add(createSlashCommand("search", "Search for an achievement by name, or description.")
-                .addOptions(new OptionData(OptionType.STRING, "search", "Search for an Achievement", true).setAutoComplete(true)));
+                .addSubcommands(searchAchievement)
+                .addSubcommands(searchRandomAchievement));
+
         commandList.add(createSlashCommand("uuid", "Get UUID info for a Minecraft player")
                 .addOptions(ignOptionRequired));
         commandList.add(createSlashCommand("warlords", "View Warlords Stats and Weapons Inventory")
