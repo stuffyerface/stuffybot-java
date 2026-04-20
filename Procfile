@@ -1,1 +1,1 @@
-worker: java -jar ./target/stuffybot-java-1.0-SNAPSHOT.jar
+worker: java -jar ./target/stuffybot-java.jar

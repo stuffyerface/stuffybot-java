@@ -6,7 +6,7 @@
 
     <groupId>me.stuffy</groupId>
     <artifactId>stuffybot-java</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version> <!-- Stuffy Bot Version -->
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -14,6 +14,7 @@
         </repository>
     </repositories>
     <build>
+        <finalName>stuffybot-java</finalName>
         <plugins>
             <!-- Compiler plugin for Java 17 -->
             <plugin>
