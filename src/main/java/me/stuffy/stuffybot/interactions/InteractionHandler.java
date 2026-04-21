@@ -79,11 +79,20 @@ public class InteractionHandler extends ListenerAdapter {
 
         InteractionId interactionId = new InteractionId(id, commandName, subcommandName, event.getUser().getId(), optionsArray);
 
+        StringBuilder commandLog = new StringBuilder();
+        commandLog.append("<");
         if (event.getIntegrationOwners().isUserIntegration()) {
-            Logger.log("<UserCommand> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray);
-        } else {
-            Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray);
+            commandLog.append("User");
         }
+        commandLog.append("Command> @").append(event.getUser().getName());
+        commandLog.append(": /").append(commandName);
+        if(!subcommandName.isEmpty()) {
+            commandLog.append(" ").append(subcommandName);
+        }
+        if (!optionsArray.isEmpty()) {
+            commandLog.append(" ").append(optionsArray);
+        }
+        Logger.log(commandLog.toString());
 
         GlobalData globalData = Bot.getGlobalData();
         globalData.incrementCommandsRun(event.getUser().getId(), commandName);

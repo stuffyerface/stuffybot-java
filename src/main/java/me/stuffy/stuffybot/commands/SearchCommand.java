@@ -49,8 +49,8 @@ public class SearchCommand {
         } catch (Exception e) {
             Logger.logError(e.getMessage());
             MessageEmbed errorEmbed = makeErrorEmbed(
-                    "Something went wrong",
-                    "You should report this!"
+                    "Invalid Achievement",
+                    "You typed something that does not exist!\n-# It has autocomplete for a reason"
             );
             return new MessageCreateBuilder()
                     .addEmbeds(errorEmbed)
