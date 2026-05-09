@@ -229,6 +229,11 @@ public class Bot extends ListenerAdapter {
                         new OptionData(OptionType.INTEGER, "ending_level", "Ending Level. default 120", false));
         commandList.add(createSlashCommand("calculate", "Various Calculators (calcs)")
                 .addSubcommands(pitXpCalculator));
+        commandList.add(createSlashCommand("buildbattle", "Commands for Build Battle")
+                .addSubcommands(
+                        new SubcommandData("backdrops", "View backdrops you own but have not won with.")
+                                .addOptions(ignOption)
+                ));
 
 
         if (scope.equals("local")) {
