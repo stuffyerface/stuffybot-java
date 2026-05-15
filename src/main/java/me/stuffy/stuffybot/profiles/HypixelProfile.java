@@ -159,7 +159,7 @@ public class HypixelProfile {
         if (!profile.has("networkExp")) {
             return 0.0;
         }
-        int networkExp = getNestedJson(profile, "networkExp").getAsInt();
+        double networkExp = getNestedJson(profile, "networkExp").getAsDouble();
         return (Math.floor(Math.sqrt(networkExp + 15312.5) - 125/Math.sqrt(2)))/(25*Math.sqrt(2));
     }
 
