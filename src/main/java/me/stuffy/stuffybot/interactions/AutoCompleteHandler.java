@@ -74,7 +74,8 @@ public class AutoCompleteHandler extends ListenerAdapter {
                         }
 
                         for (JsonElement modeEntry : modes.getAsJsonArray()) {
-                            if (!modeEntry.getAsJsonObject().has("name") || !modeEntry.getAsJsonObject().has("identifier")) {
+                            if (!modeEntry.getAsJsonObject().has("name") || !modeEntry.getAsJsonObject().has("identifier")
+                                || modeEntry.getAsJsonObject().get("identifier").isJsonNull()) {
                                 continue;
                             }
                             String modeName = modeEntry.getAsJsonObject().get("name").getAsString();

@@ -25,7 +25,8 @@ public class PlayCommandCommand {
             String gameName = game.getAsJsonObject().get("name").getAsString();
             JsonArray modes = game.getAsJsonObject().get("modes").getAsJsonArray();
             for (JsonElement mode : modes) {
-                if(!mode.getAsJsonObject().has("identifier") || !mode.getAsJsonObject().has("name")) {
+                if(!mode.getAsJsonObject().has("identifier") || !mode.getAsJsonObject().has("name")
+                        || mode.getAsJsonObject().get("identifier").isJsonNull()) {
                     continue;
                 }
                 String modeName = mode.getAsJsonObject().get("name").getAsString();
