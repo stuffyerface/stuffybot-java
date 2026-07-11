@@ -7,10 +7,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseEvent {
-    private String name;
-    private long interval;
-    private TimeUnit timeUnit;
-    private ScheduledExecutorService scheduler;
+    private final String name;
+    private final long interval;
+    private final TimeUnit timeUnit;
+    private final ScheduledExecutorService scheduler;
 
     public BaseEvent(String name, long interval, TimeUnit timeUnit) {
         this.name = name;

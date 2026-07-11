@@ -84,9 +84,7 @@ public class APIUtils {
         HttpResponse<String> response = client.sendAsync(getRequest, HttpResponse.BodyHandlers.ofString()).join();
         switch (response.statusCode()) {
             case 200 -> {
-                JsonParser parser = new JsonParser();
-                JsonElement element = parser.parse(response.body());
-                JsonObject object = element.getAsJsonObject();
+                JsonObject object = JsonParser.parseString(response.body()).getAsJsonObject();
                 if (object.get("player").isJsonNull()) {
                     logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "] (Player is null)");
                     throw new APIException("Hypixel", "This player has never logged into Hypixel.");
@@ -157,9 +155,7 @@ public class APIUtils {
         HttpResponse<String> response = client.sendAsync(getRequest, HttpResponse.BodyHandlers.ofString()).join();
         switch (response.statusCode()) {
             case 200 -> {
-                JsonParser parser = new JsonParser();
-                JsonElement element = parser.parse(response.body());
-                JsonObject object = element.getAsJsonObject();
+                JsonObject object = JsonParser.parseString(response.body()).getAsJsonObject();
                 UUID uuid = MiscUtils.formatUUID(object.get("id").getAsString());
                 String name = object.get("name").getAsString();
                 profile = new MojangProfile(name, uuid);
@@ -215,11 +211,7 @@ public class APIUtils {
         HttpResponse<String> response = client.sendAsync(getRequest, HttpResponse.BodyHandlers.ofString()).join();
         switch (response.statusCode()) {
             case 200 -> {
-                JsonParser parser = new JsonParser();
-                JsonElement element = parser.parse(response.body());
-                JsonObject object = element.getAsJsonObject();
-                String name = object.get("name").getAsString();
-                return new MojangProfile(name, uuid);
+                return new MojangProfile(JsonParser.parseString(response.body()).getAsJsonObject().get("name").getAsString(), uuid);
             }
             case 204,404 -> {
                 logError("Mojang API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
@@ -259,13 +251,7 @@ public class APIUtils {
             HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-
-                JsonParser parser = new JsonParser();
-                JsonElement element = parser.parse(response.body());
-                JsonObject object = element.getAsJsonObject();
-
-                return object.get("achievements");
-
+                return JsonParser.parseString(response.body()).getAsJsonObject().get("achievements");
             } else {
                 throw new IllegalStateException("Unexpected response from Hypixel API: " + response.statusCode());
             }
@@ -297,11 +283,7 @@ public class APIUtils {
             HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-
-                JsonParser parser = new JsonParser();
-
-                return parser.parse(response.body());
-
+                return JsonParser.parseString(response.body());
             } else {
                 throw new IllegalStateException("Unexpected response from Stuffy API: " + response.statusCode());
             }
@@ -319,7 +301,7 @@ public class APIUtils {
                 return JsonParser.parseReader(reader).getAsJsonObject();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage());
             return null;
         }
     }
