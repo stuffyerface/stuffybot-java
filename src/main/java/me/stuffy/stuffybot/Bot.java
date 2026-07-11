@@ -1,7 +1,7 @@
 package me.stuffy.stuffybot;
 
 
-import me.stuffy.stuffybot.events.ActiveEvents;
+import me.stuffy.stuffybot.events.ResourcePackUpdateEvent;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
 import me.stuffy.stuffybot.interactions.AutoCompleteHandler;
 import me.stuffy.stuffybot.interactions.InteractionHandler;
@@ -85,7 +85,7 @@ public class Bot extends ListenerAdapter {
 
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
-        new ActiveEvents().startFixedRateEvent();
+        new ResourcePackUpdateEvent().startFixedRateEvent();
 
         // Handle SIGTERM
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

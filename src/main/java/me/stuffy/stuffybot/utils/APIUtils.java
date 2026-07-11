@@ -13,19 +13,25 @@ import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.commands.TournamentCommand;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jetbrains.annotations.NotNull;
-import org.kohsuke.github.GHContent;
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.*;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static me.stuffy.stuffybot.utils.Logger.log;
 import static me.stuffy.stuffybot.utils.Logger.logError;
@@ -36,6 +42,7 @@ public class APIUtils {
     static String mojangSessionApiUrl = "https://sessionserver.mojang.com/";
     static String privateApiRepo = "stuffybot/PrivateAPI";
     static String publicApiRepo = "stuffybot/PublicAPI";
+    static String resourcePackRepo = "stuffybot/HypixelResourcePack";
     static String stuffyApiUrl = "https://raw.githubusercontent.com/stuffybot/PublicAPI/main/";
 
     public static HypixelProfile getHypixelProfile(String username) throws APIException {
@@ -362,6 +369,75 @@ public class APIUtils {
         }
     }
 
+
+    public static void bulkUploadGitHubFiles(String repo, Map<String, byte[]> files, String message, String resetDirectory) throws IOException {
+        Path tempDir = null;
+        try {
+            Logger.log("Attempting to bulk upload to repo " + repo);
+            tempDir = Files.createTempDirectory("github-upload");
+            try (Git git = Git.cloneRepository()
+                    .setURI("https://github.com/" + repo + ".git")
+                    .setDirectory(tempDir.toFile())
+                    .setCredentialsProvider(
+                            new UsernamePasswordCredentialsProvider("stuffybot", System.getenv("GITHUB_OAUTH"))
+                    )
+                    .call()) {
+                        Path toReset = tempDir.resolve(resetDirectory);
+                        if(Files.exists(toReset)) {
+                            Files.walk(toReset)
+                                    .sorted(Comparator.reverseOrder())
+                                    .forEach(path -> {
+                                        try {
+                                            Files.delete(path);
+                                        } catch (Exception e) {
+                                            Logger.log("Error " + e.getMessage());
+                                        }
+                                    });
+                        }
+                        Files.createDirectories(toReset);
+
+                        for (Map.Entry<String, byte[]> file : files.entrySet()) {
+                            Path output = tempDir.resolve(file.getKey());
+
+                            Files.createDirectories(output.getParent());
+                            Files.write(output, file.getValue());
+                        }
+                        git.add()
+                                .addFilepattern(".")
+                                .call();
+                        git.add()
+                                .setUpdate(true)
+                                .addFilepattern(".")
+                                .call();
+                        git.commit()
+                                .setMessage(message)
+                                .call();
+                        git.push()
+                                .setCredentialsProvider(
+                                        new UsernamePasswordCredentialsProvider("stuffybot", System.getenv("GITHUB_OAUTH"))
+                                )
+                                .call();
+            }
+            Logger.log("Bulk upload complete");
+        } catch (Exception e) {
+            Logger.log("Bulk upload failed: " + e.getMessage());
+        } finally {
+            if (tempDir != null) {
+                try {
+                    Files.walk(tempDir)
+                            .sorted(Comparator.reverseOrder())
+                            .forEach(path -> {
+                                try {
+                                    Files.delete(path);
+                                } catch (IOException ignored) {
+                                }
+                            });
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
     public static GHContent getGitHubFile(String repo, String path) {
         try {
             return Bot.getGitHub().getRepository(repo).getFileContent(path);
@@ -583,5 +659,98 @@ public class APIUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    public static String getResourcePackRepo() {
+        return resourcePackRepo;
+    }
+
+    public static Map<String, Long> getResourcePacksLastUpdated() throws Exception {
+        String path = "response.json";
+        GHContent response = getGitHubFile(getResourcePackRepo(), path);
+        if (response == null) {
+            Logger.logError("Could not find GithubFile at " + getResourcePackRepo() + " " + path);
+            throw new Exception("Github File not Found");
+        }
+        String readableResponse = readFile(response);
+        JsonObject fullJson = JsonParser.parseString(readableResponse).getAsJsonObject();
+
+        if (!fullJson.has("success") || !fullJson.get("success").getAsBoolean()) {
+            throw new Exception("Failed to retrieve response.json from stuffy api");
+        }
+
+        Map<String, Long> lastUpdated = new HashMap<>();
+        if(fullJson.has("packs")) {
+            JsonArray packs = fullJson.get("packs").getAsJsonArray();
+            for (JsonElement pack : packs){
+                JsonObject p = pack.getAsJsonObject();
+                if (p.has("id") && p.has("lastUpdated")) {
+                    String id = p.get("id").getAsString();
+                    long lu = p.get("lastUpdated").getAsLong();
+                    lastUpdated.put(id, lu);
+                } else {
+                    throw new Exception("Malformed pack in stuffy api response.json");
+                }
+            }
+        }
+        return lastUpdated;
+    }
+
+    public static JsonElement getHypixelResourcePackAPIResponse() {
+        try {
+            HttpRequest getRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(hypixelApiUrl + "resources/packs"))
+                    .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return JsonParser.parseString(response.body());
+            } else {
+                throw new IllegalStateException("Unexpected response from Hypixel API: " + response.statusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch resource packs from Hypixel API", e);
+        }
+    }
+
+    public static void initializeResourcePackResponse(JsonElement response) throws Exception {
+        GHRepository repo;
+        try {
+            repo = Bot.getGitHub().getRepository(getResourcePackRepo());
+        } catch (IOException e) {
+            Logger.log("Attempting to initialize Resource Pack Repo");
+            try {
+                repo = Bot.getGitHub().createRepository("HypixelResourcePack").create();
+            } catch (IOException ex) {
+                throw new Exception("Failed to create Repo");
+            }
+        }
+        Logger.log("Attempting to initialize Resource Pack Response File");
+        uploadGitHubFile(getResourcePackRepo(), "response.json", String.valueOf(response), "Initial Commit");
+    }
+
+    public static Map<String, byte[]> downloadAndExtract(String uriPath, String directory) throws IOException, InterruptedException {
+        Map<String, byte[]> allFiles = new HashMap<>();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(uriPath))
+                .build();
+        HttpResponse<InputStream> response =
+                client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        try (ZipInputStream zis = new ZipInputStream(response.body())) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if(!entry.isDirectory()) {
+                    byte[] bytes = zis.readAllBytes();
+                    allFiles.put(directory + entry.getName(), bytes);
+                }
+                zis.closeEntry();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return allFiles;
     }
 }
