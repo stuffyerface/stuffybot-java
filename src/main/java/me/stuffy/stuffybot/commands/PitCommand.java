@@ -36,7 +36,7 @@ public class PitCommand {
         double pitPrestigeXpPercent = (double) pitPrestigeXp / pitPrestigeXpNext * 100;
 
         long pitPrestigeGold = getNestedJson(hypixelProfile.getProfile(), "stats.Pit.profile.cash_during_prestige_" + currentPrestige).getAsLong();
-        Integer pitPrestigeGoldNext = hypixelProfile.getPitPrestigeGoldRequirement(currentPrestige);
+        Integer pitPrestigeGoldNext = hypixelProfile.getPitPrestigeGoldRequirement(currentPrestige + 1);
         double pitPrestigeGoldPercent = (double) pitPrestigeGold / pitPrestigeGoldNext * 100;
 
         Integer pitRenown = hypixelProfile.getPit("renown");
