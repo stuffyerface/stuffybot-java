@@ -159,7 +159,7 @@ public class HypixelProfile {
         if (!profile.has("networkExp")) {
             return 0.0;
         }
-        double networkExp = getNestedJson(profile, "networkExp").getAsDouble();
+        long networkExp = getNestedJson(profile, "networkExp").getAsLong();
         return (Math.floor(Math.sqrt(networkExp + 15312.5) - 125/Math.sqrt(2)))/(25*Math.sqrt(2));
     }
 
@@ -727,10 +727,10 @@ public class HypixelProfile {
             case 27 -> {
                 return 900000;
             }
-            case 28,29,30,31,32,33 -> {
+            case 28,29,30,31,32,33,34,35 -> {
                 return 1000000;
             }
-            case 34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 -> {
+            case 36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 -> {
                 return 2000000;
             }
             default -> {

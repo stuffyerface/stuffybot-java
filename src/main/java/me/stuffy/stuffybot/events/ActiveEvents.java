@@ -8,6 +8,9 @@ public class ActiveEvents extends BaseEvent{
         super("ActiveEvents", 1, TimeUnit.MINUTES);
     }
 
+    List<String> pitMaps = List.of("Castle", "Corals", "Genesis", "Four Seasons", "Elements");
+    List<String> dreamModes = List.of("Rush", "Ultimate", "Castle", "Voidless", "Armed", "Lucky Block", "Swappage");
+
     @Override
     protected void execute() {
         // Blitz Hour (Every 4 hours)
@@ -15,8 +18,6 @@ public class ActiveEvents extends BaseEvent{
         // Dream Mode (Friday 12:00 AM EST, breaks in October)
         // Pit Map (
 
-        List<String> pitMaps = List.of("Castle", "Corals", "Genesis", "Four Seasons", "Elements");
-        List<String> dreamModes = List.of("Rush", "Ultimate", "Castle", "Voidless", "Armed", "Lucky Block", "Swappage");
 
         long currentTimestamp = System.currentTimeMillis();
         String day = new java.text.SimpleDateFormat("dd").format(new java.util.Date(currentTimestamp));
