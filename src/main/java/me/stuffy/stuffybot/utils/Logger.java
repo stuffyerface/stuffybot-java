@@ -19,8 +19,9 @@ public class Logger {
         String date = java.time.LocalDate.now().toString();
         String time = java.time.LocalTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString();
         message = "[ERROR] [" + date + " " + time + "] " + message;
-        logs.add(message);
         System.out.println(message);
+        message = message.substring(0, Math.min(message.length(), 300));
+        logs.add(message);
     }
 
     public static List<String> getLogs() {

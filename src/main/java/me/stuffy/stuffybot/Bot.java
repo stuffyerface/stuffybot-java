@@ -44,7 +44,6 @@ public class Bot extends ListenerAdapter {
         // Get token from env variable
         String token = System.getenv("BOT_TOKEN");
         JDABuilder builder = JDABuilder.createDefault(token);
-//        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT); // # TODO: Remove intents when possible
         String customStatus = Config.getCustomStatus();
         builder.setActivity(Activity.customStatus(customStatus));
         builder.addEventListeners(this);
