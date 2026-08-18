@@ -21,4 +21,12 @@ public class MojangProfile {
     public UUID getUuid() {
         return uuid;
     }
+
+    public String getUuidString() {
+        return uuid.toString();
+    }
+
+    public String getUuidStripped() {
+        return uuid.toString().replace("-", "");
+    }
 }

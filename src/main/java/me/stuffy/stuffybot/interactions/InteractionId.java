@@ -60,7 +60,8 @@ public class InteractionId {
     }
 
     public String getOption(String key) {
-        return this.options.get(key);
+        if(this.options.containsKey(key)) { return this.options.get(key); }
+        return null;
     }
 
     public String getOption(String key, String defaultValue) {

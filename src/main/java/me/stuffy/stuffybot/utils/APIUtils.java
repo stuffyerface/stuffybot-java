@@ -13,6 +13,7 @@ import me.stuffy.stuffybot.Bot;
 import me.stuffy.stuffybot.commands.TournamentCommand;
 import me.stuffy.stuffybot.profiles.HypixelProfile;
 import me.stuffy.stuffybot.profiles.MojangProfile;
+import me.stuffy.stuffybot.profiles.SkyBlockProfile;
 import org.jetbrains.annotations.NotNull;
 import org.kohsuke.github.GHContent;
 import org.kohsuke.github.GitHub;
@@ -128,6 +129,92 @@ public class APIUtils {
                         }
                     }
             );
+
+    public static List<SkyBlockProfile> getSkyBlockProfiles(String username) throws APIException {
+        MojangProfile profile = getMojangProfile(username);
+        return getSkyBlockProfiles(profile.getUuid());
+    }
+
+    private static final LoadingCache<UUID, List<SkyBlockProfile>> skyBlockProfilesCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build(
+                    new CacheLoader<UUID, List<SkyBlockProfile>>() {
+                        public List<SkyBlockProfile> load(@NotNull UUID uuid){
+                            try {
+                                return fetchSkyBlockProfiles(uuid);
+                            } catch (APIException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+            );
+
+    public static List<SkyBlockProfile> getSkyBlockProfiles(UUID uuid) throws APIException {
+        try {
+            return skyBlockProfilesCache.getUnchecked(uuid);
+        } catch (RuntimeException e) {
+            if (e.getCause().getCause() instanceof APIException) {
+                throw (APIException) e.getCause().getCause();
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Returns the profiles endpoint from the Hypixel API given their Minecraft UUID
+     * @param uuid
+     * @return
+     */
+    public static List<SkyBlockProfile> fetchSkyBlockProfiles(UUID uuid) throws APIException {
+        HttpRequest getRequest = HttpRequest.newBuilder()
+                .uri(URI.create(hypixelApiUrl + "skyblock/profiles?uuid=" + uuid))
+                .header("API-Key", System.getenv("HYPIXEL_API_KEY"))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.sendAsync(getRequest, HttpResponse.BodyHandlers.ofString()).join();
+        switch (response.statusCode()) {
+            case 200 -> {
+                JsonObject object = JsonParser.parseString(response.body()).getAsJsonObject();
+                if (object.get("profiles").isJsonNull()) {
+                    logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "] (Profiles is null)");
+                    throw new APIException("Hypixel", "This player has no Skyblock Profiles.");
+                }
+
+                return SkyBlockProfile.getSkyBlockProfiles(object.get("profiles").getAsJsonArray());
+            }
+            case 400 -> {
+                logError(response.body());
+                logError("Hypixel API Error [Status Code: " + response.statusCode() + "] ["+ response.body() +"][UUID: " + uuid + "]");
+                throw new APIException("Hypixel", "A field is missing, this should never happen.");
+            }
+            case 403 -> {
+                logError(response.body());
+                logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                throw new APIException("Hypixel", "Invalid API Key, contact the Stuffy immediately.");
+            }
+            case 429 -> {
+                logError(response.body());
+                logError("Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                throw new APIException("Hypixel", "Rate limited by Hypixel API, try again later.");
+            }
+            default -> {
+                logError(response.body());
+                logError("Unknown Hypixel API Error [Status Code: " + response.statusCode() + "] [UUID: " + uuid + "]");
+                throw new APIException("Hypixel", "I've never seen this error before.");
+            }
+        }
+    }
+
+    public static SkyBlockProfile getCurrentSkyblockProfile(String username) throws APIException {
+        List<SkyBlockProfile> profiles = getSkyBlockProfiles(username);
+        for  (SkyBlockProfile profile : profiles) {
+            if(profile.getSelected()) {
+                return profile;
+            }
+        }
+        throw new APIException("Hypixel", "Could not find selected SkyBlock Profile.");
+    }
 
     public static MojangProfile getMojangProfile(String username) throws APIException{
         try{

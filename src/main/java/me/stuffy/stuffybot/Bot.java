@@ -44,7 +44,6 @@ public class Bot extends ListenerAdapter {
         // Get token from env variable
         String token = System.getenv("BOT_TOKEN");
         JDABuilder builder = JDABuilder.createDefault(token);
-//        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT); // # TODO: Remove intents when possible
         String customStatus = Config.getCustomStatus();
         builder.setActivity(Activity.customStatus(customStatus));
         builder.addEventListeners(this);
@@ -234,6 +233,22 @@ public class Bot extends ListenerAdapter {
                         new SubcommandData("backdrops", "View backdrops you own but have not won with.")
                                 .addOptions(ignOption)
                 ));
+
+        commandList.add(createSlashCommand("safari", "Get Safari Stats")
+            .addSubcommands(
+                    new SubcommandData("tickets", "See how many safari tickets a player has")
+                        .addOptions(ignOption),
+                    new SubcommandData("sparkling", "View a player's sparkling critterdex.")
+                            .addOptions(ignOption),
+                    new SubcommandData("mutual", "See which shiny critters your whole party has, so you can skip them")
+                            .addOptions(
+                                    new OptionData(OptionType.STRING, "player1", "The player's IGN", true),
+                                    new OptionData(OptionType.STRING, "player2", "The player's IGN", true),
+                                    new OptionData(OptionType.STRING, "player3", "The player's IGN", false),
+                                    new OptionData(OptionType.STRING, "player4", "The player's IGN", false)
+                            )
+                    )
+        );
 
 
         if (scope.equals("local")) {

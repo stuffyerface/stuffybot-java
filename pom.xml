@@ -6,7 +6,7 @@
 
     <groupId>me.stuffy</groupId>
     <artifactId>stuffybot-java</artifactId>
-    <version>1.2.7</version> <!-- Stuffy Bot Version -->
+    <version>1.3.0</version> <!-- Stuffy Bot Version -->
     <repositories>
         <repository>
             <id>jitpack.io</id>
