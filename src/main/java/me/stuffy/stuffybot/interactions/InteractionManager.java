@@ -54,6 +54,10 @@ public class InteractionManager {
                 case "warlordsWeaponSummary" -> WarlordsCommand.warlordsWeaponSummary(interactionId);
                 case "calculate_pitxp" -> CalculateCommand.calcPit(interactionId);
                 case "buildbattle_backdrops" -> BuildBattleCommand.buildBattleBackdrops(interactionId);
+                case "safari_tickets" -> SafariCommand.getSafariTickets(interactionId);
+                case "safari_sparkling" -> SafariCommand.getSparklingCritters(interactionId);
+                case "safari_sparkling_missing" -> SafariCommand.getMissingSparklingCritters(interactionId);
+                case "safari_mutual" -> SafariCommand.getMutualSparklingCritters(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {
