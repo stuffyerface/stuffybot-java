@@ -41,6 +41,23 @@ public class InteractionManager {
                 case "blitz" -> BlitzCommand.blitz(interactionId);
                 case "megawalls" -> MegaWallsCommand.megawalls(interactionId);
                 case "tournament" -> TournamentCommand.tournament(interactionId);
+                case "achievements" -> AchievementsCommand.achievements(interactionId);
+                case "link" -> LinkCommand.link(interactionId);
+                case "playcommand" -> PlayCommandCommand.playCommand(interactionId);
+                case "help" -> HelpCommand.help();
+                case "search_achievement" -> SearchCommand.searchAchievement(interactionId);
+                case "search_random" -> SearchCommand.searchRandom(interactionId);
+                case "uuid" -> UuidCommand.uuid(interactionId);
+                case "warlords" -> WarlordsCommand.warlords(interactionId);
+                case "warlordsClasses" -> WarlordsCommand.warlordsClasses(interactionId);
+                case "warlordsWeapons" -> WarlordsCommand.warlordsWeapons(interactionId);
+                case "warlordsWeaponSummary" -> WarlordsCommand.warlordsWeaponSummary(interactionId);
+                case "calculate_pitxp" -> CalculateCommand.calcPit(interactionId);
+                case "buildbattle_backdrops" -> BuildBattleCommand.buildBattleBackdrops(interactionId);
+                case "safari_tickets" -> SafariCommand.getSafariTickets(interactionId);
+                case "safari_sparkling" -> SafariCommand.getSparklingCritters(interactionId);
+                case "safari_sparkling_missing" -> SafariCommand.getMissingSparklingCritters(interactionId);
+                case "safari_mutual" -> SafariCommand.getMutualSparklingCritters(interactionId);
                 default -> throw new InteractionException("Invalid command");
             };
         } catch (APIException e) {

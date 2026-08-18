@@ -31,9 +31,9 @@ public class InteractionId {
         }
     }
 
-    public InteractionId(String id, String command, String userId, ArrayList<String> options) {
+    public InteractionId(String id, String command, String subcommand, String userId, ArrayList<String> options) {
         this.id = id;
-        this.command = command;
+        this.command = getCommandId(command, subcommand);
         this.userId = userId;
 
         this.options = new HashMap<>();
@@ -60,7 +60,8 @@ public class InteractionId {
     }
 
     public String getOption(String key) {
-        return this.options.get(key);
+        if(this.options.containsKey(key)) { return this.options.get(key); }
+        return null;
     }
 
     public String getOption(String key, String defaultValue) {
@@ -95,5 +96,12 @@ public class InteractionId {
     public InteractionId setOption(String key, Integer value) {
         this.options.put(key, String.valueOf(value));
         return this;
+    }
+
+    private String getCommandId(String command, String subcommand) {
+        if (subcommand.isEmpty()) {
+            return command;
+        }
+        return String.join("_", command, subcommand);
     }
 }

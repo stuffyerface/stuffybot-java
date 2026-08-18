@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.stuffy.stuffybot.utils.MiscUtils;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static me.stuffy.stuffybot.utils.APIUtils.getAchievementsResources;
@@ -12,16 +13,85 @@ import static me.stuffy.stuffybot.utils.DiscordUtils.discordTimeUnix;
 import static me.stuffy.stuffybot.utils.MiscUtils.*;
 
 public class HypixelProfile {
-    private UUID uuid;
+    private final UUID uuid;
+    private final Rank rank;
+    private final JsonObject profile;
     private String displayName;
-    private Rank rank;
-    private JsonObject profile;
+    private final int achievementPoints;
+    private int achievementsUnlocked;
+    private int legacyAchievementPoints;
+    private int legacyAchievementsUnlocked;
+    private String easiestChallenge;
+    private double easiestChallengeGlobalPercent;
 
     public HypixelProfile(JsonObject profile) {
         this.profile = profile.deepCopy();
         this.uuid = MiscUtils.formatUUID(profile.get("uuid").getAsString());
         this.displayName = profile.get("displayname").getAsString();
         this.rank = determineRank(profile);
+        this.achievementPoints = getNestedJson(0, profile, "achievementPoints").getAsInt();
+
+        instantiateAchievements();
+    }
+
+    private void instantiateAchievements() {
+        int unlockCount = 0;
+        int unlockCountLegacy = 0;
+        int pointCountLegacy = 0;
+
+        String easiestChallenge = null;
+        double easiestChallengeGlobalPercent = 0;
+
+        JsonObject achievements = getAchievements();
+        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
+        List<String> playerOneTimeString = new ArrayList<>();
+        for (JsonElement element : playerOneTime) {
+            try {
+                playerOneTimeString.add(element.getAsString());
+            } catch (Exception ignored) {
+            }
+        }
+        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
+        JsonElement achievementsResources = getAchievementsResources();
+        for (String game : achievementsResources.getAsJsonObject().keySet()) {
+            for (String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
+                if (playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
+                    if (!isLegacy) {
+                        unlockCount++;
+                    } else {
+                        unlockCountLegacy++;
+                        pointCountLegacy += getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "points").getAsInt();
+                    }
+                } else {
+                    double globalPercentUnlocked = getNestedJson(0.0, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "globalPercentUnlocked").getAsDouble();
+                    if (globalPercentUnlocked > easiestChallengeGlobalPercent) {
+                        easiestChallengeGlobalPercent = globalPercentUnlocked;
+                        easiestChallenge = getNestedJson("Unknown", achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "name").getAsString();
+                    }
+                }
+            }
+
+            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
+                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
+                for (JsonElement tier : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
+                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
+                    if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() >= tierAmount) {
+                        if (!isLegacy) {
+                            unlockCount++;
+                        } else {
+                            unlockCountLegacy++;
+                            pointCountLegacy += tier.getAsJsonObject().get("points").getAsInt();
+                        }
+                    }
+                }
+            }
+        }
+        this.achievementsUnlocked = unlockCount;
+        this.legacyAchievementsUnlocked = unlockCountLegacy;
+        this.legacyAchievementPoints = pointCountLegacy;
+        this.easiestChallenge = easiestChallenge;
+        this.easiestChallengeGlobalPercent = easiestChallengeGlobalPercent;
     }
 
     private static Rank determineRank(JsonObject profile) {
@@ -59,6 +129,11 @@ public class HypixelProfile {
         return uuid;
     }
 
+    public HypixelProfile setDisplayName(String displayName) {
+        this.displayName = displayName;
+        return this;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -69,14 +144,6 @@ public class HypixelProfile {
 
     public String getDiscord() {
         return getNestedJson(profile, "socialMedia", "links", "DISCORD").getAsString();
-    }
-
-    public String[] getMaxedGames() {
-        // return an array of strings with the maxed games
-        JsonElement allAchievements = getAchievementsResources();
-        JsonElement achievements = getNestedJson(profile, "achievements");
-
-        return new String[0];
     }
 
     public JsonObject getProfile() {
@@ -92,7 +159,7 @@ public class HypixelProfile {
         if (!profile.has("networkExp")) {
             return 0.0;
         }
-        int networkExp = getNestedJson(profile, "networkExp").getAsInt();
+        long networkExp = getNestedJson(profile, "networkExp").getAsLong();
         return (Math.floor(Math.sqrt(networkExp + 15312.5) - 125/Math.sqrt(2)))/(25*Math.sqrt(2));
     }
 
@@ -103,12 +170,8 @@ public class HypixelProfile {
         return getNestedJson(profile, "karma").getAsInt();
     }
 
-    public Integer getAchievementPoints() {
-        if (!profile.has("achievementPoints")) {
-            return 0;
-        }
-
-        return getNestedJson(profile, "achievementPoints").getAsInt();
+    public int getAchievementPoints() {
+        return this.achievementPoints;
     }
 
     public String getOnlineStatus() {
@@ -180,7 +243,7 @@ public class HypixelProfile {
                 "Arcade.sw_game_wins", "Arcade.wins_zombies", "Arcade.wins_hypixel_sports", "Arcade.wins_draw_their_thing",
                 "Arcade.wins_throw_out", "Arcade.wins_santa_simulator", "Arcade.wins_dragonwars2", "Arcade.wins_easter_simulator",
                 "Arcade.wins_scuba_simulator", "Arcade.wins_halloween_simulator", "Arcade.wins_grinch_simulator_v2",
-                "Arcade.pixel_party.wins", "Arcade.woolhunt_participated_wins", "Arcade.dropper.wins",
+                "Arcade.pixel_party.wins", "Arcade.dropper.wins", "Arcade.disasters.stats.wins",
 
                 // Arena Brawl
                 "Arena.wins",
@@ -215,11 +278,12 @@ public class HypixelProfile {
                 // Mega Walls
                 "Walls3.wins",
 
-                // Turbo Kart Racers TODO: Reduce to golds?
+                // Turbo Kart Racers
                 "GingerBread.gold_trophy", "GingerBread.tourney_gingerbread_solo_1_gold_trophy",
 
                 // SkyWars
                 "SkyWars.wins",
+                "SkyWars.wins_lab",
 
                 // Crazy Walls
                 "TrueCombat.wins",
@@ -245,8 +309,10 @@ public class HypixelProfile {
                 // Build Battle
                 "BuildBattle.wins",
 
-                // Wool Wars
-                "WoolGames.wool_wars.stats.wins"
+                // Wool Games
+                "WoolGames.wool_wars.stats.wins",
+                "WoolGames.sheep_wars.stats.wins",
+                "WoolGames.capture_the_wool.participated_wins"
 
         );
 
@@ -274,7 +340,7 @@ public class HypixelProfile {
                 // Arcade
                 "Arcade.sw_kills", "Arcade.kills_dragonwars2", "Arcade.kills_throw_out", "Arcade.kills_oneinthequiver", // Is this right?
                 "Arcade.kills_mini_walls", "Arcade.final_kills_mini_walls", "Arcade.rpg_16_kills_party", "Arcade.hunter_kills_farm_hunt",
-                "Arcade.kills_farm_hunt", "Arcade.woolhunt_kills",
+                "Arcade.kills_farm_hunt",
 
                 // Arena Brawl
                 "Arena.kills_1v1", "Arena.kills_2v2", "Arena.kills_4v4",
@@ -311,6 +377,7 @@ public class HypixelProfile {
 
                 // SkyWars
                 "SkyWars.kills",
+                "SkyWars.kills_lab",
 
                 // Crazy Walls
                 "TrueCombat.kills",
@@ -337,7 +404,9 @@ public class HypixelProfile {
                 "Pit.pit_stats_ptl.kills",
 
                 // Wool Wars
-                "WoolGames.wool_wars.stats.kills"
+                "WoolGames.wool_wars.stats.kills",
+                "WoolGames.capture_the_wool.stats.kills",
+                "WoolGames.sheep_wars.stats.kills"
 
                 );
         totalKills += killsKeys.stream()
@@ -360,48 +429,6 @@ public class HypixelProfile {
         combined.add("achievementsTiered", getNestedJson(profile, "achievements"));
         combined.add("achievementsOneTime", getNestedJson(profile, "achievementsOneTime"));
         return combined;
-    }
-
-    public Integer getLegacyAchievementPoints() {
-        int legacyPoints = 0;
-        JsonObject achievements = getAchievements();
-        List<JsonElement> playerOneTime = achievements.get("achievementsOneTime").getAsJsonArray().asList();
-        List<String> playerOneTimeString = new ArrayList<>();
-        for (JsonElement element : playerOneTime) {
-            try {
-                playerOneTimeString.add(element.getAsString());
-            } catch (Exception ignored) {
-            }
-        }
-        JsonObject playerTiered = achievements.get("achievementsTiered").getAsJsonObject();
-        JsonElement achievementsResources = getAchievementsResources();
-        for (String game : achievementsResources.getAsJsonObject().keySet()) {
-            for (String oneTime : getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time").getAsJsonObject().keySet()) {
-                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "legacy").getAsBoolean();
-                if (!isLegacy) {
-                    continue;
-                }
-                if (playerOneTimeString.contains((game + "_" + oneTime.toLowerCase()))) {
-                    legacyPoints += getNestedJson(achievementsResources.getAsJsonObject(), game, "one_time", oneTime, "points").getAsInt();
-                }
-            }
-
-            for (String tiered : getNestedJson(achievementsResources.getAsJsonObject(), game, "tiered").getAsJsonObject().keySet()) {
-                boolean isLegacy = getNestedJson(false, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "legacy").getAsBoolean();
-                if (!isLegacy) {
-                    continue;
-                }
-
-
-                for (JsonElement tier : getNestedJson(0, achievementsResources.getAsJsonObject(), game, "tiered", tiered, "tiers").getAsJsonArray()) {
-                    int tierAmount = tier.getAsJsonObject().get("amount").getAsInt();
-                    if (getNestedJson(0, playerTiered, game + "_" + tiered.toLowerCase()).getAsInt() >= tierAmount) {
-                        legacyPoints += tier.getAsJsonObject().get("points").getAsInt();
-                    }
-                }
-            }
-        }
-        return legacyPoints;
     }
 
     public Integer getPit(String stat) {
@@ -460,6 +487,256 @@ public class HypixelProfile {
     public Long getPitXP() {
         JsonObject pitStats = getNestedJson(profile, "stats", "Pit").getAsJsonObject();
         return getNestedJson(pitStats, "profile", "xp").getAsLong();
+    }
+
+    public Long getPitTotalXpRequirement(Integer prestige) {
+        switch(prestige) {
+            case 1 -> {
+                return 65950L;
+            }
+            case 2 -> {
+                return 138510L;
+            }
+            case 3 -> {
+                return 217680L;
+            }
+            case 4 -> {
+                return 303430L;
+            }
+            case 5 -> {
+                return 395760L;
+            }
+            case 6 -> {
+                return 494700L;
+            }
+            case 7 -> {
+                return 610140L;
+            }
+            case 8 -> {
+                return 742040L;
+            }
+            case 9 -> {
+                return 906930L;
+            }
+            case 10 -> {
+                return 1104780L;
+            }
+            case 11 -> {
+                return 1368580L;
+            }
+            case 12 -> {
+                return 1698330L;
+            }
+            case 13 -> {
+                return 2094030L;
+            }
+            case 14 -> {
+                return 2555680L;
+            }
+            case 15 -> {
+                return 3083280L;
+            }
+            case 16 -> {
+                return 3676830L;
+            }
+            case 17 -> {
+                return 4336330L;
+            }
+            case 18 -> {
+                return 5127730L;
+            }
+            case 19 -> {
+                return 6051030L;
+            }
+            case 20 -> {
+                return 7106230L;
+            }
+            case 21 -> {
+                return 8293330L;
+            }
+            case 22 -> {
+                return 9612330L;
+            }
+            case 23 -> {
+                return 11195130L;
+            }
+            case 24 -> {
+                return 13041730L;
+            }
+            case 25 -> {
+                return 15152130L;
+            }
+            case 26 -> {
+                return 17526330L;
+            }
+            case 27 -> {
+                return 20164330L;
+            }
+            case 28 -> {
+                return 23132080L;
+            }
+            case 29 -> {
+                return 26429580L;
+            }
+            case 30 -> {
+                return 31375830L;
+            }
+            case 31 -> {
+                return 37970830L;
+            }
+            case 32 -> {
+                return 44631780L;
+            }
+            case 33 -> {
+                return 51292730L;
+            }
+            case 34 -> {
+                return 57953680L;
+            }
+            case 35 -> {
+                return 64614630L;
+            }
+            case 36 -> {
+                return 71275580L;
+            }
+            case 37 -> {
+                return 84465580L;
+            }
+            case 38 -> {
+                return 104250580L;
+            }
+            case 39 -> {
+                return 130630580L;
+            }
+            case 40 -> {
+                return 163605580L;
+            }
+            case 41 -> {
+                return 213068080L;
+            }
+            case 42 -> {
+                return 279018080L;
+            }
+            case 43 -> {
+                return 361455580L;
+            }
+            case 44 -> {
+                return 460380580L;
+            }
+            case 45 -> {
+                return 575793080L;
+            }
+            case 46 -> {
+                return 707693080L;
+            }
+            case 47 -> {
+                return 905543080L;
+            }
+            case 48 -> {
+                return 1235293080L;
+            }
+            case 49 -> {
+                return 1894793080L;
+            }
+            case 50 -> {
+                return 5192293080L;
+            }
+            case 51 -> {
+                return 11787293080L;
+            }
+            default -> {
+                return 0L;
+            }
+        }
+    }
+
+    public Integer getPitPrestigeGoldRequirement(Integer prestige) {
+        switch(prestige) {
+            case 1 -> {
+                return 10000;
+            }
+            case 2,3,4 -> {
+                return 20000;
+            }
+            case 5 -> {
+                return 30000;
+            }
+            case 6 -> {
+                return 35000;
+            }
+            case 7 -> {
+                return 40000;
+            }
+            case 8 -> {
+                return 45000;
+            }
+            case 9 -> {
+                return 50000;
+            }
+            case 10 -> {
+                return 60000;
+            }
+            case 11 -> {
+                return 70000;
+            }
+            case 12 -> {
+                return 80000;
+            }
+            case 13 -> {
+                return 90000;
+            }
+            case 14 -> {
+                return 100000;
+            }
+            case 15 -> {
+                return 125000;
+            }
+            case 16 -> {
+                return 150000;
+            }
+            case 17 -> {
+                return 175000;
+            }
+            case 18 -> {
+                return 200000;
+            }
+            case 19 -> {
+                return 250000;
+            }
+            case 20 -> {
+                return 300000;
+            }
+            case 21 -> {
+                return 350000;
+            }
+            case 22 -> {
+                return 400000;
+            }
+            case 23 -> {
+                return 500000;
+            }
+            case 24 -> {
+                return 600000;
+            }
+            case 25 -> {
+                return 700000;
+            }
+            case 26 -> {
+                return 800000;
+            }
+            case 27 -> {
+                return 900000;
+            }
+            case 28,29,30,31,32,33,34,35 -> {
+                return 1000000;
+            }
+            case 36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 -> {
+                return 2000000;
+            }
+            default -> {
+                return 0;
+            }
+        }
     }
 
 
@@ -626,7 +903,7 @@ public class HypixelProfile {
 
     public Integer getMegaWallsStat(String asString) {
         try {
-            return getNestedJson(0, profile, "stats", "Walls3", asString).getAsJsonObject().getAsInt();
+            return getNestedJson(0, profile, "stats", "Walls3", asString).getAsInt();
         } catch (IllegalArgumentException e) {
             return 0;
         }
@@ -662,6 +939,61 @@ public class HypixelProfile {
         } catch (IllegalArgumentException e) {
             return 0;
         }
+    }
+
+    public String getStatFormatted(String field) {
+        try {
+            DecimalFormat df = new DecimalFormat("#,###");
+            return df.format(getStat(field));
+        } catch (IllegalArgumentException e) {
+            return "0";
+        }
+    }
+
+    public String getStatString(String field) {
+        try {
+            return getNestedJson("", profile, "stats", field).getAsString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return "";
+        }
+    }
+
+    public JsonArray getStatArray(String field) {
+        try {
+            return getNestedJson(profile, "stats", field).getAsJsonArray();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return new JsonArray();
+        }
+    }
+
+    public JsonObject getStatObject(String field) {
+        try {
+            return getNestedJson(profile, "stats", field).getAsJsonObject();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return new JsonObject();
+        }
+    }
+
+    public int getAchievementsUnlocked() {
+        return this.achievementsUnlocked;
+    }
+
+    public int getLegacyAchievementsUnlocked() {
+        return this.legacyAchievementsUnlocked;
+    }
+
+    public int getLegacyAchievementPoints() {
+        return this.legacyAchievementPoints;
+    }
+
+    public String getEasiestChallenge() {
+        return this.easiestChallenge + " (" + String.format("%.2f", this.easiestChallengeGlobalPercent) + "%)";
+    }
+
+    public String getEasiestTiered() {
+        return "`Game: Close Tiered III` (97.78%)";
     }
 }
 

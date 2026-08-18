@@ -1,20 +1,15 @@
 package me.stuffy.stuffybot.interactions;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import me.stuffy.stuffybot.utils.InteractionException;
-import me.stuffy.stuffybot.utils.Logger;
-import me.stuffy.stuffybot.utils.StatisticsManager;
-import net.dv8tion.jda.api.entities.Message;
+import me.stuffy.stuffybot.Bot;
+import me.stuffy.stuffybot.profiles.GlobalData;
+import me.stuffy.stuffybot.utils.*;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -22,43 +17,59 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
+import static me.stuffy.stuffybot.commands.SetupCommand.setupLinkingButton;
 import static me.stuffy.stuffybot.interactions.InteractionManager.getResponse;
-import static me.stuffy.stuffybot.utils.APIUtils.getTournamentData;
 import static me.stuffy.stuffybot.utils.DiscordUtils.*;
-import static me.stuffy.stuffybot.utils.MiscUtils.genBase64;
-import static me.stuffy.stuffybot.utils.MiscUtils.requiresIgn;
+import static me.stuffy.stuffybot.utils.MiscUtils.*;
+import static me.stuffy.stuffybot.utils.Verification.verifyModal;
 
 public class InteractionHandler extends ListenerAdapter {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
-    private final Map<String, Integer> tournamentMap = getTournamentMap();
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String commandName = event.getName();
-        String id = genBase64(3);
+        String subcommandName = event.getSubcommandName();
+        if (subcommandName == null) {
+            subcommandName = "";
+        }
+        String id = genBase64(5);
         event.deferReply().queue();
         ArrayList<String> optionsArray = new ArrayList<String>();
 
+        if (commandName.equals("setup")) {
+            String toSetup = event.getOption("to_setup").getAsString();
+            if (toSetup.equals("verify")) {
+                setupLinkingButton(event);
+                MessageEmbed successEmbed = makeEmbed("Verification Setup", "Successful setup", "The Verify Embed has been setup successfully.", 0x3d84a2);
+                event.getHook().setEphemeral(true).sendMessageEmbeds(successEmbed).queue();
+                return;
+            }
+        }
 
-        if(requiresIgn(commandName) && event.getOption("ign") == null){
-            String ign = getUsername(event);
+
+        if (event.getOption("ign") == null) {
+            String ign = null;
+            try {
+                ign = getUsername(event);
+            } catch (APIException e) {
+                event.getHook().sendMessageEmbeds(makeErrorEmbed(e.getAPIType() + " API Error", e.getMessage())).setEphemeral(true).queue();
+            }
             optionsArray.add("ign=" + ign);
         }
 
         Pattern pattern = Pattern.compile("[,=:]");
         for (OptionMapping option : event.getOptions()) {
             String optionString = option.getAsString();
-            if(pattern.matcher(optionString).find()){
+            if (pattern.matcher(optionString).find()) {
                 MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# Invalid character in option  `" + option.getName() + "`");
                 event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
                 return;
@@ -66,37 +77,61 @@ public class InteractionHandler extends ListenerAdapter {
             optionsArray.add(option.getName() + "=" + optionString);
         }
 
-        InteractionId interactionId = new InteractionId(id, commandName, event.getUser().getId(), optionsArray);
+        InteractionId interactionId = new InteractionId(id, commandName, subcommandName, event.getUser().getId(), optionsArray);
 
-        Logger.log("<Command> @" + event.getUser().getName() + ": /" + commandName + " " + optionsArray.toString());
+        StringBuilder commandLog = new StringBuilder();
+        commandLog.append("<");
+        if (event.getIntegrationOwners().isUserIntegration()) {
+            commandLog.append("User");
+        }
+        commandLog.append("Command> @").append(event.getUser().getName());
+        commandLog.append(": /").append(commandName);
+        if(!subcommandName.isEmpty()) {
+            commandLog.append(" ").append(subcommandName);
+        }
+        if (!optionsArray.isEmpty()) {
+            commandLog.append(" ").append(optionsArray);
+        }
+        Logger.log(commandLog.toString());
 
-        MessageCreateData response = null;
+        GlobalData globalData = Bot.getGlobalData();
+        globalData.incrementCommandsRun(event.getUser().getId(), commandName);
+        globalData.addUniqueUser(event.getUser().getId(), event.getUser().getName());
+
+        MessageCreateData response;
         try {
-            response = getResponse(interactionId);;
+            response = getResponse(interactionId);
         } catch (InteractionException e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Slash Command Error", "An error occurred while processing your command.\n-# " + e.getMessage());
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             return;
         } catch (Exception e) {
             MessageEmbed errorEmbed = makeErrorEmbed("Unknown Error", "Uh Oh! I have no idea what went wrong, report this.\n-# Everybody makes mistakes.");
-            Logger.logError("Unknown error in command: " + commandName + " " + optionsArray.toString() + " " + e.getMessage());
+            Logger.logError("Unknown error in command: " + commandName + " " + optionsArray + " " + e.getMessage());
             e.printStackTrace();
             event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
             return;
         }
 
-        if(response != null) {
+        if (response != null) {
             event.getHook().sendMessage(response).queue();
         }
 
         StatisticsManager.incrementCommandUsage(commandName);
         String uid = interactionId.getId();
         InteractionHook hook = event.getHook();
-        ScheduledFuture<?> scheduledFuture = scheduler.schedule(() -> {
-            hook.editOriginalComponents().queue();
+        ScheduledFuture<?> removeComponents = scheduler.schedule(() -> {
+            try {
+                if(hook.retrieveOriginal().complete().getComponents().isEmpty()) {
+                    return;
+                }
+                hook.editOriginalComponents().queue();
+            } catch (Exception e) {
+                Logger.logError("Unable to remove original components, the message may have been deleted.");
+            }
         }, 30, TimeUnit.SECONDS);
 
-        scheduledTasks.put(uid, scheduledFuture);
+        scheduledTasks.put(uid, removeComponents);
     }
 
     @Override
@@ -134,15 +169,35 @@ public class InteractionHandler extends ListenerAdapter {
             } catch (InteractionException e) {
                 event.deferEdit().queue();
                 MessageEmbed errorEmbed = makeErrorEmbed("Invalid Button Ownership",
-                        "You can't use modify commands run by others.\n-# " + e.getMessage());
+                        "You can't use buttons on commands run by others.\n-# " + e.getMessage());
                 event.getHook().sendMessageEmbeds(errorEmbed).setEphemeral(true).queue();
                 return;
             }
         }
 
-        if (interactionId.getCommand().equals("verify")){
-            verifyButton(event);
-            return;
+        // Verify Button
+        switch (interactionId.getCommand()) {
+            case "verify" -> {
+                Verification.verifyButton(event);
+                return;
+            }
+
+
+            // Update Button
+            case "update" -> {
+                MessageCreateData data = new MessageCreateBuilder()
+                        .setEmbeds(makeErrorEmbed("OOPS!", "This feature is currently unavailable in preparation for an overhaul.")).build();
+                event.reply(data).setEphemeral(true).queue();
+
+                return;
+            }
+
+
+            // Unverify Button
+            case "unverify" -> {
+                Verification.unverifyButton(event);
+                return;
+            }
         }
 
         event.deferEdit().queue();
@@ -182,109 +237,12 @@ public class InteractionHandler extends ListenerAdapter {
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         String toLog = "<Modal> @" + event.getUser().getName() + ": `" + event.getModalId() + "`";
         for (ModalMapping mapping : event.getValues()) {
-            toLog += " `" + mapping.getId() + "=" + mapping.getAsString() + "`";
+            toLog += " `" + mapping.getCustomId() + "=" + mapping.getAsString() + "`";
         }
         Logger.log(toLog);
-        if(event.getModalId().equals("verify")) {
-            String ign = Objects.requireNonNull(event.getValue("ign")).getAsString();
-            String captcha = Objects.requireNonNull(event.getValue("captcha")).getAsString();
-            if(!captcha.equals("stuffy")) {
-                // TODO: Make this actually time out for 5 minutes
-                MessageEmbed errorEmbed = makeErrorEmbed("Verification Error", "You entered the CAPTCHA incorrectly.\n-# Try again in " + discordTimeUnix(Instant.now().plusSeconds(300).toEpochMilli()));
-                MessageCreateData data = new MessageCreateBuilder()
-                        .addEmbeds(errorEmbed)
-                        .build();
-                event.reply(data).setEphemeral(true).queue();
-                return;
-            }
 
-            event.reply("You got the captcha right, " + ign).setEphemeral(true).queue();
-        }
-
-    }
-
-    @Override
-    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent e) {
-        String commandName = e.getName();
-        String commandOption = e.getFocusedOption().getName();
-        String currentInput = e.getFocusedOption().getValue();
-
-        switch (commandName) {
-            case "megawalls" -> {
-                if (commandOption.equals("skins")) {
-                    List<String> options = new ArrayList<>();
-                    List<String> skins = Arrays.asList("Legendary", "Angel", "Arcanist", "Assassin", "Automaton", "Blaze", "Cow", "Creeper", "Dragon",
-                                "Dreadlord", "Enderman", "Golem", "Herobrine", "Hunter", "Moleman", "Phoenix", "Pigman", "Pirate", "Renegade",
-                                "Shaman", "Shark", "Sheep", "Skeleton", "Snowman", "Spider", "Squid", "Werewolf", "Zombie");
-                    for (String skin : skins) {
-                        if (skin.toLowerCase().startsWith(currentInput.toLowerCase())) {
-                            options.add(skin);
-                        }
-                    }
-
-                    String[] optionsArray = options.toArray(new String[0]);
-                    if (optionsArray.length > 25) {
-                        optionsArray = Arrays.copyOfRange(optionsArray, 0, 24);
-                    }
-
-                    List<Command.Choice> choices = Stream.of(optionsArray)
-                            .map(option -> new Command.Choice(option, option.toLowerCase()))
-                            .toList();
-
-                    e.replyChoices(choices).queue();
-                    break;
-                }
-            }
-            case "tournament" -> {
-                if (commandOption.equals("tournament")) {
-                    List<Command.Choice> choices = new ArrayList<>();
-                    tournamentMap.forEach((name, id) -> {
-                        if (name.toLowerCase().startsWith(currentInput.toLowerCase()) && choices.size() <= 25){
-                            choices.add(new Command.Choice(name, id));
-                        }
-                    });
-                    e.replyChoices(choices).queue();
-                    break;
-                }
-            }
-            default -> {
-                e.replyChoices(Collections.emptyList()).queue();
-            }
-        }
-    }
-
-    private Map<String, Integer> getTournamentMap() {
-        Map<String, Integer> tournaments = new HashMap<>();
-        JsonObject tournamentData = getTournamentData();
-        for (JsonElement entry : tournamentData.getAsJsonArray("tournaments")) {
-            JsonObject tournament = entry.getAsJsonObject();
-            int id = tournament.get("id").getAsInt();
-            String name = tournament.get("name").getAsString();
-            int iteration = tournament.get("iteration").getAsInt();
-            iteration++;
-
-            tournaments.put(name + " #" + iteration, id);
-        }
-
-
-        return tournaments;
-    }
-
-    @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) {
-            return;
-        }
-        Message.suppressContentIntentWarning();
-        String message = event.getMessage().getContentRaw();
-        if (message.toLowerCase().startsWith("ap!")) {
-            Logger.logError("<LegacyCommand> @" + event.getAuthor().getName() + ": " + message);
-            MessageCreateData data = new MessageCreateBuilder()
-                    .addEmbeds(makeErrorEmbed("Outdated Command", "We no longer support chat based commands,\nInstead try using slash commands.\n-# Join our [Discord](https://discord.gg/zqVkUrUmzN) for more info."))
-                    .build();
-            event.getMessage().reply(
-                    data
-            ).queue();
+        if (event.getModalId().equals("verify")) {
+            verifyModal(event);
         }
     }
 }

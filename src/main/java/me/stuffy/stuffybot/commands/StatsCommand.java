@@ -43,7 +43,7 @@ public class StatsCommand {
                         "Achievement Points: **" + df.format(achievementPoints) + "** (+" + df.format(legacyAchievementPoints) + " legacy)" + "\n" +
                         "Quests Completed: **" + df.format(questsCompleted) + "**\n" +
                         "Challenges Completed: **" + df.format(challenges) + "**\n\n" +
-                        "Reward Streak|Record: **" + df.format(rewardStreak) + "** | " + df.format(rewardRecord) + "\n" +
+                        "Reward Streak | Record: **" + df.format(rewardStreak) + "** | " + df.format(rewardRecord) + "\n" +
                         "Wins: **" + df.format(wins) + "**\n" +
                         "Kills: **" + df.format(kills) + "**\n" +
                         "First Login: " + firstLogin + "\n";

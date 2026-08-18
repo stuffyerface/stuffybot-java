@@ -3,8 +3,10 @@ package me.stuffy.stuffybot;
 
 import me.stuffy.stuffybot.events.ActiveEvents;
 import me.stuffy.stuffybot.events.UpdateBotStatsEvent;
+import me.stuffy.stuffybot.interactions.AutoCompleteHandler;
 import me.stuffy.stuffybot.interactions.InteractionHandler;
-import me.stuffy.stuffybot.utils.DiscordUtils;
+import me.stuffy.stuffybot.profiles.GlobalData;
+import me.stuffy.stuffybot.utils.Config;
 import me.stuffy.stuffybot.utils.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -14,53 +16,109 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.*;
+import org.kohsuke.github.GitHub;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+
+import static me.stuffy.stuffybot.utils.APIUtils.connectToGitHub;
+import static me.stuffy.stuffybot.utils.APIUtils.uploadLogs;
 
 public class Bot extends ListenerAdapter {
     private static Bot INSTANCE;
     private final JDA jda;
-    private Guild homeGuild;
+    private final Guild homeGuild;
+    private static GitHub GITHUB;
+    private static GlobalData GLOBAL_DATA;
 
 
     public Bot() throws InterruptedException {
         INSTANCE = this;
         // Get token from env variable
         String token = System.getenv("BOT_TOKEN");
-        JDABuilder builder = JDABuilder.createDefault(token) ;
-        builder.setActivity(Activity.customStatus("hating slash commands"));
+        JDABuilder builder = JDABuilder.createDefault(token);
+        String customStatus = Config.getCustomStatus();
+        builder.setActivity(Activity.customStatus(customStatus));
         builder.addEventListeners(this);
         JDA jda = builder.build().awaitReady();
         this.jda = jda;
 
+        String homeGuildID = Config.getHomeGuildId();
         // Initialize home guild
-        this.homeGuild = jda.getGuildById("795108903733952562");
+        this.homeGuild = jda.getGuildById(homeGuildID);
         assert this.homeGuild != null : "Failed to find home guild";
 
-
         // Log startup
-        String time = DiscordUtils.discordTimeNow();
-        String self = jda.getSelfUser().getAsMention();
-        Logger.log("<Startup> Bot " + self + " started successfully " + time + ".");
+        String startupTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss"));
+        String self = jda.getSelfUser().getName();
+        Logger.setLogName(startupTime);
+        String environment = Config.getEnvironment();
+        Logger.log("<Startup> Bot " + self + " started successfully " + startupTime + ". Environment: " + environment);
+
+        // Initialize GitHub
+        GITHUB = connectToGitHub();
+
+        // Initialize Global Data
+        GLOBAL_DATA = new GlobalData();
 
         // Listen for interactions
         jda.addEventListener(
-                new InteractionHandler()
+                new InteractionHandler(),
+                new AutoCompleteHandler()
         );
 
         // Register commands "global"ly or "local"ly
-        registerCommands("local");
+        String environmentScope = switch (Config.getEnvironment()) {
+            case "development" -> "local";
+            case "production", "development_global" -> "global";
+            default -> throw new IllegalArgumentException("Invalid environment: " + Config.getEnvironment());
+        };
+        registerCommands(environmentScope);
 
         // Start events
         new UpdateBotStatsEvent().startFixedRateEvent();
         new ActiveEvents().startFixedRateEvent();
+
+        // Handle SIGTERM
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Logger.log("<Shutdown> Bot shutting down, saving data...");
+
+            // Close JDA
+            jda.shutdown();
+
+            // Update Bot Stats
+            try{
+                UpdateBotStatsEvent.publicExecute();
+                Logger.log("<Shutdown> Bot Stats saved, allowing for shutdown.");
+            } catch (Exception e) {
+                Logger.log("<Shutdown> Failed to save Bot Stats, allowing for shutdown.");
+            }
+            try {
+                uploadLogs();
+                Logger.log("<Shutdown> Logs uploaded, allowing for shutdown.");
+            }
+            catch (Exception e) {
+                Logger.log("<Shutdown> Failed to upload logs, allowing for shutdown.");
+            }
+        }));
     }
     public static Bot getInstance() {
         return INSTANCE;
+    }
+
+    public static GitHub getGitHub() {
+        return GITHUB;
+    }
+
+    public static GlobalData getGlobalData() {
+        return GLOBAL_DATA;
     }
 
     public Guild getHomeGuild() {
@@ -69,7 +127,13 @@ public class Bot extends ListenerAdapter {
 
 
     public Role getVerifiedRole() {
-        return this.homeGuild.getRoleById("795118862940635216");
+        String roleID = Config.getVerifiedRoleId();
+        return this.homeGuild.getRoleById(roleID);
+    }
+
+    public Role getNotVerifiedRole() {
+        String roleID = Config.getNotVerifiedRoleId();
+        return this.homeGuild.getRoleById(roleID);
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -93,31 +157,102 @@ public class Bot extends ListenerAdapter {
         Logger.log("<Guilds> Bot left guild: " + leftGuild.getName() + " (" + leftGuild.getId() + ")");
     }
 
-    public void registerCommands(String scope) {
+    private SlashCommandData createSlashCommand(String name, String description) {
+        return Commands.slash(name, description).setContexts(InteractionContextType.ALL).setIntegrationTypes(IntegrationType.ALL);
+    }
+
+    private void registerCommands(String scope) {
         OptionData ignOption = new OptionData(OptionType.STRING, "ign", "The player's IGN", false);
+        OptionData ignOptionRequired = new OptionData(OptionType.STRING, "ign", "The player's IGN", true);
         // Create a list of commands first
         ArrayList<CommandData> commandList = new ArrayList<>();
-//        commandList.add(Commands.slash("help", "*Should* show a help message"));
-        commandList.add(Commands.slash("pit", "Get Pit stats for a player")
+        commandList.add(createSlashCommand("help", "Learn about the bot and its commands"));
+        commandList.add(createSlashCommand("pit", "Get Pit stats for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("stats", "Get Hypixel stats for a player")
+        commandList.add(createSlashCommand("stats", "Get Hypixel stats for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("tkr", "Get TKR stats for a player")
+        commandList.add(createSlashCommand("tkr", "Get TKR stats for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("maxes", "Get maxed games for a player")
+        commandList.add(createSlashCommand("maxes", "Get maxed games for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("blitz", "Get Blitz Ultimate Kit xp for a player")
+        commandList.add(createSlashCommand("blitz", "Get Blitz Ultimate Kit xp for a player")
                 .addOptions(ignOption));
-        commandList.add(Commands.slash("megawalls", "Get Mega Walls skins for a player")
+        commandList.add(createSlashCommand("megawalls", "Get Mega Walls skins for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.STRING, "skins", "Which skins to look at", false).setAutoComplete(true)));
-        commandList.add(Commands.slash("tournament", "Get tournament stats for a player")
+        commandList.add(createSlashCommand("tournament", "Get tournament stats for a player")
                 .addOptions(ignOption)
                 .addOptions(new OptionData(OptionType.INTEGER, "tournament", "Which tournament to look at (Leave empty for latest)", false).setAutoComplete(true)));
+        commandList.add(createSlashCommand("achievements", "Get achievement stats for a player")
+                .addOptions(ignOption)
+                .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at", false).setAutoComplete(true))
+                .addOptions(new OptionData(OptionType.STRING, "type", "Which achievements to look at", false).addChoices(
+                        new Command.Choice("All", "all"),
+                        new Command.Choice("Challenge", "challenge"),
+                        new Command.Choice("Tiered", "tiered")
+                        )
+                ));
+        commandList.add(createSlashCommand("link", "Link a Minecraft account so you don't have to type your IGN every time")
+                .addOptions(ignOptionRequired));
+        commandList.add(createSlashCommand("playcommand", "Lookup the command to quickly hop into a game")
+                .addOptions(new OptionData(OptionType.STRING, "game", "Search for a play command", true).setAutoComplete(true)));
+
+        SubcommandData searchRandomAchievement = new SubcommandData("random", "Get a random achievement")
+                .addOptions(new OptionData(OptionType.STRING, "game", "Which game to look at, Leave blank for all", false).setAutoComplete(true))
+                .addOptions(new OptionData(OptionType.STRING, "type", "Which type of achievement, Leave blank for all", false).addChoices(
+                        new Command.Choice("Challenge", "challenge"),
+                        new Command.Choice("Tiered", "tiered"),
+                        new Command.Choice("Both", "both")
+                ))
+                .addOptions(new OptionData(OptionType.STRING, "exclude", "Types to Exclude", false).addChoices(
+                        new Command.Choice("Legacy", "legacy"),
+                        new Command.Choice("Seasonal", "seasonal"),
+                        new Command.Choice("Both", "both"),
+                        new Command.Choice("None", "none")
+                ));
+        SubcommandData searchAchievement = new SubcommandData("achievement", "Search achievement by name")
+                .addOptions(new OptionData(OptionType.STRING, "search", "Name of the achievement", true).setAutoComplete(true));
+        commandList.add(createSlashCommand("search", "Search for an achievement by name, or description.")
+                .addSubcommands(searchAchievement)
+                .addSubcommands(searchRandomAchievement));
+
+        commandList.add(createSlashCommand("uuid", "Get UUID info for a Minecraft player")
+                .addOptions(ignOptionRequired));
+        commandList.add(createSlashCommand("warlords", "View Warlords Stats and Weapons Inventory")
+                .addOptions(ignOption));
+
+        SubcommandData pitXpCalculator = new SubcommandData("pitxp", "Calculate Pit XP between two levels")
+                .addOptions(
+                        new OptionData(OptionType.INTEGER, "prestige", "Prestige. default 0", false),
+                        new OptionData(OptionType.INTEGER, "starting_level", "Starting Level. default 1", false),
+                        new OptionData(OptionType.INTEGER, "ending_level", "Ending Level. default 120", false));
+        commandList.add(createSlashCommand("calculate", "Various Calculators (calcs)")
+                .addSubcommands(pitXpCalculator));
+        commandList.add(createSlashCommand("buildbattle", "Commands for Build Battle")
+                .addSubcommands(
+                        new SubcommandData("backdrops", "View backdrops you own but have not won with.")
+                                .addOptions(ignOption)
+                ));
+
+        commandList.add(createSlashCommand("safari", "Get Safari Stats")
+            .addSubcommands(
+                    new SubcommandData("tickets", "See how many safari tickets a player has")
+                        .addOptions(ignOption),
+                    new SubcommandData("sparkling", "View a player's sparkling critterdex.")
+                            .addOptions(ignOption),
+                    new SubcommandData("mutual", "See which shiny critters your whole party has, so you can skip them")
+                            .addOptions(
+                                    new OptionData(OptionType.STRING, "player1", "The player's IGN", true),
+                                    new OptionData(OptionType.STRING, "player2", "The player's IGN", true),
+                                    new OptionData(OptionType.STRING, "player3", "The player's IGN", false),
+                                    new OptionData(OptionType.STRING, "player4", "The player's IGN", false)
+                            )
+                    )
+        );
 
 
         if (scope.equals("local")) {
-            //clearLocalCommands();
+            jda.updateCommands().queue();
             this.homeGuild.updateCommands().addCommands(
                     commandList
             ).queue();
@@ -130,15 +265,14 @@ public class Bot extends ListenerAdapter {
         } else {
             throw new IllegalArgumentException("Invalid scope: " + scope);
         }
-    }
 
-    public void clearCommands() {
-        jda.updateCommands().queue();
-        Logger.log("<Commands> Successfully cleared commands.");
-    }
-
-    public void clearLocalCommands() {
-        this.homeGuild.updateCommands().queue();
-        Logger.log("<Commands> Successfully cleared local commands.");
+        // Setup commands for home guild only
+        this.homeGuild.upsertCommand(
+                Commands.slash("setup", "Home guild setup command")
+                        .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+                        .addOptions(new OptionData(OptionType.STRING, "to_setup", "Which thing you wish to Setup", true).addChoices(
+                            new Command.Choice("Verify", "verify")
+                        ))
+        ).queue();
     }
 }
